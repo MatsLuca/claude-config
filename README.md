@@ -28,7 +28,7 @@ Das Repo ist ein **Marketplace** (`.claude-plugin/marketplace.json`) mit einem P
 | Command | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
 | Command | `/optimieren` | Einen Command oder Agent nach dem Authoring-Standard schärfen |
 | Agent | `pdf-to-markdown` | Beliebige PDFs in LLM-optimiertes Markdown konvertieren — erkennt Klausur / Folien / generisch und wählt die passende Struktur |
-| Agent | `machine-setup` | Frische Claude-Code-Installation einrichten wie zuhause — `yolo`-Alias, Status Line, Plugin-Auto-Update beim Start und settings.json-Defaults; portabel (macOS + Linux), idempotent |
+| Agent | `machine-setup` | Frische Claude-Code-Installation einrichten wie zuhause — `yolo`-Alias, Status Line, Plugin-Auto-Update beim Start und settings.json-Defaults; in Codespaces/Remote zusätzlich VS Code (Dark Mode, Copilot-Chat-Panel aus); portabel (macOS + Linux), idempotent |
 
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
 liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).

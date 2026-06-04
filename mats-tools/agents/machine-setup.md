@@ -1,6 +1,6 @@
 ---
 name: machine-setup
-description: "Use this agent to provision a fresh Claude Code install so it feels like Mats' home setup — typically right after installing the mats-tools plugin on a new computer, VM, or container. It inspects the environment (OS, shell, package manager, container) and then sets up four things: a `yolo` alias (Claude in bypass-permissions mode), the custom two-line status line, a shell wrapper that auto-updates the mats-tools plugin on every launch, and Mats' default settings.json. Idempotent — safe to re-run.\\n\\n<example>\\nContext: Mats just installed the plugin on a fresh machine.\\nuser: \"So, frisch installiert auf dem neuen Rechner — richte mir alles ein wie gewohnt.\"\\nassistant: \"Ich starte den machine-setup Agent, der die Umgebung erkennt und yolo-Alias, Status Line, Plugin-Auto-Update und deine settings.json einrichtet.\"\\n<commentary>\\nFresh Claude Code install that needs the surrounding setup; launch machine-setup to provision it.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats is in a new cloud dev container.\\nuser: \"Bin in einem neuen Codespace. Kannst du das Terminal so einrichten dass yolo geht und die Statusbar da ist?\"\\nassistant: \"Klar, ich nutze den machine-setup Agenten — er erkennt den Container, schreibt den yolo-Alias und installiert die Status Line portabel.\"\\n<commentary>\\nNew environment needing the yolo alias + status line; machine-setup handles detection and portable install.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats' status line broke or the plugin-sync wrapper is gone.\\nuser: \"Meine Statusbar ist weg und das Plugin updatet sich nicht mehr automatisch beim Start.\"\\nassistant: \"Ich lasse den machine-setup Agenten drüberlaufen — er stellt Status Line und den Auto-Update-Wrapper idempotent wieder her.\"\\n<commentary>\\nRepairing the status line / launch wrapper is exactly what machine-setup regenerates; re-running is safe.\\n</commentary>\\n</example>"
+description: "Use this agent to provision a fresh Claude Code install so it feels like Mats' home setup — typically right after installing the mats-tools plugin on a new computer, VM, or container. It inspects the environment (OS, shell, package manager, container) and then sets up four things: a `yolo` alias (Claude in bypass-permissions mode), the custom two-line status line, a shell wrapper that auto-updates the mats-tools plugin on every launch, and Mats' default settings.json. In a Codespace or remote dev-container it also tunes VS Code (forces dark mode, hides the Copilot chat panel) — skipped on the local Mac. Idempotent — safe to re-run.\\n\\n<example>\\nContext: Mats just installed the plugin on a fresh machine.\\nuser: \"So, frisch installiert auf dem neuen Rechner — richte mir alles ein wie gewohnt.\"\\nassistant: \"Ich starte den machine-setup Agent, der die Umgebung erkennt und yolo-Alias, Status Line, Plugin-Auto-Update und deine settings.json einrichtet.\"\\n<commentary>\\nFresh Claude Code install that needs the surrounding setup; launch machine-setup to provision it.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats is in a new cloud dev container.\\nuser: \"Bin in einem neuen Codespace. Kannst du das Terminal so einrichten dass yolo geht und die Statusbar da ist?\"\\nassistant: \"Klar, ich nutze den machine-setup Agenten — er erkennt den Container, schreibt den yolo-Alias und installiert die Status Line portabel.\"\\n<commentary>\\nNew environment needing the yolo alias + status line; machine-setup handles detection and portable install.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats' status line broke or the plugin-sync wrapper is gone.\\nuser: \"Meine Statusbar ist weg und das Plugin updatet sich nicht mehr automatisch beim Start.\"\\nassistant: \"Ich lasse den machine-setup Agenten drüberlaufen — er stellt Status Line und den Auto-Update-Wrapper idempotent wieder her.\"\\n<commentary>\\nRepairing the status line / launch wrapper is exactly what machine-setup regenerates; re-running is safe.\\n</commentary>\\n</example>"
 model: opus
 color: green
 ---
@@ -165,7 +165,52 @@ note the status line will show blanks until jq is present.
 
 ---
 
-## Step 5 — Verify & report
+## Step 5 — VS Code editor tweaks (Codespaces / remote dev-containers only)
+
+**Gate strictly.** Run this step *only* when Step 0 detected a **Codespace or remote
+dev-container** *and* a VS Code server data dir is present. **Skip it entirely** on local
+macOS — even inside VS Code's integrated terminal — and on plain SSH servers with no VS
+Code server. The point is to tame throwaway cloud editors, not to rewrite Mats' own
+machine. If the gate fails, do nothing and say so in the report.
+
+Locate the Machine-scope settings file (Codespaces use `.vscode-remote`, Remote-SSH/
+containers use `.vscode-server`); create the dir if a VS Code server root exists:
+
+```bash
+VSD=""
+for base in "$HOME/.vscode-remote" "$HOME/.vscode-server"; do
+  [ -d "$base" ] && VSD="$base/data/Machine" && break
+done
+[ -z "$VSD" ] && [ "$CODESPACES" = "true" ] && VSD="$HOME/.vscode-remote/data/Machine"
+```
+
+If `$VSD` is still empty, there is no VS Code here — skip. Otherwise merge the defaults
+into its `settings.json`, seeding `{}` first and **leaving unrelated keys intact**:
+
+```bash
+mkdir -p "$VSD"; VSS="$VSD/settings.json"
+[ -f "$VSS" ] || echo '{}' > "$VSS"
+tmp=$(mktemp)
+jq '
+  ."workbench.colorTheme" = "Default Dark Modern"
+  | ."chat.commandCenter.enabled" = false
+  | ."workbench.secondarySideBar.defaultVisibility" = "hidden"
+' "$VSS" > "$tmp" && mv "$tmp" "$VSS"
+```
+
+- **Dark mode** (`workbench.colorTheme`) is the stable, enforced default — overwrite it.
+- **Copilot chat panel:** only *hidden*, never uninstalled. `chat.commandCenter.enabled:false`
+  drops the chat button from the title bar; `workbench.secondarySideBar.defaultVisibility:hidden`
+  collapses the right-hand panel the chat lives in. The extension and inline suggestions
+  stay active, so it is fully reversible. These two keys are **best-effort**: Microsoft
+  renames chat settings often, so if a future VS Code ignores one it is cosmetic, not
+  broken — set both and move on; do not chase the latest key.
+- Settings apply after a **window reload** (the user is already inside VS Code). Note that
+  in the report rather than reloading for them.
+
+---
+
+## Step 6 — Verify & report
 
 **Don't trust the script's self-adaptation — verify it yourself for *this* environment.**
 The bundled script handles the cases it knows about; your job is to catch the ones it
@@ -189,7 +234,8 @@ force the ASCII glyph set, strip color, adjust a detection clause) until it rend
 correctly here, then report what you changed and why. The vendored copy stays the
 canonical default; per-machine corrections live in the installed copy.
 
-Also confirm `jq . "$HOME/.claude/settings.json"` parses.
+Also confirm `jq . "$HOME/.claude/settings.json"` parses — and, if Step 5 ran, that
+`jq . "$VSS"` parses too.
 
 Then give a compact German summary:
 
@@ -203,9 +249,11 @@ Then give a compact German summary:
 - Status Line installiert + in settings.json verdrahtet (rendert sich selbst-adaptiv)
 - settings.json-Defaults (model=opus, effortLevel=high, skip-dangerous-prompt, push-notif)
 - jq: vorhanden
+- VS Code (nur Codespace/Remote): Dark Mode + Copilot-Chat-Panel ausgeblendet
 
 **Noch zu tun:** neues Terminal öffnen oder `source ~/.zshrc` — dann ist `yolo` aktiv.
 Die Status Line erscheint beim nächsten Claude-Code-Start.
+(Im Codespace: VS-Code-Fenster einmal neu laden, damit Theme + Panel-Änderung greifen.)
 ```
 
 Adapt the lines to what actually happened (note anything skipped, conflicting, or
