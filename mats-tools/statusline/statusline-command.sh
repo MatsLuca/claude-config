@@ -50,8 +50,14 @@ if [ "$COLOR" = 0 ]; then
   COST_C=''; ALERT=''; MODEL_C=''; DIM=''; RST=''
 fi
 
-# portable file mtime (epoch): BSD stat first, GNU stat fallback, else 0
-mtime() { stat -f %m "$1" 2>/dev/null || stat -c %Y "$1" 2>/dev/null || echo 0; }
+# portable file mtime (epoch): detect stat variant once, then never mix them.
+# A `BSD || GNU` one-liner is unsafe — GNU `stat -f` prints a filesystem block
+# to stdout before failing, which then concatenates with the fallback's epoch.
+if stat -c %Y . >/dev/null 2>&1; then
+  mtime() { stat -c %Y "$1" 2>/dev/null || echo 0; }   # GNU coreutils (Linux)
+else
+  mtime() { stat -f %m "$1" 2>/dev/null || echo 0; }   # BSD stat (macOS)
+fi
 
 # pick identity color, or red alert when value is critical
 hue() { if [ "$1" -ge 85 ]; then printf '%b' "$ALERT"; else printf '%b' "$2"; fi; }
