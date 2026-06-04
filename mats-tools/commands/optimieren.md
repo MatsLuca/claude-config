@@ -8,7 +8,7 @@ Du optimierst einen Command oder Agent dieses Plugins gegen den Authoring-Standa
 
 Zu optimierendes Ziel: **$ARGUMENTS**
 
-**Arbeite token-effizient: erst den Standard und das Ziel laden, dann gezielt schärfen.**
+**Token-effizient bündeln:** Unabhängige Reads parallel — Standard (Schritt 1) und Ziel-Glob (Schritt 2) zusammen, dann Ziel-Datei + Evals (Schritt 3) zusammen. Vollen Inhalt nur bei Bedarf.
 
 ## Schritt 1 — Standard laden
 
