@@ -48,7 +48,7 @@ Bei Unsicherheit, welche Datei wohin: kurz beim User rückfragen, statt zu raten
 ```bash
 git add -A && git commit -m "docs: Stand festgehalten (/merken)
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>" && git push
+Co-Authored-By: Claude <noreply@anthropic.com>" && git push
 ```
 
 (Wenn der User nur committen, nicht pushen will, das `&& git push` weglassen.)

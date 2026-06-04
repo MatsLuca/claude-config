@@ -58,7 +58,7 @@ git add -A && git commit -m "$(cat <<'EOF'
 
 <optionaler body>
 
-Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )" && git push
 ```

@@ -1,5 +1,6 @@
 ---
 description: Öffnet das Xcode-Projekt (.xcworkspace bevorzugt, sonst .xcodeproj) aus dem aktuellen Verzeichnis in Xcode.
+argument-hint: <optional - Projektname oder Pfad, falls mehrdeutig>
 allowed-tools: Bash(find:*), Bash(open:*), Bash(pwd:*), Bash(ls:*)
 ---
 

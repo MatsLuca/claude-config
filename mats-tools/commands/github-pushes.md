@@ -1,7 +1,7 @@
 ---
 description: Zeigt strukturiert deine GitHub-Pushes (Commits) auf eigenen Repos innerhalb eines angegebenen Zeitraums.
 argument-hint: <Zeitraum, z.B. "24 Stunden", "1 Tag", "eine Woche", "30 Tage", "3 Monate">
-allowed-tools: Bash(gh search commits:*), Bash(gh api user:*), Bash(date:*), Bash(export PATH=*)
+allowed-tools: Bash(gh search commits:*), Bash(gh api user:*), Bash(date:*), Bash(jq:*), Bash(export PATH=*)
 ---
 
 Du zeigst dem Nutzer, welche Commits er innerhalb des angegebenen Zeitraums auf seine **eigenen** GitHub-Repositories gepusht hat — gruppiert pro Repo, chronologisch, mit Commit-Subject.
