@@ -14,7 +14,11 @@ Das Repo ist ein **Marketplace** (`.claude-plugin/marketplace.json`) mit einem P
 | Command | `/github-pushes` | Eigene GitHub-Pushes in einem Zeitraum strukturiert anzeigen |
 | Command | `/merken` | Aktuellen Session-Stand in CLAUDE.md / Kontextdateien festhalten |
 | Command | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
+| Command | `/optimieren` | Einen Command oder Agent nach dem Authoring-Standard schärfen |
 | Agent | `pdf-to-markdown` | Beliebige PDFs in LLM-optimiertes Markdown konvertieren — erkennt Klausur / Folien / generisch und wählt die passende Struktur |
+
+Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
+liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 
 ## Installation auf einem neuen Rechner
 
@@ -46,5 +50,6 @@ claude-config/
     ├── .claude-plugin/
     │   └── plugin.json        # Plugin-Manifest
     ├── commands/              # Slash-Commands (*.md)
-    └── agents/                # Subagents (*.md)
+    ├── agents/                # Subagents (*.md)
+    └── reference/             # Authoring-Standard + Eval-Szenarien
 ```

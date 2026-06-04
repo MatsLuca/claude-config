@@ -1,6 +1,6 @@
 {
   "name": "mats-tools",
-  "description": "Persönliche Slash-Commands und Subagents für Claude Code: finish, github-pushes, merken, xcode sowie der pdf-to-markdown Agent, der beliebige PDFs (Klausuren, Folien, generisch) in Markdown konvertiert.",
+  "description": "Persönliche Slash-Commands und Subagents für Claude Code: finish, github-pushes, merken, xcode, optimieren sowie der pdf-to-markdown Agent, der beliebige PDFs (Klausuren, Folien, generisch) in Markdown konvertiert.",
   "author": {
     "name": "Mats Dagott"
   },

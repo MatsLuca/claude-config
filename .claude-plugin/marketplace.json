@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "mats-tools",
-      "description": "Persönliche Slash-Commands (finish, github-pushes, merken, xcode) und der pdf-to-markdown Subagent (Klausuren, Folien, generische PDFs).",
+      "description": "Persönliche Slash-Commands (finish, github-pushes, merken, xcode, optimieren) und der pdf-to-markdown Subagent (Klausuren, Folien, generische PDFs).",
       "author": {
         "name": "Mats Dagott"
       },
