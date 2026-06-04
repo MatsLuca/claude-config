@@ -4,7 +4,7 @@ argument-hint: <command- oder agent-name, z.B. "finish" oder "pdf-to-markdown">
 allowed-tools: Read, Edit, Glob, Bash(ls:*)
 ---
 
-Du optimierst einen Command oder Agent dieses Plugins gegen den Authoring-Standard. Ziel: klarer, eindeutiger, token-effizienter — ohne gültige Inhalte zu verlieren.
+Du optimierst einen Command oder Agent dieses Plugins gegen den Authoring-Standard. Ziel: das Ziel soll seinen **Zweck besser erfüllen** — klarer, eindeutiger, token-effizienter. Das heißt oft verdichten, manchmal aber auch **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht. Optimieren ist nicht gleich Kürzen: gültige Inhalte bleiben, und ein zu knapp oder unklar formuliertes Ziel wird durch Addition besser, nicht durch weiteres Streichen.
 
 Zu optimierendes Ziel: **$ARGUMENTS**
 
@@ -30,20 +30,25 @@ Merke dir, ob es ein **Command** oder **Agent** ist — die Standard-Regeln unte
 - Ziel-Datei lesen.
 - Falls vorhanden, die zugehörigen Szenarien aus `${CLAUDE_PLUGIN_ROOT}/reference/evals.md` (bzw. per Glob `**/reference/evals.md`) lesen — sie sagen, welches Verhalten erhalten bleiben muss.
 
-## Schritt 4 — Gegen den Standard prüfen
+## Schritt 4 — Zweck klären, dann gegen den Standard prüfen
 
-Geh die Review-Checkliste des Standards Punkt für Punkt durch (Command- vs. Agent-Teil je nach Typ). Erstelle eine knappe **Befund-Liste**:
+Erst inhaltlich, dann mechanisch. Formuliere in *einem* Satz: **Was soll dieses Ziel erreichen?** Dann prüfe zwei Richtungen:
+- **Wirkt es?** Erreicht das Ziel seinen Zweck zuverlässig — oder fehlt etwas (ein Schritt, ein Beispiel, eine Klärung, ein Eval-Fall), das es wirksamer machen würde? Steht etwas unklar oder schief, das umformuliert gehört? Solche Zweck-Lücken sind echte Befunde, auch wenn nichts gegen die Checkliste verstößt.
+- **Standard-Konformität:** Geh die Review-Checkliste des Standards Punkt für Punkt durch (Command- vs. Agent-Teil je nach Typ).
+
+Erstelle eine knappe **Befund-Liste**:
 - was bereits gut ist (kurz),
-- was gegen welchen Checklisten-Punkt verstößt — jeweils mit kurzer Begründung *warum*.
+- Zweck-Lücken (fehlt / unklar / schief) — mit kurzer Begründung, *was* das Ziel wirksamer macht,
+- Standard-Verstöße — mit Checklisten-Bezug und kurzer Begründung *warum*.
 
-Keine Verbesserung erfinden, wo der Standard erfüllt ist.
+Jeder Befund braucht Wirkung: jede vorgeschlagene Änderung — Streichen, Umformulieren *oder* Ergänzen — muss das Ziel messbar besser machen. Nichts erfinden, wo Zweck **und** Standard erfüllt sind; und nichts ergänzen, was nur die Knappheit aufbläht (siehe „Knapp ist König").
 
 ## Schritt 5 — Schärfen
 
 Setze die Befunde per `Edit` gezielt um:
 - Nur die betroffenen Stellen ändern, **nicht** die ganze Datei neu schreiben.
 - Sprach-Split und Format-Konventionen wahren (siehe Standard).
-- Noch gültige Inhalte nicht überschreiben — verdichten/präzisieren, nicht verwässern.
+- Noch gültige Inhalte nicht überschreiben — je nach Befund verdichten, präzisieren oder gezielt **ergänzen/umformulieren**; nicht verwässern und nicht aufblähen.
 - Verhalten aus den Eval-Szenarien muss erhalten bleiben.
 
 ## Schritt 6 — Housekeeping prüfen

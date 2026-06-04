@@ -55,6 +55,10 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
   **Erwartet:** Fragt nach, statt zu raten.
 - **Szenario (Dogfood):** `/optimieren optimieren`.
   **Erwartet:** Kann sich selbst gegen den Standard prüfen.
+- **Szenario:** Ziel ist standard-konform, aber zu knapp/unklar für seinen Zweck
+  (fehlender Schritt, fehlendes Beispiel).
+  **Erwartet:** Benennt den Zweck, meldet die Zweck-Lücke als Befund und schlägt
+  **Ergänzung/Umformulierung** vor — nicht nur Kürzung. Kein blindes Aufblähen.
 
 ## pdf-to-markdown (Agent)
 - **Szenario:** Altklausur-PDF.
