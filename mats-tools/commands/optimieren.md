@@ -1,6 +1,5 @@
 ---
 description: Optimiert einen Command oder Agent nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition.
-argument-hint: <command- oder agent-name, z.B. "finish" oder "pdf-to-markdown">
 allowed-tools: Read, Edit, Glob
 ---
 
