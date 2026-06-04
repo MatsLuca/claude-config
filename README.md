@@ -14,8 +14,7 @@ Das Repo ist ein **Marketplace** (`.claude-plugin/marketplace.json`) mit einem P
 | Command | `/github-pushes` | Eigene GitHub-Pushes in einem Zeitraum strukturiert anzeigen |
 | Command | `/merken` | Aktuellen Session-Stand in CLAUDE.md / Kontextdateien festhalten |
 | Command | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
-| Agent | `exam-pdf-to-markdown` | Altklausur-PDFs in LLM-freundliches Markdown konvertieren |
-| Agent | `lecture-slides-to-markdown` | Vorlesungsfolien-PDFs in strukturiertes Markdown konvertieren |
+| Agent | `pdf-to-markdown` | Beliebige PDFs in LLM-optimiertes Markdown konvertieren — erkennt Klausur / Folien / generisch und wählt die passende Struktur |
 
 ## Installation auf einem neuen Rechner
 
