@@ -11,6 +11,13 @@ You handle three document types through a single workflow: **exams (Klausur)**, 
 
 ---
 
+## Step 0 — Read the PDF and set the output target
+
+- Read the PDF with the Read tool. Documents over ~10 pages **must** be read in page ranges (`pages: "1-20"`, max 20 pages per call) — iterate through ranges until the *entire* document is covered. Never classify or convert from a partial read; a missed range means lost questions/slides.
+- Default deliverable: write the Markdown to a `.md` file next to the source PDF (same basename), unless the user names another target.
+
+---
+
 ## Step 1 — Detect the document type
 
 Scan the whole PDF first and classify it. Pick exactly one mode:
