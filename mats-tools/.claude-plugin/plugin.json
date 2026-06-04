@@ -1,0 +1,8 @@
+{
+  "name": "mats-tools",
+  "description": "Persönliche Slash-Commands und Subagents für Claude Code: finish, github-pushes, merken, xcode sowie die PDF-zu-Markdown-Agents für Altklausuren und Vorlesungsfolien.",
+  "author": {
+    "name": "Mats Dagott"
+  },
+  "keywords": ["productivity", "git", "xcode", "studium", "pdf", "markdown"]
+}

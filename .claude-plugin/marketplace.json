@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-config",
+  "description": "Persönliche Claude-Code-Tools von Mats — Commands und Agents, geräteübergreifend synchronisiert.",
+  "owner": {
+    "name": "Mats Dagott"
+  },
+  "plugins": [
+    {
+      "name": "mats-tools",
+      "description": "Persönliche Slash-Commands (finish, github-pushes, merken, xcode) und Subagents (exam-pdf-to-markdown, lecture-slides-to-markdown).",
+      "author": {
+        "name": "Mats Dagott"
+      },
+      "category": "productivity",
+      "source": "./mats-tools"
+    }
+  ]
+}
