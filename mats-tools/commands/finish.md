@@ -1,6 +1,6 @@
 ---
 description: Analysiert alle Änderungen seit dem letzten Push, aktualisiert README/CHANGELOG falls nötig, committet und pusht in einem Rutsch.
-allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Read, Edit
+allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(echo:*), Bash(ls:*), Read, Edit
 ---
 
 Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten GitHub-Push analysieren, ggf. README/CHANGELOG pflegen, dann committen und pushen.
