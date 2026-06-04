@@ -23,7 +23,7 @@ Interpretiere `$ARGUMENTS` (deutsch oder englisch, frei formuliert) und wähle d
 | "3 Monate", "Quartal" | `-v-3m` |
 | "Jahr", "12 Monate" | `-v-1y` |
 
-Zahl + Einheit verallgemeinern (z.B. "5 Tage" → `-v-5d`, "6 Stunden" → `-v-6H`). Einheiten: `H`=Stunden, `d`=Tage, `m`=Monate, `y`=Jahre.
+Zahl + Einheit verallgemeinern (z.B. "5 Tage" → `-v-5d`, "6 Stunden" → `-v-6H`). Einheiten: `H`=Stunden, `d`=Tage, `m`=Monate, `y`=Jahre. Wochen in Tage umrechnen (×7, z.B. "3 Wochen" → `-v-21d`).
 
 Ist `$ARGUMENTS` leer, nimm standardmäßig **`-v-24H`** (letzte 24 Stunden) und erwähne das in der Antwort.
 
@@ -56,6 +56,7 @@ Hinweise:
 - Repos sind nach jüngstem Commit absteigend sortiert, Commits innerhalb eines Repos ebenfalls neueste zuerst.
 - `🔒` markiert private Repos.
 - Die Commit-Suche von GitHub indexiert primär den Default-Branch; Commits auf Nebenbranches können fehlen — bei Bedarf erwähnen.
+- `--limit 200` deckelt die Treffer: kommen genau 200 Commits zurück, ist die Liste womöglich abgeschnitten (relevant bei langen Zeiträumen wie "Jahr") — dann auf mögliche Unvollständigkeit hinweisen und einen kürzeren Zeitraum vorschlagen.
 
 ## Schritt 3 — Ergebnis präsentieren
 
