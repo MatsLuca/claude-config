@@ -98,7 +98,7 @@ Notes:
 - The `sed -i.bak`/`sed -i ''` pair covers GNU and BSD sed; run whichever the platform
   accepts (GNU `sed -i.bak` works on Linux, BSD needs `sed -i ''`). Pick the right one
   from the detected OS rather than relying on the `||` fallback if you can.
-- `yolo` and `cloud`-style synonyms expand `claude`, so they inherit the wrapper.
+- `yolo` expands to the `claude` function, so it inherits the update wrapper automatically.
 - Do **not** add the CLAUDE.md↔GEMINI.md symlink sync — out of scope by request.
 
 ---
@@ -117,12 +117,10 @@ chmod +x "$HOME/.claude/statusline-command.sh"
 If `$SRC` resolves to nothing (plugin not found on disk), stop and report — do not
 hand-write the script. The settings.json `statusLine` key is set in Step 3.
 
-The bundled script is **self-adapting at runtime**: it renders full-fidelity on capable
-terminals (256 color + UTF-8) and degrades on its own elsewhere (ASCII glyphs when the
-locale isn't UTF-8, no color under `NO_COLOR`/`TERM=dumb`). So you install one file
-everywhere — no per-machine rewrite. Only if Step 5's render check shows a *specific*
-terminal still misrendering (e.g. raw escape codes or replacement boxes despite the
-fallbacks) make a targeted tweak to the installed copy and tell the user what you changed.
+The bundled script is **self-adapting at runtime**: full-fidelity on capable terminals
+(256 color + UTF-8), graceful degradation elsewhere (ASCII glyphs when the locale isn't
+UTF-8, no color under `NO_COLOR`/`TERM=dumb`). So you install one file everywhere — no
+per-machine rewrite. Step 6 verifies the actual render and owns any per-terminal correction.
 
 ---
 
