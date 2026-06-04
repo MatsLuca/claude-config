@@ -3,6 +3,18 @@
 Persönlicher Claude-Code-Marketplace von Mats — meine Slash-Commands und Subagents,
 geräteübergreifend versioniert und synchronisiert.
 
+## Setup auf neuem Rechner — ein Befehl
+
+Installiert Claude Code (falls nötig), registriert den Marketplace und installiert
+`mats-tools`. Danach `claude` starten und den `machine-setup`-Agent triggern.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MatsLuca/claude-config/master/bootstrap.sh | bash
+```
+
+> **Windows (PowerShell):** `irm https://claude.ai/install.ps1 | iex`, dann
+> `claude plugin marketplace add MatsLuca/claude-config` und `claude plugin install mats-tools@claude-config`.
+
 ## Inhalt
 
 Das Repo ist ein **Marketplace** (`.claude-plugin/marketplace.json`) mit einem Plugin:
@@ -21,11 +33,13 @@ Das Repo ist ein **Marketplace** (`.claude-plugin/marketplace.json`) mit einem P
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
 liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 
-## Installation auf einem neuen Rechner
+## Installation manuell (Fallback)
+
+Falls der Einzeiler oben nicht passt — z. B. innerhalb einer laufenden Claude-Session:
 
 ```bash
 # Marketplace registrieren (einmalig pro Rechner)
-/plugin marketplace add <github-user>/claude-config
+/plugin marketplace add MatsLuca/claude-config
 
 # Plugin installieren
 /plugin install mats-tools@claude-config
