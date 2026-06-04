@@ -1,6 +1,7 @@
 ---
 description: Optimiert einen Command oder Agent nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition.
-allowed-tools: Read, Edit, Glob
+argument-hint: <command- oder agent-name, z.B. "finish" oder "pdf-to-markdown">
+allowed-tools: Read, Edit, Glob, Bash(ls:*)
 ---
 
 Du optimierst einen Command oder Agent dieses Plugins gegen den Authoring-Standard. Ziel: klarer, eindeutiger, token-effizienter — ohne gültige Inhalte zu verlieren.
@@ -18,7 +19,7 @@ Falls die Variable nicht aufgelöst wird (Datei nicht gefunden), suche sie per `
 ## Schritt 2 — Ziel bestimmen
 
 `$ARGUMENTS` ist ein Name oder Pfad. Löse ihn zur Datei auf:
-- Per `Glob` in `commands/*.md` **und** `agents/*.md` suchen (Name ohne `/` und ohne `.md`).
+- Billige Übersicht in *einer* Bash-Runde: `ls mats-tools/commands mats-tools/agents` — listet alle Kandidaten auf einmal. Den Namen (ohne `/` und `.md`) dagegen matchen. Greift `ls` nicht (anderes Arbeitsverzeichnis), per `Glob` `**/commands/*.md` und `**/agents/*.md` nachladen.
 - **Genau ein Treffer** → diese Datei. **Mehrere/keine** → kurz beim User rückfragen statt zu raten.
 - Ist `$ARGUMENTS` leer → frage, welcher Command/Agent optimiert werden soll.
 
