@@ -1,9 +1,9 @@
 ---
-description: Analysiert alle Änderungen seit dem letzten Push, aktualisiert README/CHANGELOG falls nötig, committet und pusht in einem Rutsch.
-allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(echo:*), Bash(ls:*), Read, Edit
+description: Analysiert alle Änderungen seit dem letzten Push, pflegt README/CHANGELOG und zugehörige GitHub-Issues falls nötig, committet und pusht in einem Rutsch.
+allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git remote:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh issue list:*), Bash(gh issue view:*), Bash(gh issue comment:*), Bash(export PATH=*), Bash(echo:*), Bash(ls:*), Read, Edit
 ---
 
-Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten GitHub-Push analysieren, ggf. README/CHANGELOG pflegen, dann committen und pushen.
+Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten GitHub-Push analysieren, ggf. README/CHANGELOG und zugehörige Issues pflegen, dann committen und pushen.
 
 **Arbeite token-effizient: erst billige Übersichten, vollen Inhalt nur bei Bedarf.**
 
@@ -44,11 +44,28 @@ ls README* CHANGELOG* 2>/dev/null
 
 Nutze `Edit` für punktuelle Änderungen statt die Datei neu zu schreiben.
 
-## Schritt 4 — Commit-Message überlegen
+## Schritt 4 — GitHub-Issues abgleichen (nur falls das Projekt sie nutzt)
 
-Conventional-Commits-Stil, an den Stil der letzten Commits angepasst. Knappe imperative Subject-Zeile (`type: kurze Beschreibung`), bei mehreren logischen Änderungen kurze Bullet-Body. Beschreibe das *Warum*, nicht nur das *Was*.
+Billig prüfen, ob offene Issues existieren (eine Runde; bricht sauber ab, wenn kein GitHub-Remote / kein `gh` vorhanden ist):
 
-## Schritt 5 — Committen & Pushen in einem Rutsch
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
+gh issue list --state open --limit 30 --json number,title \
+  --jq '.[] | "#\(.number) \(.title)"' 2>/dev/null || echo "KEINE_ISSUES_ODER_KEIN_GH"
+```
+
+- **`KEINE_ISSUES_ODER_KEIN_GH` oder leere Ausgabe** → Schritt überspringen, das Projekt nutzt keine Issues. Nicht nachhaken.
+- Sonst: gleiche die offenen Issues gegen die in Schritt 2 verstandene Änderung ab. Nur wirklich betroffene Issues anfassen — bei Unsicherheit `gh issue view <N>` für den vollen Text.
+
+Pro betroffenem Issue:
+- **Die Änderung erledigt das Issue** → Default: `Closes #<N>` in die Commit-Message aufnehmen (Schritt 5). GitHub schließt es beim Push automatisch, kein extra Schreibzugriff nötig.
+- **Issue ist betroffen, aber noch nicht erledigt** → biete einen kurzen Status-Kommentar via `gh issue comment <N>` an; schreibe ihn erst nach Zustimmung (externer Schreibzugriff, nicht ungefragt).
+
+## Schritt 5 — Commit-Message überlegen
+
+Conventional-Commits-Stil, an den Stil der letzten Commits angepasst. Knappe imperative Subject-Zeile (`type: kurze Beschreibung`), bei mehreren logischen Änderungen kurze Bullet-Body. Beschreibe das *Warum*, nicht nur das *Was*. Erledigt die Arbeit ein Issue aus Schritt 4, nimm `Closes #<N>` in den Body auf (eine Zeile pro Issue).
+
+## Schritt 6 — Committen & Pushen in einem Rutsch
 
 Wenn alles bereit ist (inkl. ggf. geänderter README/CHANGELOG), alles stagen und committen. Message via heredoc, damit Mehrzeiler sauber sind, und mit Co-Author-Trailer:
 
@@ -65,4 +82,4 @@ EOF
 
 (Bei fehlendem Upstream stattdessen `git push -u origin <branch>`.)
 
-Melde am Ende kurz: Commit-Message, welche Docs aktualisiert wurden (falls), und das Push-Ergebnis.
+Melde am Ende kurz: Commit-Message, welche Docs aktualisiert wurden (falls), welche Issues verlinkt/geschlossen oder kommentiert wurden (falls), und das Push-Ergebnis.

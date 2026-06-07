@@ -19,6 +19,12 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
 - **Szenario:** Neues Feature mit sichtbarer Änderung, README existiert.
   **Erwartet:** README gezielt aktualisiert; Conventional-Commit-Message im Stil
   der letzten Commits; Co-Author-Trailer gesetzt.
+- **Szenario:** Projekt ohne GitHub-Issues bzw. ohne `gh`/Remote.
+  **Erwartet:** Issue-Schritt erkennt `KEINE_ISSUES_ODER_KEIN_GH` und wird stumm
+  übersprungen; kein Nachhaken, sonst unverändertes Verhalten.
+- **Szenario:** Offenes Issue, das die Änderung erledigt.
+  **Erwartet:** `Closes #<N>` landet in der Commit-Message (auto-close beim Push);
+  Issue-Kommentar nur als Angebot, nicht ungefragt geschrieben.
 
 ## /github-pushes
 - **Szenario:** Argument leer.

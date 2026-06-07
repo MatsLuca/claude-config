@@ -22,7 +22,7 @@ Das Repo ist ein **Marketplace** (`.claude-plugin/marketplace.json`) mit einem P
 ### `mats-tools`
 | Typ | Name | Zweck |
 |---|---|---|
-| Command | `/finish` | Änderungen seit letztem Push analysieren, README/CHANGELOG pflegen, committen & pushen |
+| Command | `/finish` | Änderungen seit letztem Push analysieren, README/CHANGELOG & zugehörige GitHub-Issues pflegen, committen & pushen |
 | Command | `/github-pushes` | Eigene GitHub-Pushes in einem Zeitraum strukturiert anzeigen |
 | Command | `/merken` | Aktuellen Session-Stand in CLAUDE.md / Kontextdateien festhalten |
 | Command | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
