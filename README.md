@@ -2,59 +2,67 @@
 
 > **Mein Claude Code — auf jedem Rechner identisch.**
 
+![Platform](https://img.shields.io/badge/platform-macOS%20·%20Linux%20·%20Windows-blue)
+![Plugin](https://img.shields.io/badge/plugin-mats--tools-8A2BE2)
+![Updates](https://img.shields.io/badge/updates-automatisch%20per%20git%20SHA-success)
+
 Ein persönlicher **Claude-Code-Marketplace** mit einem Plugin (`mats-tools`): meine
 Slash-Commands und Subagents, geräteübergreifend versioniert und synchronisiert.
 Neuer Laptop, Codespace oder Container? Ein Befehl — und die komplette Werkbank ist da:
 vom Git-Workflow über PDF→Markdown bis zum fertig eingerichteten Terminal.
 
-## Installieren
+---
 
-### Schnell — ein Befehl
+## 🚀 Installieren
 
-Installiert Claude Code (falls nötig), registriert den Marketplace und installiert
-`mats-tools` (user-scope, idempotent — mehrfach ausführen schadet nicht).
+Ein Befehl pro Plattform — installiert Claude Code (falls nötig), registriert den
+Marketplace und installiert `mats-tools` (user-scope, idempotent — mehrfach
+ausführen schadet nicht).
+
+### 🍎 macOS / 🐧 Linux
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MatsLuca/claude-config/master/bootstrap.sh | bash
 ```
 
-Danach `claude` starten, ggf. einmalig einloggen und den `machine-setup`-Agent triggern.
+### 🪟 Windows (PowerShell)
 
-> **Windows (PowerShell):** `irm https://claude.ai/install.ps1 | iex`, dann
-> `claude plugin marketplace add MatsLuca/claude-config` und `claude plugin install mats-tools@claude-config`.
-
-### Per Prompt — den Agenten machen lassen
-
-Kein Bock, selbst zu tippen? Kopier diesen Prompt in eine laufende Claude-Code-Session.
-Der Agent installiert alles im Terminal und sagt dir, falls etwas manuell nötig ist:
-
-```text
-Richte mir den persönlichen Claude-Code-Marketplace „claude-config" mit dem Plugin
-„mats-tools" ein. Führ dazu im Terminal das Bootstrap-Skript aus (macOS/Linux,
-idempotent — installiert Claude Code falls nötig, registriert den Marketplace,
-installiert das Plugin user-scoped):
-
-  curl -fsSL https://raw.githubusercontent.com/MatsLuca/claude-config/master/bootstrap.sh | bash
-
-Prüf danach, ob „mats-tools" installiert ist. Falls ein Schritt fehlschlägt oder etwas
-manuell nötig ist (Login, neue Shell, oder Windows → PowerShell), sag mir in einem Satz
-genau, was ich tun muss. Erklär zum Schluss kurz, wie ich den machine-setup-Agent auslöse.
+```powershell
+irm https://raw.githubusercontent.com/MatsLuca/claude-config/master/bootstrap.ps1 | iex
 ```
 
-### Manuell — Fallback
+> [!IMPORTANT]
+> ### 👉 NÄCHSTER SCHRITT
+> **`claude` starten (beim ersten Mal einloggen) — und als ersten Prompt schicken:**
+>
+> ```text
+> Führe das machine-setup durch.
+> ```
+>
+> Der `machine-setup`-Agent richtet dann alles ein: `yolo`-Alias, Status Line,
+> Plugin-Auto-Update beim Start und die settings.json-Defaults.
 
-Falls die Wege oben nicht passen, z. B. direkt aus einer laufenden Claude-Session:
+<details>
+<summary><strong>🔧 Manuell — Fallback</strong> (direkt aus einer laufenden Claude-Session)</summary>
+
+<br>
 
 ```bash
 /plugin marketplace add MatsLuca/claude-config   # Marketplace registrieren (einmalig pro Rechner)
 /plugin install mats-tools@claude-config         # Plugin installieren
 ```
 
-## Was drin ist
+*(Im Terminal statt in der Session: dieselben Befehle als `claude plugin marketplace add …` / `claude plugin install …`.)*
+
+</details>
+
+---
+
+## 🧰 Was drin ist
 
 Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere Arbeit:
 
-### Commands
+### ⚡ Commands
 
 | Command | Zweck |
 |---|---|
@@ -66,7 +74,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | `/einarbeiten` | Beliebigen Input (Text/Datei/URL) semantisch analysieren, Projekt-Relevanz prüfen und ins Wissenssystem einarbeiten — oder bestehende Strukturen begründet infrage stellen |
 | `/destillieren` | Gewachsenes Wissenssystem pflegen: Drift (veraltete/widersprüchliche Querverweise) heilen, dann Redundanz verdichten & Ordnerstrukturen neu denken — strukturelle Eingriffe erst nach Plan-Zustimmung |
 
-### Agents
+### 🤖 Agents
 
 | Agent | Zweck |
 |---|---|
@@ -76,28 +84,37 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
 liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 
-## Updates
+---
+
+## 🔄 Updates
 
 Das Plugin hat bewusst **keine feste Versionsnummer** in `plugin.json`. Dadurch nutzt
 Claude Code den Git-Commit-SHA als Version: **jeder Push hierhin** wird beim nächsten
 `/plugin update` automatisch übernommen — kein manuelles Versions-Bumping nötig.
 
+Nach dem `machine-setup` passiert das sogar von selbst: der Agent installiert einen
+Shell-Wrapper, der das Plugin **bei jedem `claude`-Start automatisch aktualisiert**.
+Manuell braucht es nur, falls der Wrapper (noch) nicht eingerichtet ist:
+
 ```bash
 /plugin update mats-tools@claude-config
 ```
 
-## Struktur
+---
+
+## 🗂️ Struktur
 
 ```
 claude-config/
-├── bootstrap.sh                  # Einzeiler-Setup für neue Rechner
+├── bootstrap.sh                  # Einzeiler-Setup für neue Rechner (macOS/Linux)
+├── bootstrap.ps1                 # Einzeiler-Setup für neue Rechner (Windows)
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace-Manifest
 └── mats-tools/                   # das Plugin
     ├── .claude-plugin/
-    │   └── plugin.json            # Plugin-Manifest
-    ├── commands/                  # Slash-Commands (*.md)
-    ├── agents/                    # Subagents (*.md)
-    ├── statusline/                # vendored Status-Line-Skript (vom machine-setup Agent installiert)
-    └── reference/                 # Authoring-Standard + Eval-Szenarien
+    │   └── plugin.json           # Plugin-Manifest
+    ├── commands/                 # Slash-Commands (*.md)
+    ├── agents/                   # Subagents (*.md)
+    ├── statusline/               # vendored Status-Line-Skript (vom machine-setup Agent installiert)
+    └── reference/                # Authoring-Standard + Eval-Szenarien
 ```
