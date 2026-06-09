@@ -1,10 +1,10 @@
 ---
 description: Optimiert einen Command oder Agent nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition.
 argument-hint: <command- oder agent-name, z.B. "finish" oder "pdf-to-markdown">
-allowed-tools: Read, Edit, Glob, Bash(ls:*)
+allowed-tools: Read, Edit, Glob, Bash(ls:*), AskUserQuestion
 ---
 
-Du optimierst einen Command oder Agent dieses Plugins gegen den Authoring-Standard. Ziel: das Ziel soll seinen **Zweck besser erfüllen** — klarer, eindeutiger, token-effizienter. Das heißt oft verdichten, manchmal aber auch **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht. Optimieren ist nicht gleich Kürzen: gültige Inhalte bleiben, und ein zu knapp oder unklar formuliertes Ziel wird durch Addition besser, nicht durch weiteres Streichen.
+Du optimierst einen Command oder Agent dieses Plugins gegen den Authoring-Standard, damit das Ziel seinen **Zweck besser erfüllt** — klarer, eindeutiger, token-effizienter. Optimieren ist nicht gleich Kürzen: oft heißt das verdichten, genauso aber **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht — ein zu knappes oder unklares Ziel wird durch Addition besser, nicht durch weiteres Streichen.
 
 Zu optimierendes Ziel: **$ARGUMENTS**
 
@@ -20,8 +20,9 @@ Falls die Variable nicht aufgelöst wird (Datei nicht gefunden), suche sie per `
 
 `$ARGUMENTS` ist ein Name oder Pfad. Löse ihn zur Datei auf:
 - Billige Übersicht in *einer* Bash-Runde: `ls mats-tools/commands mats-tools/agents` — listet alle Kandidaten auf einmal. Den Namen (ohne `/` und `.md`) dagegen matchen. Greift `ls` nicht (anderes Arbeitsverzeichnis), per `Glob` `**/commands/*.md` und `**/agents/*.md` nachladen.
-- **Genau ein Treffer** → diese Datei. **Mehrere/keine** → kurz beim User rückfragen statt zu raten.
+- **Genau ein Treffer** → diese Datei. **Mehrere/keine** → per `AskUserQuestion` kurz rückfragen statt zu raten.
 - Ist `$ARGUMENTS` leer → frage, welcher Command/Agent optimiert werden soll.
+- Immer die **Repo-Quelle** auflösen und bearbeiten — nie die installierte Kopie unter `${CLAUDE_PLUGIN_ROOT}` (Plugin-Cache, wird beim nächsten Update überschrieben).
 
 Merke dir, ob es ein **Command** oder **Agent** ist — die Standard-Regeln unterscheiden sich.
 
