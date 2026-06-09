@@ -1,7 +1,7 @@
 ---
 description: Zeigt strukturiert deine GitHub-Pushes (Commits) auf eigenen Repos innerhalb eines angegebenen Zeitraums.
 argument-hint: <Zeitraum, z.B. "24 Stunden", "1 Tag", "eine Woche", "30 Tage", "3 Monate">
-allowed-tools: Bash(gh search commits:*), Bash(gh api user:*), Bash(date:*), Bash(jq:*), Bash(export PATH=*)
+allowed-tools: Bash(gh search commits:*), Bash(gh api user:*), Bash(date:*), Bash(jq:*), Bash(echo:*), Bash(export PATH=*)
 ---
 
 Du zeigst dem Nutzer, welche Commits er innerhalb des angegebenen Zeitraums auf seine **eigenen** GitHub-Repositories gepusht hat — gruppiert pro Repo, chronologisch, mit Commit-Subject.
@@ -62,4 +62,5 @@ Hinweise:
 
 - Gibt das jq `KEINE_COMMITS` aus: melde knapp, dass im Zeitraum keine Pushes auf eigene Repos gefunden wurden.
 - Andernfalls: gib das gruppierte Ergebnis sauber als Markdown wieder (die jq-Ausgabe ist bereits fertig formatiert — du kannst sie direkt übernehmen) und stelle eine **kurze Zusammenfassung** voran: „X Commits in Y Repos in den letzten <Zeitraum>“.
+- Schlägt `gh` mit einem Auth-Fehler fehl (nicht eingeloggt): schlage dem User vor, `! gh auth login` einzugeben — nicht selbst weiterprobieren.
 - Halte dich kurz; keine zusätzlichen Erklärungen, außer es gab eine Auffälligkeit (z.B. leeres Ergebnis, Auth-Fehler).

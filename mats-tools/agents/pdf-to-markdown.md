@@ -13,7 +13,8 @@ You handle three document types through a single workflow: **exams (Klausur)**, 
 
 ## Step 0 — Read the PDF and set the output target
 
-- Read the PDF with the Read tool. Documents over ~10 pages **must** be read in page ranges (`pages: "1-20"`, max 20 pages per call) — iterate through ranges until the *entire* document is covered. Never classify or convert from a partial read; a missed range means lost questions/slides.
+- Read the PDF with the Read tool. Documents over ~10 pages **must** be read in page ranges (`pages: "1-20"`, max 20 pages per call) — iterate through ranges until the *entire* document is covered; a missed range means lost questions/slides.
+- Long documents (> ~40 pages): convert range-by-range — classify from the first range (revise if later pages contradict it), Write the output file after the first range, then append each further converted range. Done means every page is *converted*, not just read.
 - Default deliverable: write the Markdown to a `.md` file next to the source PDF (same basename), unless the user names another target.
 
 ---
@@ -49,6 +50,14 @@ If a PDF is genuinely mixed or ambiguous, state your classification in one line 
 
 ### Tables
 Standard Markdown tables, columns aligned appropriately (`:---` / `:---:` / `---:`). Preserve headers and data relationships; use LaTeX in cells where needed.
+
+### Source reference
+End every output file with:
+```markdown
+---
+## Original Dokument
+Quelle: `[exact filepath to original PDF]`
+```
 
 ### Quality assurance (all modes)
 - No content loss — everything on every page is represented.
@@ -95,13 +104,6 @@ pages: [number of pages]
 - Diagrams must let a student reconstruct and solve from the description alone.
 - Multiple exam versions on one PDF → separate clearly delimited sections.
 
-### End with
-```markdown
----
-## Original Dokument
-Quelle: `[exact filepath to original PDF]`
-```
-
 ### Checklist
 - [ ] All questions numbered, sequential, accounted for
 - [ ] Point allocations preserved
@@ -122,6 +124,7 @@ chapter: [chapter number and name]
 slide_range: [start–end]
 date: [if available]
 topics: [key topics]
+source_pdf: [original filename]
 ---
 ```
 
@@ -150,6 +153,7 @@ topics: [key topics]
 - [ ] Chapter hierarchy coherent
 - [ ] Animated sequences merged to final state
 - [ ] TOC present if > 20 slides
+- [ ] Frontmatter complete + PDF reference present
 
 ---
 
@@ -171,7 +175,6 @@ pages: [number of pages]
 - Preserve reading order and paragraph structure; linearize multi-column text.
 - Keep figures/tables with their captions; describe figures per the shared visual rules.
 - Preserve references/citations and bibliography if present.
-- End with the same `## Original Dokument` reference block as Mode A.
 
 ### Checklist
 - [ ] Full content reproduced in order, nothing dropped
@@ -182,3 +185,7 @@ pages: [number of pages]
 ---
 
 Your output must be production-ready Markdown: a student or an LLM can use it immediately for problem-solving, studying, or retrieval. Prioritize clarity, completeness, and LLM compatibility above all else.
+
+## Final report
+
+Your last message goes back to the calling agent, not the user — no prose recap of the content. Report compactly in German: detected mode, output file path, page/slide count, and every `[VERIFY]`/`[UNCLEAR]`/`[HANDWRITTEN]` marker with its location, so open review points are visible at a glance.

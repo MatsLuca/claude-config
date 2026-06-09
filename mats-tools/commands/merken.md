@@ -1,6 +1,6 @@
 ---
 description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrelevanten Kontextdateien fest, damit du das Fenster schließen kannst, ohne Kontext zu verlieren.
-allowed-tools: Bash(ls:*), Bash(git status:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Read, Edit, Write
+allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Read, Edit, Write, AskUserQuestion
 ---
 
 Du hältst den aktuellen Arbeitsstand fest, damit der aktive Chat verlassen werden kann, ohne dass Kontext verloren geht. Das ist **kein** Programmier-/Git-Abschluss (dafür gibt es `/finish`) — hier geht es darum, **Wissen und Stand in Kontextdateien zu sichern**, in beliebigen Umgebungen (Studium, Notizen, Recherche, Schreibprojekte, Code).
@@ -11,8 +11,7 @@ Du hältst den aktuellen Arbeitsstand fest, damit der aktive Chat verlassen werd
 
 ```bash
 echo "=== ORDNER ===" && pwd && \
-echo "=== MARKDOWN & KONTEXT ===" && ls -1 *.md *.markdown 2>/dev/null || echo "(keine .md im Root)" && \
-echo "=== CLAUDE.md? ===" && ls CLAUDE.md 2>/dev/null && echo "JA" || echo "NEIN" && \
+echo "=== MARKDOWN & KONTEXT ===" && ls -1 *.md 2>/dev/null || echo "(keine .md im Root)" && \
 echo "=== GIT? ===" && git rev-parse --is-inside-work-tree 2>/dev/null && git branch --show-current 2>/dev/null || echo "KEIN_REPO"
 ```
 
@@ -31,7 +30,7 @@ Halte es knapp und handlungsorientiert. Kein Verlaufsprotokoll — der Future-Du
 - **Weitere projektrelevante Dateien** (meist Markdown): Wenn Inhalt thematisch klar woanders hingehört (z.B. eine `NOTES.md`, `STATUS.md`, ein Themen-Markdown, eine Mitschrift), aktualisiere zusätzlich gezielt **diese** Datei. Lies große Dateien gezielt in den betroffenen Abschnitten, nicht komplett.
 - **Keine CLAUDE.md, kein passendes Ziel** → schlage dem User eine Datei vor (i.d.R. `CLAUDE.md` für ein Arbeitsverzeichnis, sonst eine themenpassende `*.md`) und lege sie nach kurzer Bestätigung an.
 
-Bei Unsicherheit, welche Datei wohin: kurz beim User rückfragen, statt zu raten.
+Bei Unsicherheit, welche Datei wohin (oder ob eine neue angelegt werden soll): per `AskUserQuestion` kurz rückfragen, statt zu raten.
 
 ## Schritt 4 — Schreiben
 

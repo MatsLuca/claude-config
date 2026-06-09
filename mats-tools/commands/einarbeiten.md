@@ -1,7 +1,7 @@
 ---
 description: Frisst beliebigen Input (Text, Datei, URL), analysiert ihn semantisch, prüft die Relevanz fürs aktuelle Projekt und arbeitet das Brauchbare gezielt ins Wissenssystem ein — oder stellt bestehende Strukturen begründet infrage.
 argument-hint: <Text, Dateipfad oder URL — der zu verarbeitende Input>
-allowed-tools: Bash(pwd), Bash(ls:*), Bash(git rev-parse:*), Read, Edit, Write, Glob, Grep, WebFetch, AskUserQuestion
+allowed-tools: Bash(echo:*), Bash(pwd), Bash(ls:*), Bash(git rev-parse:*), Read, Edit, Write, Glob, Grep, WebFetch, AskUserQuestion
 ---
 
 Du nimmst einen beliebigen Input und entscheidest fundiert, was davon — wenn überhaupt — wie ins aktuelle Projekt gehört. Kein blindes Reinkopieren: erst verstehen, dann Relevanz prüfen, Motivation klären, dann gezielt einarbeiten oder bestehende Annahmen infrage stellen.
@@ -23,10 +23,12 @@ Leer? → frage den User, was eingearbeitet werden soll, und stoppe.
 
 ```bash
 echo "=== ORDNER ===" && pwd && \
-echo "=== PROJEKT-WURZEL ===" && git rev-parse --show-toplevel 2>/dev/null || echo "KEIN_REPO" && \
-echo "=== KONTEXTDATEIEN ===" && ls -1 CLAUDE.md README* 2>/dev/null || echo "(keine im Root)" && \
-echo "=== STRUKTUR ===" && ls -1 2>/dev/null
+echo "=== PROJEKT-WURZEL ===" && (git rev-parse --show-toplevel 2>/dev/null || echo "KEIN_REPO") && \
+echo "=== KONTEXTDATEIEN ===" && (ls -1 CLAUDE.md README* 2>/dev/null || true) && \
+echo "=== STRUKTUR ===" && ls -1
 ```
+
+Leere KONTEXTDATEIEN-Sektion = keine im aktuellen Ordner. Liegt die Projekt-Wurzel woanders (Start aus Unterordner), schau dort nach `CLAUDE.md`/README — das Wissenssystem lebt meist an der Wurzel.
 
 `CLAUDE.md` ist die Hauptquelle für „worum geht es in diesem Projekt". Lies sie (und ggf. README) gezielt, um Zweck, Stack und das bestehende Wissenssystem zu verstehen. Was schon im Kontext ist, nicht neu lesen.
 

@@ -1,7 +1,7 @@
 ---
 description: Destilliert ein gewachsenes Wissenssystem — spürt veraltete/widersprüchliche Querverweise auf, heilt die Drift, verdichtet dann Redundanz und denkt Ordnerstrukturen neu. Strukturelle Eingriffe erst nach Plan-Zustimmung.
 argument-hint: <optional: Fokusbereich — z.B. "Ordner Forschung" oder "Thema X wirkt widersprüchlich">
-allowed-tools: Bash(pwd), Bash(ls:*), Bash(find:*), Bash(stat:*), Bash(git rev-parse:*), Bash(git mv:*), Bash(git rm:*), Bash(mkdir:*), Bash(mv:*), Bash(rm:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
+allowed-tools: Bash(pwd), Bash(echo:*), Bash(ls:*), Bash(find:*), Bash(stat:*), Bash(sort:*), Bash(git rev-parse:*), Bash(git mv:*), Bash(git rm:*), Bash(mkdir:*), Bash(mv:*), Bash(rm:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 ---
 
 Du pflegst ein semantisches Wissenssystem — verschachtelte Ordner mit stark vernetzten Wissens-, Fakten-, Fragen- und Problem-Dateien. Solche Systeme erkranken auf zwei Arten: **Drift** (eine Erkenntnis ändert ein paar Dateien, die darauf verweisenden veralten unbemerkt → Widersprüche) und **Wucherung** (Redundanz, Zersplitterung, Ordnerstrukturen, die nicht mehr zum Inhalt passen). Du heilst beides in fester Reihenfolge — **erst Drift, dann Struktur** — und ziehst zum Schluss jeden Querverweis nach, damit der Pass keine neue Drift erzeugt.
@@ -51,7 +51,7 @@ Jeder Befund braucht eine **konkrete Aktion** (zusammenführen X+Y→Z, verschie
 
 ## Schritt 5 — Plan vorlegen, Zustimmung holen
 
-Bevor du strukturell eingreifst (Vereinen, Verschieben, Löschen, Ordnerumbau): zeig den **geordneten Plan** — Drift-Heilung zuerst, dann Verdichtung —, jeweils Aktion + betroffene Dateien + erwartete Verweis-Updates. Hol per `AskUserQuestion` oder kurzer Rückfrage das OK. Risikoarme Reinheilung (toter Link, eindeutiger Tippfehler im Verweis) darf ohne separate Rückfrage mitlaufen, aber kein Merge/Move/Delete ohne Zustimmung.
+Bevor du strukturell eingreifst (Vereinen, Verschieben, Löschen, Ordnerumbau): zeig den **geordneten Plan** — Drift-Heilung zuerst, dann Verdichtung —, jeweils Aktion + betroffene Dateien + erwartete Verweis-Updates. Hol das OK per `AskUserQuestion` — bei mehreren unabhängigen Eingriffen mit `multiSelect`, ein Eintrag pro Eingriff, damit der User selektiv zustimmen kann. Risikoarme Reinheilung (toter Link, eindeutiger Tippfehler im Verweis) darf ohne separate Rückfrage mitlaufen, aber kein Merge/Move/Delete ohne Zustimmung.
 
 ## Schritt 6 — Ausführen in fester Reihenfolge
 

@@ -25,6 +25,9 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
 - **Szenario:** Offenes Issue, das die Änderung erledigt.
   **Erwartet:** `Closes #<N>` landet in der Commit-Message (auto-close beim Push);
   Issue-Kommentar nur als Angebot, nicht ungefragt geschrieben.
+- **Szenario:** Push wird abgelehnt (Remote weiter als lokal).
+  **Erwartet:** Bricht ab und meldet die Ursache — kein `--force`, kein
+  automatischer Pull/Rebase.
 
 ## /github-pushes
 - **Szenario:** Argument leer.
@@ -47,7 +50,9 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
 
 ## /xcode
 - **Szenario:** Verzeichnis mit genau einem `.xcodeproj`.
-  **Erwartet:** Öffnet es direkt mit `open`, kurze Bestätigung.
+  **Erwartet:** `find` liefert genau **einen** Treffer (das eingebettete
+  `project.xcworkspace` im Bundle zählt nicht); öffnet es direkt mit `open`,
+  kurze Bestätigung.
 - **Szenario:** `.xcworkspace` **und** `.xcodeproj` vorhanden.
   **Erwartet:** Bevorzugt `.xcworkspace`.
 - **Szenario:** Kein Projekt gefunden, leeres Argument.
@@ -81,6 +86,42 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
   endet erst, wenn keine neuen toten Links/Waisen mehr entstehen.
 - **Szenario:** System ist gesund, wenig bis nichts zu tun.
   **Erwartet:** Meldet das ehrlich; erfindet keine Eingriffe.
+
+## /einarbeiten
+- **Szenario:** Argument leer.
+  **Erwartet:** Fragt, was eingearbeitet werden soll, und stoppt — kein Raten.
+- **Szenario:** Input ist fürs Projekt klar irrelevant (z.B. fachfremder Artikel).
+  **Erwartet:** Überspringt die Rückfragen (Schritt 5), entscheidet „kein
+  Handlungsbedarf", ändert keine Datei.
+- **Szenario:** URL, deren Inhalt bestehendes Projektwissen ergänzt.
+  **Erwartet:** Holt per WebFetch; stellt gezielte, aus Input + Projekt
+  abgeleitete Rückfragen (keine generischen); arbeitet per `Edit` punktuell ein —
+  Synthese im Stil der Zieldatei, kein Roh-Copy-Paste.
+- **Szenario:** Input widerspricht einer Annahme in CLAUDE.md glaubwürdig.
+  **Erwartet:** Wählt „Infragestellen": benennt den Konflikt explizit, schlägt
+  Revision mit Begründung vor; bei größerem Eingriff erst Plan + Zustimmung.
+
+## machine-setup (Agent)
+- **Szenario:** Frischer Mac, kein vorheriger Managed-Block.
+  **Erwartet:** Recon-Summary („Umgebung erkannt") **vor** jeder Änderung;
+  Managed-Block einmalig im Ziel-rc; settings.json gemerged ohne fremde Keys
+  (andere Plugins/Marketplaces) zu löschen; VS-Code-Schritt übersprungen.
+- **Szenario:** Re-Run auf bereits eingerichteter Maschine.
+  **Erwartet:** Idempotent — Block wird regeneriert, nicht dupliziert; keine
+  doppelten Aliase/Funktionen.
+- **Szenario:** rc-Datei hat eigene `claude()`-Funktion außerhalb des Blocks
+  (Mats' primärer Mac).
+  **Erwartet:** Kein stilles Anhängen einer zweiten Definition — Konflikt
+  melden und fragen, ob die Zeilen übernommen werden sollen.
+- **Szenario:** Codespace/Remote-Container mit VS-Code-Server.
+  **Erwartet:** Machine-Settings gemerged (Dark Mode, Chat-Panel versteckt),
+  Hinweis auf Window-Reload; auf lokalem macOS wird der Schritt nie ausgeführt.
+- **Szenario:** Bundled Status-Line-Skript nicht auffindbar (`$SRC` leer).
+  **Erwartet:** Stoppt und meldet — schreibt das Skript nicht von Hand.
+- **Szenario:** Status Line rendert im aktuellen Terminal fehlerhaft
+  (Mojibake, rohe Escapes).
+  **Erwartet:** Step 6 fixt die **installierte** Kopie und meldet was/warum;
+  die vendored Plugin-Kopie bleibt unangetastet.
 
 ## pdf-to-markdown (Agent)
 - **Szenario:** Altklausur-PDF.

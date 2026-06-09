@@ -29,7 +29,7 @@ echo "PLUGIN_ROOT: ${CLAUDE_PLUGIN_ROOT:-<unset>}"
 for f in ~/.zshrc ~/.bashrc ~/.bash_profile ~/.profile; do [ -f "$f" ] && echo "rc: $f"; done
 for c in claude jq git brew apt-get dnf apk timeout gtimeout perl; do printf '%-9s ' "$c"; command -v "$c" 2>/dev/null || echo "-"; done
 { [ -f /.dockerenv ] || [ -n "$CODESPACES" ] || [ -n "$REMOTE_CONTAINERS" ] || grep -qa 'docker\|kubepods' /proc/1/cgroup 2>/dev/null; } && echo "container: yes" || echo "container: no"
-grep -lE '^alias yolo=|^claude *\(\)' ~/.zshrc ~/.bashrc ~/.bash_profile 2>/dev/null
+grep -lE '^alias yolo=|^claude *\(\)' ~/.zshrc ~/.bashrc ~/.bash_profile ~/.profile 2>/dev/null
 ```
 
 From the result decide:
@@ -58,9 +58,9 @@ with the detected rc path):
 
 ```bash
 RC="$HOME/.zshrc"   # detected in Step 0
-# 1) remove a previous managed block, if any
-sed -i.bak '/# >>> mats-tools machine-setup >>>/,/# <<< mats-tools machine-setup <<</d' "$RC" 2>/dev/null || \
-  sed -i '' '/# >>> mats-tools machine-setup >>>/,/# <<< mats-tools machine-setup <<</d' "$RC"
+touch "$RC"
+# 1) remove a previous managed block, if any (`sed -i.bak` works on GNU and BSD sed)
+sed -i.bak '/# >>> mats-tools machine-setup >>>/,/# <<< mats-tools machine-setup <<</d' "$RC" && rm -f "$RC.bak"
 # 2) append the current block
 cat >> "$RC" <<'BLOCK'
 
@@ -95,9 +95,6 @@ BLOCK
 ```
 
 Notes:
-- The `sed -i.bak`/`sed -i ''` pair covers GNU and BSD sed; run whichever the platform
-  accepts (GNU `sed -i.bak` works on Linux, BSD needs `sed -i ''`). Pick the right one
-  from the detected OS rather than relying on the `||` fallback if you can.
 - `yolo` expands to the `claude` function, so it inherits the update wrapper automatically.
 - Do **not** add the CLAUDE.md↔GEMINI.md symlink sync — out of scope by request.
 

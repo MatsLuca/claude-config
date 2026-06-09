@@ -1,6 +1,6 @@
 ---
 description: Analysiert alle Änderungen seit dem letzten Push, pflegt README/CHANGELOG und zugehörige GitHub-Issues falls nötig, committet und pusht in einem Rutsch.
-allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git remote:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh issue list:*), Bash(gh issue view:*), Bash(gh issue comment:*), Bash(export PATH=*), Bash(echo:*), Bash(ls:*), Read, Edit
+allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh issue list:*), Bash(gh issue view:*), Bash(gh issue comment:*), Bash(export PATH=*), Bash(echo:*), Bash(ls:*), Read, Edit
 ---
 
 Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten GitHub-Push analysieren, ggf. README/CHANGELOG und zugehörige Issues pflegen, dann committen und pushen.
@@ -16,7 +16,8 @@ echo "=== BRANCH ===" && git rev-parse --abbrev-ref HEAD && \
 echo "=== UPSTREAM ===" && git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "NO_UPSTREAM" && \
 echo "=== STATUS ===" && git status --short && \
 echo "=== UNPUSHED COMMITS ===" && git log @{u}..HEAD --oneline 2>/dev/null || echo "(kein upstream / alle commits via stat unten)" && \
-echo "=== DIFFSTAT (tracked, seit Push) ===" && git diff @{u} --stat 2>/dev/null || git diff HEAD --stat
+echo "=== DIFFSTAT (tracked, seit Push) ===" && git diff @{u} --stat 2>/dev/null || git diff HEAD --stat && \
+echo "=== LETZTE COMMITS (Stil-Referenz) ===" && git log -5 --oneline 2>/dev/null || echo "(noch keine Commits)"
 ```
 
 Auswertung:
@@ -63,7 +64,7 @@ Pro betroffenem Issue:
 
 ## Schritt 5 — Commit-Message überlegen
 
-Conventional-Commits-Stil, an den Stil der letzten Commits angepasst. Knappe imperative Subject-Zeile (`type: kurze Beschreibung`), bei mehreren logischen Änderungen kurze Bullet-Body. Beschreibe das *Warum*, nicht nur das *Was*. Erledigt die Arbeit ein Issue aus Schritt 4, nimm `Closes #<N>` in den Body auf (eine Zeile pro Issue).
+Conventional-Commits-Stil, an die Stil-Referenz aus Schritt 1 angepasst. Knappe imperative Subject-Zeile (`type: kurze Beschreibung`), bei mehreren logischen Änderungen kurze Bullet-Body. Beschreibe das *Warum*, nicht nur das *Was*. Erledigt die Arbeit ein Issue aus Schritt 4, nimm `Closes #<N>` in den Body auf (eine Zeile pro Issue).
 
 ## Schritt 6 — Committen & Pushen in einem Rutsch
 
@@ -81,5 +82,7 @@ EOF
 ```
 
 (Bei fehlendem Upstream stattdessen `git push -u origin <branch>`.)
+
+Wird der Push abgelehnt (z.B. Remote weiter als lokal): abbrechen und Ursache melden — **kein** `--force`, kein automatischer Pull/Rebase.
 
 Melde am Ende kurz: Commit-Message, welche Docs aktualisiert wurden (falls), welche Issues verlinkt/geschlossen oder kommentiert wurden (falls), und das Push-Ergebnis.
