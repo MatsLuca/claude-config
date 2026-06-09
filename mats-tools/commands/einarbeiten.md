@@ -1,7 +1,7 @@
 ---
 description: Frisst beliebigen Input (Text, Datei, URL), analysiert ihn semantisch, prüft die Relevanz fürs aktuelle Projekt und arbeitet das Brauchbare gezielt ins Wissenssystem ein — oder stellt bestehende Strukturen begründet infrage.
 argument-hint: <Text, Dateipfad oder URL — der zu verarbeitende Input>
-allowed-tools: Bash(pwd), Bash(ls:*), Bash(git rev-parse:*), Read, Edit, Write, Glob, Grep, WebFetch
+allowed-tools: Bash(pwd), Bash(ls:*), Bash(git rev-parse:*), Read, Edit, Write, Glob, Grep, WebFetch, AskUserQuestion
 ---
 
 Du nimmst einen beliebigen Input und entscheidest fundiert, was davon — wenn überhaupt — wie ins aktuelle Projekt gehört. Kein blindes Reinkopieren: erst verstehen, dann Relevanz prüfen, Motivation klären, dann gezielt einarbeiten oder bestehende Annahmen infrage stellen.
@@ -48,9 +48,11 @@ Gleiche den Input-Kern gegen das in Schritt 2 verstandene Projekt ab. Ordne jede
 
 Halte zusätzlich fest, wo der Input bestehendes Projektwissen **bestätigt**, **ergänzt** oder ihm **widerspricht**.
 
-## Schritt 5 — Motivation klären (5 gezielte Rückfragen)
+## Schritt 5 — Motivation klären (bis zu 5 gezielte Rückfragen)
 
-Bevor du etwas einarbeitest: kläre, **warum** der User genau diesen Input einbringt — das entscheidet, was „richtig" heißt. Formuliere **5 spezifische, aus dem konkreten Input + Projekt abgeleitete** Fragen (keine generischen Floskeln). Nutze `AskUserQuestion` mit sinnvollen Optionen (max. 4 Fragen pro Runde → zwei Runden). Zielrichtungen, die du auf den realen Input zuschneidest:
+Ergibt Schritt 4 schon klar, dass **nichts** fürs Projekt relevant ist, überspringe die Rückfragen und geh direkt zu Schritt 6 (kein Handlungsbedarf) — frag nicht ins Leere.
+
+Sonst, bevor du etwas einarbeitest: kläre, **warum** der User genau diesen Input einbringt — das entscheidet, was „richtig" heißt. Formuliere **bis zu 5 spezifische, aus dem konkreten Input + Projekt abgeleitete** Fragen (keine generischen Floskeln); lass weg, was sich aus dem Input schon eindeutig ergibt. Nutze `AskUserQuestion` mit sinnvollen Optionen (max. 4 Fragen pro Runde). Zielrichtungen, die du auf den realen Input zuschneidest:
 - Ziel hinter dem Einbringen (lösen / belegen / hinterfragen / sammeln)?
 - Vertrauen / Autorität der Quelle?
 - Soll bestehendes Wissen ersetzt, ergänzt oder nur abgeglichen werden?
