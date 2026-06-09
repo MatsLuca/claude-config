@@ -28,6 +28,7 @@ Das Repo ist ein **Marketplace** (`.claude-plugin/marketplace.json`) mit einem P
 | Command | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
 | Command | `/optimieren` | Einen Command oder Agent nach dem Authoring-Standard schärfen |
 | Command | `/einarbeiten` | Beliebigen Input (Text/Datei/URL) semantisch analysieren, Projekt-Relevanz prüfen und ins Wissenssystem einarbeiten oder bestehende Strukturen infrage stellen |
+| Command | `/destillieren` | Gewachsenes Wissenssystem pflegen — Drift (veraltete/widersprüchliche Querverweise) heilen, dann Redundanz verdichten & Ordnerstrukturen neu denken; strukturelle Eingriffe erst nach Plan-Zustimmung |
 | Agent | `pdf-to-markdown` | Beliebige PDFs in LLM-optimiertes Markdown konvertieren — erkennt Klausur / Folien / generisch und wählt die passende Struktur |
 | Agent | `machine-setup` | Frische Claude-Code-Installation einrichten wie zuhause — `yolo`-Alias, Status Line, Plugin-Auto-Update beim Start und settings.json-Defaults; in Codespaces/Remote zusätzlich VS Code (Dark Mode, Copilot-Chat-Panel aus); portabel (macOS + Linux), idempotent |
 
