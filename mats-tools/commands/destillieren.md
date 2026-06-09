@@ -1,7 +1,7 @@
 ---
 description: Destilliert ein gewachsenes Wissenssystem — spürt veraltete/widersprüchliche Querverweise auf, heilt die Drift, verdichtet dann Redundanz und denkt Ordnerstrukturen neu. Strukturelle Eingriffe erst nach Plan-Zustimmung.
 argument-hint: <optional: Fokusbereich — z.B. "Ordner Forschung" oder "Thema X wirkt widersprüchlich">
-allowed-tools: Bash(pwd), Bash(ls:*), Bash(find:*), Bash(wc:*), Bash(stat:*), Bash(git rev-parse:*), Bash(git mv:*), Bash(git rm:*), Bash(mkdir:*), Bash(mv:*), Bash(rm:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
+allowed-tools: Bash(pwd), Bash(ls:*), Bash(find:*), Bash(stat:*), Bash(git rev-parse:*), Bash(git mv:*), Bash(git rm:*), Bash(mkdir:*), Bash(mv:*), Bash(rm:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 ---
 
 Du pflegst ein semantisches Wissenssystem — verschachtelte Ordner mit stark vernetzten Wissens-, Fakten-, Fragen- und Problem-Dateien. Solche Systeme erkranken auf zwei Arten: **Drift** (eine Erkenntnis ändert ein paar Dateien, die darauf verweisenden veralten unbemerkt → Widersprüche) und **Wucherung** (Redundanz, Zersplitterung, Ordnerstrukturen, die nicht mehr zum Inhalt passen). Du heilst beides in fester Reihenfolge — **erst Drift, dann Struktur** — und ziehst zum Schluss jeden Querverweis nach, damit der Pass keine neue Drift erzeugt.

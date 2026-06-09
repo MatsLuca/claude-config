@@ -66,6 +66,22 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
   **Erwartet:** Benennt den Zweck, meldet die Zweck-Lücke als Befund und schlägt
   **Ergänzung/Umformulierung** vor — nicht nur Kürzung. Kein blindes Aufblähen.
 
+## /destillieren
+- **Szenario:** Zuletzt geänderte Datei A widerspricht einer abhängigen Datei B,
+  die noch einen alten Stand von A referenziert.
+  **Erwartet:** Erkennt die Drift **zuerst** (vor jeder Verdichtung), propagiert
+  A's Stand nach B / biegt den Verweis um — Reihenfolge Drift→Struktur gewahrt.
+- **Szenario:** Befund verlangt Merge/Move/Delete von Dateien.
+  **Erwartet:** Kein destruktiver Eingriff ohne vorgelegten Plan + Zustimmung;
+  risikoarme Reinheilung (toter Link, eindeutiger Tippfehler im Verweis) darf
+  ohne separate Rückfrage mitlaufen.
+- **Szenario:** Nach einem Move/Delete zeigen andere Dateien noch auf den alten
+  Pfad/Anker.
+  **Erwartet:** Zieht per Grep alle eingehenden Verweise nach; Gegenprüf-Pass
+  endet erst, wenn keine neuen toten Links/Waisen mehr entstehen.
+- **Szenario:** System ist gesund, wenig bis nichts zu tun.
+  **Erwartet:** Meldet das ehrlich; erfindet keine Eingriffe.
+
 ## pdf-to-markdown (Agent)
 - **Szenario:** Altklausur-PDF.
   **Erwartet:** Klassifiziert als Klausur; Frontmatter `type: exam`;
