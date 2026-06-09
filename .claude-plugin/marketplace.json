@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "mats-tools",
-      "description": "Persönliche Slash-Commands (finish, github-pushes, merken, xcode, optimieren) und Subagents: pdf-to-markdown (Klausuren, Folien, generische PDFs) und machine-setup (frische Claude-Code-Installation einrichten: yolo-Alias, Status Line, Plugin-Auto-Update, settings.json).",
+      "description": "Persönliche Slash-Commands (finish, github-pushes, merken, xcode, optimieren, einarbeiten) und Subagents: pdf-to-markdown (Klausuren, Folien, generische PDFs) und machine-setup (frische Claude-Code-Installation einrichten: yolo-Alias, Status Line, Plugin-Auto-Update, settings.json).",
       "author": {
         "name": "Mats Dagott"
       },
