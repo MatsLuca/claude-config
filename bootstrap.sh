@@ -30,9 +30,7 @@ case "$(uname -s)" in
   Darwin|Linux) ;;
   *)
     die "Nur macOS/Linux. Für Windows (PowerShell):
-       irm https://claude.ai/install.ps1 | iex
-       claude plugin marketplace add $MARKETPLACE
-       claude plugin install $PLUGIN" ;;
+       irm https://raw.githubusercontent.com/MatsLuca/claude-config/master/bootstrap.ps1 | iex" ;;
 esac
 
 # ── 2. Voraussetzungen ────────────────────────────────────────────────────────
@@ -75,7 +73,6 @@ log "Installiere Plugin: $PLUGIN"
 # ── 5. Fertig ─────────────────────────────────────────────────────────────────
 ok "Bootstrap abgeschlossen. Beim nächsten Start ist $PLUGIN aktiv."
 echo
-echo "Nächste Schritte:"
-echo "  1. 'claude' starten  (beim ersten Mal ggf. einmalig einloggen)"
-echo "  2. machine-setup auslösen, z. B.:"
-echo "       \"Richte diese Claude-Code-Installation ein wie zuhause (machine-setup).\""
+echo "Nächster Schritt:"
+echo "  'claude' starten (beim ersten Mal ggf. einloggen) und als ersten Prompt schicken:"
+echo "      \"Führe das machine-setup durch.\""
