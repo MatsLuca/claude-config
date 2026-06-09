@@ -56,7 +56,7 @@ Bevor du strukturell eingreifst (Vereinen, Verschieben, Löschen, Ordnerumbau): 
 ## Schritt 6 — Ausführen in fester Reihenfolge
 
 1. **Drift heilen** — den aktuellen Stand in die abhängigen Dateien propagieren, Widersprüche zugunsten der belegten Fassung auflösen, tote Links reparieren oder entfernen.
-2. **Verdichten & umbauen** — Dateien per `Edit`/`Write` zusammenführen (synthetisieren, nicht aneinanderkleben), per `git mv`/`mv` verschieben, leere/tote Dateien entfernen, Ordner neu schneiden.
+2. **Verdichten & umbauen** — Dateien per `Edit`/`Write` zusammenführen (synthetisieren, nicht aneinanderkleben), verschieben und leere/tote Dateien entfernen (im Repo `git mv`/`git rm`, sonst `mv`/`rm` — gemäß `KEIN_REPO` aus Schritt 1), Ordner neu schneiden.
 3. **Querverweise nachziehen (der entscheidende Loop)** — nach *jedem* Merge/Move/Delete: per `Grep` alle eingehenden Verweise auf den alten Pfad/Namen/Anker finden und auf das neue Ziel umbiegen. Eine Datei verschwindet erst, wenn nichts mehr auf sie zeigt.
 
 ## Schritt 7 — Gegenprüfen (bis sauber)
