@@ -8,33 +8,35 @@ Du zeigst dem Nutzer, welche Commits er innerhalb des angegebenen Zeitraums auf 
 
 Der Zeitraum kommt als Argument: **$ARGUMENTS**
 
-## Schritt 1 — Zeitraum in einen `date -v`-Offset übersetzen
+## Schritt 1 — Zeitraum übersetzen (beide Schreibweisen)
 
-Interpretiere `$ARGUMENTS` (deutsch oder englisch, frei formuliert) und wähle den passenden macOS-`date -v`-Offset:
+Interpretiere `$ARGUMENTS` (deutsch oder englisch, frei formuliert) und wähle die passende Dauer — als GNU-Ausdruck (Linux/Container) **und** BSD-Offset (macOS); welcher greift, entscheidet die Probe im Block von Schritt 2:
 
-| Eingabe (Beispiele) | Offset-Flag |
-|---|---|
-| "Stunde", "1h", "60 min" | `-v-1H` |
-| "24 Stunden", "ein Tag", "1 Tag", "today", "heute" | `-v-24H` |
-| "2 Tage", "48h" | `-v-2d` |
-| "Woche", "eine Woche", "7 Tage" | `-v-7d` |
-| "2 Wochen", "14 Tage" | `-v-14d` |
-| "Monat", "30 Tage" | `-v-1m` |
-| "3 Monate", "Quartal" | `-v-3m` |
-| "Jahr", "12 Monate" | `-v-1y` |
+| Eingabe (Beispiele) | `<DAUER>` (GNU) | `<OFFSET>` (BSD) |
+|---|---|---|
+| "Stunde", "1h", "60 min" | `1 hour` | `-v-1H` |
+| "24 Stunden", "ein Tag", "1 Tag", "today", "heute" | `24 hours` | `-v-24H` |
+| "2 Tage", "48h" | `2 days` | `-v-2d` |
+| "Woche", "eine Woche", "7 Tage" | `7 days` | `-v-7d` |
+| "2 Wochen", "14 Tage" | `14 days` | `-v-14d` |
+| "Monat", "30 Tage" | `1 month` | `-v-1m` |
+| "3 Monate", "Quartal" | `3 months` | `-v-3m` |
+| "Jahr", "12 Monate" | `1 year` | `-v-1y` |
 
-Zahl + Einheit verallgemeinern (z.B. "5 Tage" → `-v-5d`, "6 Stunden" → `-v-6H`). Einheiten: `H`=Stunden, `d`=Tage, `m`=Monate, `y`=Jahre. Wochen in Tage umrechnen (×7, z.B. "3 Wochen" → `-v-21d`).
+Zahl + Einheit verallgemeinern (z.B. "5 Tage" → `5 days` / `-v-5d`). GNU-Einheiten: `hours`/`days`/`months`/`years`; BSD-Einheiten: `H`/`d`/`m`/`y`. Wochen in Tage umrechnen (×7, z.B. "3 Wochen" → `21 days` / `-v-21d`).
 
-Ist `$ARGUMENTS` leer, nimm standardmäßig **`-v-24H`** (letzte 24 Stunden) und erwähne das in der Antwort.
+Ist `$ARGUMENTS` leer, nimm standardmäßig **die letzten 24 Stunden** (`24 hours` / `-v-24H`) und erwähne das in der Antwort.
 
 ## Schritt 2 — Abfrage in EINEM Bash-Aufruf
 
-Ersetze `<OFFSET>` durch das in Schritt 1 gewählte Flag und führe genau diesen Block aus:
+Ersetze `<DAUER>` und `<OFFSET>` durch die in Schritt 1 gewählten Werte und führe genau diesen Block aus:
 
 ```bash
 export PATH="/opt/homebrew/bin:$PATH"
 LOGIN=$(gh api user --jq .login)
-SINCE=$(date -u <OFFSET> +%Y-%m-%dT%H:%M:%SZ)
+date -u -d @0 >/dev/null 2>&1 \
+  && SINCE=$(date -u -d "<DAUER> ago" +%Y-%m-%dT%H:%M:%SZ) \
+  || SINCE=$(date -u <OFFSET> +%Y-%m-%dT%H:%M:%SZ)
 echo "User: $LOGIN | Zeitraum-Start (UTC): $SINCE"
 echo "================================================"
 gh search commits --author=@me --owner="$LOGIN" --committer-date=">=$SINCE" \
