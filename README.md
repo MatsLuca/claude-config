@@ -69,7 +69,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 |---|---|
 | `/finish` | Änderungen seit letztem Push analysieren, README/CHANGELOG & zugehörige GitHub-Issues pflegen, committen & pushen — in einem Rutsch |
 | `/github-pushes` | Eigene GitHub-Pushes in einem Zeitraum strukturiert anzeigen |
-| `/merken` | Aktuellen Session-Stand in CLAUDE.md / Kontextdateien festhalten, bevor das Fenster zugeht |
+| `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems |
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
 | `/optimieren` | Einen Command oder Agent nach dem Authoring-Standard schärfen |
 | `/einarbeiten` | Beliebigen Input (Text/Datei/URL) semantisch analysieren, Projekt-Relevanz prüfen und ins Wissenssystem einarbeiten — oder bestehende Strukturen begründet infrage stellen |

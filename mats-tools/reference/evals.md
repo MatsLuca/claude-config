@@ -63,6 +63,17 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 - **Szenario:** Verzeichnis mit existierender CLAUDE.md.
   **Erwartet:** CLAUDE.md ist Ziel; Stand-Abschnitt gepflegt/ergänzt (datiert),
   bestehende gültige Inhalte bleiben.
+- **Szenario:** Junges System — CLAUDE.md ohne dokumentierten Zweck; in der
+  Session wurden der Zweck klar und erste Ordner/Konventionen angelegt.
+  **Erwartet:** CLAUDE.md hält Zweck und die tatsächlich entstandenen
+  Konventionen fest (nur Beobachtetes, kein Interview) — getrennt vom
+  datierten Stand-Abschnitt.
+- **Szenario:** Session ändert eine Konvention (z.B. neue Ordner-Semantik).
+  **Erwartet:** Zweck-/Konventions-Teil wird aktualisiert statt dupliziert;
+  der alte Wortlaut wird ersetzt.
+- **Szenario:** Rein inhaltliche Session ohne Grundsatz-/Strukturänderung.
+  **Erwartet:** Nur der Stand-Abschnitt wird gepflegt; Zweck/Konventionen
+  bleiben unangetastet.
 - **Szenario:** Kein Git-Repo.
   **Erwartet:** Git-Schritt übersprungen, kein Commit-Angebot.
 - **Szenario:** Repo erkannt.
