@@ -9,6 +9,7 @@
 input=$(cat)
 
 model=$(echo "$input" | jq -r '.model.display_name // "Unknown"')
+effort=$(echo "$input" | jq -r '.effort.level // empty')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
 dir=$(basename "$cwd")
 
@@ -25,10 +26,10 @@ esac
 # --- glyph set (UTF-8 vs ASCII fallback) -------------------------------------
 if [ "$UNICODE" = 1 ]; then
   G_FILL='█'; G_EMPTY='░'; G_SEP='·'; G_BR='⎇'; G_REL='⟳'
-  G_D='Δ'; G_SUM='Σ'; G_OK='✓'; G_NORE='∅'; G_EUR='€'
+  G_D='Δ'; G_SUM='Σ'; G_OK='✓'; G_NORE='∅'; G_EUR='€'; G_DOWN='↓'
 else
   G_FILL='#'; G_EMPTY='-'; G_SEP='|'; G_BR='br'; G_REL='~'
-  G_D='d'; G_SUM='sum'; G_OK='ok'; G_NORE='no'; G_EUR='EUR'
+  G_D='d'; G_SUM='sum'; G_OK='ok'; G_NORE='no'; G_EUR='EUR'; G_DOWN='v'
 fi
 
 # --- per-metric identity colors (256-color) ----------------------------------
@@ -157,17 +158,38 @@ if [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&
   git_str="${sep}${GIT_C}${G_BR} ${branch}${RST}"
 
   if git -C "$cwd" rev-parse --abbrev-ref @{u} >/dev/null 2>&1; then
-    # diff der getrackten Dateien gegen Upstream
-    #   = ungepushte Commits + uncommittete Änderungen in einem
-    shortstat=$(git -C "$cwd" diff --shortstat @{u} 2>/dev/null)
+    # Remote-Refs frisch halten: max. alle 15 min ein Fetch, im Hintergrund
+    # (blockiert das Rendern nie). Drosselung über eigene Marker-Datei, kein
+    # Credential-Prompt (GIT_TERMINAL_PROMPT=0), damit nichts hängen bleibt.
+    gitdir=$(git -C "$cwd" rev-parse --absolute-git-dir 2>/dev/null)
+    if [ -n "$gitdir" ]; then
+      fetch_marker="$gitdir/statusline-fetch"
+      if [ $(( $(date +%s) - $(mtime "$fetch_marker") )) -gt 900 ]; then
+        touch "$fetch_marker" 2>/dev/null
+        GIT_TERMINAL_PROMPT=0 git -C "$cwd" fetch --quiet >/dev/null 2>&1 &
+      fi
+    fi
+
+    # ahead/behind gegen Upstream (rein lokal, billig): left = nur-Upstream-Commits
+    set -- $(git -C "$cwd" rev-list --left-right --count "@{u}...HEAD" 2>/dev/null)
+    behind=${1:-0}
+
+    # diff der getrackten Dateien gegen die Merge-Basis mit Upstream
+    #   = ungepushte Commits + uncommittete Änderungen in einem —
+    #   Upstream-Neuerungen zählen nicht hinein (die zeigt ↓ separat)
+    diffbase=$(git -C "$cwd" merge-base HEAD "@{u}" 2>/dev/null)
+    [ -z "$diffbase" ] && diffbase="@{u}"
+    shortstat=$(git -C "$cwd" diff --shortstat "$diffbase" 2>/dev/null)
     files=$(echo "$shortstat"   | grep -oE '[0-9]+ file'      | grep -oE '[0-9]+')
     ins=$(echo "$shortstat"     | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+')
     del=$(echo "$shortstat"     | grep -oE '[0-9]+ deletion'  | grep -oE '[0-9]+')
     untracked=$(git -C "$cwd" ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
     files=${files:-0}; ins=${ins:-0}; del=${del:-0}; untracked=${untracked:-0}
 
+    [ "$behind" -gt 0 ] && git_str="${git_str} ${DEL_C}${G_DOWN}${behind}${RST}"
+
     if [ "$files" -eq 0 ] && [ "$untracked" -eq 0 ]; then
-      git_str="${git_str} ${DIM}${G_OK} synced${RST}"
+      [ "$behind" -eq 0 ] && git_str="${git_str} ${DIM}${G_OK} synced${RST}"
     else
       git_str="${git_str} ${DIFF_C}${G_D}${files}${RST} ${GIT_C}+${ins}${RST}${DIM}/${RST}${DEL_C}-${del}${RST}"
       [ "$untracked" -gt 0 ] && git_str="${git_str} ${DIM}+${untracked} neu${RST}"
@@ -178,9 +200,11 @@ if [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&
 fi
 
 # --- render (zweizeilig: schneidet auf schmalen Terminals nicht mehr ab) ------
-# Zeile 1: Verzeichnis / Git / Modell
-printf "${DIM}%s${RST}%b${sep}${MODEL_C}%s${RST}\n" \
-  "$dir" "$git_str" "$model"
+# Zeile 1: Verzeichnis / Git / Modell (+ aktueller Effort-Level)
+effort_sfx=""
+[ -n "$effort" ] && effort_sfx=" ${MODEL_C}${effort}${RST}"
+printf "${DIM}%s${RST}%b${sep}${MODEL_C}%s${RST}%b\n" \
+  "$dir" "$git_str" "$model" "$effort_sfx"
 # Zeile 2: Kontext / Limits / Kosten
 printf "%b%b%b\n" \
   "$ctx_str" "$limits_str" "$cost_str"
