@@ -95,6 +95,11 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
   schlägt gezielte Edits vor (nicht ganze Datei neu).
 - **Szenario:** Mehrdeutiger/leerer Name.
   **Erwartet:** Fragt nach, statt zu raten.
+- **Szenario:** Lokales Repo hängt hinter dem Remote; die installierte
+  Plugin-Fassung ist neuer als die Repo-Quelle.
+  **Erwartet:** Erkennt die veraltete Arbeitskopie und bringt sie erst auf Stand
+  (bzw. meldet, wenn das nicht sauber geht) — geschärft wird nie eine veraltete
+  Fassung.
 - **Szenario (Dogfood):** `/optimieren optimieren`.
   **Erwartet:** Kann sich selbst gegen den Standard prüfen.
 - **Szenario (Meta):** `/optimieren authoring-guide`.
@@ -111,7 +116,8 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
   *Formulierung* eines Evals, wird der Eval explizit mit angepasst.
 - **Szenario:** Nach den Edits.
   **Erwartet:** Führt `tools/validate.sh` aus (falls vorhanden) und meldet das
-  Ergebnis; rote Befunde werden gefixt, bevor abgeschlossen wird.
+  Ergebnis; durch die Edits verursachte rote Befunde werden gefixt, bevor
+  abgeschlossen wird; vorbestehende fremde nur gemeldet.
 
 ## /destillieren
 - **Szenario:** Zuletzt geänderte Datei A widerspricht einer abhängigen Datei B,
