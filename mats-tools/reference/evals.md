@@ -1,12 +1,29 @@
 # Eval-Szenarien für mats-tools
 
 Leichtgewichtige Prüf-Checkliste: pro Command/Agent ein paar repräsentative
-Szenarien + erwartetes Verhalten. Kein automatischer Runner — manuell am echten
-Command/Agent durchspielen.
+Szenarien + erwartetes Verhalten.
+
+**Grundprinzip — Outcomes, nicht Implementierung.** Szenarien beschreiben
+*beobachtbares Verhalten* (was der User sieht und was auf der Platte passiert),
+nie interne Marker, Flags oder konkrete Tool-Aufrufe. Ein Eval darf eine bessere
+Neuimplementierung niemals blockieren: Ändert sich das *Wie*, bleibt der Eval
+gültig; ändert sich das *Was*, wird der Eval bewusst mitgeändert — nie stillschweigend.
 
 **Loop:** Szenario ausführen → Verhalten beobachten → Abweichung als Befund in
 `/optimieren <ziel>` einspeisen → schärfen → erneut prüfen. `/optimieren` liest
-diese Datei und muss das hier beschriebene Verhalten erhalten.
+diese Datei und muss die hier beschriebenen Outcomes erhalten.
+
+**Ausführen:** Strukturelles prüft `tools/validate.sh` automatisch (lokal + CI).
+Verhaltens-Szenarien laufen am echten Command/Agent — interaktiv oder headless
+in einem Wegwerf-Fixture, z.B.:
+
+```bash
+cd "$(mktemp -d)" && git init -q .   # Fixture passend zum Szenario aufbauen
+claude -p "/finish" --permission-mode acceptEdits   # Transkript gegen das Szenario lesen
+```
+
+Kein automatischer Assertion-Runner (noch) — die Outcome-Formulierungen unten
+sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 
 ---
 
@@ -14,14 +31,14 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
 - **Szenario:** Clean repo, nichts zu committen.
   **Erwartet:** Erkennt „keine Änderungen", meldet das und stoppt ohne Commit.
 - **Szenario:** Branch ohne Upstream, neue untracked Datei.
-  **Erwartet:** Push mit `git push -u origin <branch>`, untracked Datei wird
+  **Erwartet:** Push setzt den Upstream (`-u`), untracked Datei wird
   berücksichtigt; „Diff seit Push" = alles ab erstem Commit.
 - **Szenario:** Neues Feature mit sichtbarer Änderung, README existiert.
   **Erwartet:** README gezielt aktualisiert; Conventional-Commit-Message im Stil
   der letzten Commits; Co-Author-Trailer gesetzt.
 - **Szenario:** Projekt ohne GitHub-Issues bzw. ohne `gh`/Remote.
-  **Erwartet:** Issue-Schritt erkennt `KEINE_ISSUES_ODER_KEIN_GH` und wird stumm
-  übersprungen; kein Nachhaken, sonst unverändertes Verhalten.
+  **Erwartet:** Issue-Schritt wird stumm übersprungen; kein Nachhaken, sonst
+  unverändertes Verhalten.
 - **Szenario:** Offenes Issue, das die Änderung erledigt.
   **Erwartet:** `Closes #<N>` landet in der Commit-Message (auto-close beim Push);
   Issue-Kommentar nur als Angebot, nicht ungefragt geschrieben.
@@ -31,18 +48,22 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
 
 ## /github-pushes
 - **Szenario:** Argument leer.
-  **Erwartet:** Default `-v-24H`, erwähnt den Default in der Antwort.
+  **Erwartet:** Nimmt die letzten 24 Stunden als Default und erwähnt das in
+  der Antwort.
 - **Szenario:** „letzte Woche".
-  **Erwartet:** Übersetzt zu `-v-7d`; Ergebnis pro Repo gruppiert, neueste
-  zuerst, private Repos mit 🔒; Kurz-Summary vorangestellt.
+  **Erwartet:** Zeitraum-Start liegt 7 Tage zurück; Ergebnis pro Repo gruppiert,
+  neueste zuerst, private Repos mit 🔒; Kurz-Summary vorangestellt.
+- **Szenario:** Lauf auf Linux/Container **und** auf macOS.
+  **Erwartet:** Der Zeitraum-Start wird auf beiden Plattformen korrekt
+  berechnet — kein Abbruch wegen `date`-Dialekt.
 - **Szenario:** Keine Commits im Zeitraum.
-  **Erwartet:** Meldet knapp „keine Pushes gefunden" (jq `KEINE_COMMITS`).
+  **Erwartet:** Meldet knapp, dass im Zeitraum keine Pushes gefunden wurden.
 
 ## /merken
 - **Szenario:** Verzeichnis mit existierender CLAUDE.md.
   **Erwartet:** CLAUDE.md ist Ziel; Stand-Abschnitt gepflegt/ergänzt (datiert),
   bestehende gültige Inhalte bleiben.
-- **Szenario:** Kein Repo (`KEIN_REPO`).
+- **Szenario:** Kein Git-Repo.
   **Erwartet:** Git-Schritt übersprungen, kein Commit-Angebot.
 - **Szenario:** Repo erkannt.
   **Erwartet:** Committet **nicht** ungefragt — bietet Commit/Push an, wartet auf
@@ -50,9 +71,8 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
 
 ## /xcode
 - **Szenario:** Verzeichnis mit genau einem `.xcodeproj`.
-  **Erwartet:** `find` liefert genau **einen** Treffer (das eingebettete
-  `project.xcworkspace` im Bundle zählt nicht); öffnet es direkt mit `open`,
-  kurze Bestätigung.
+  **Erwartet:** Genau **ein** Treffer (das eingebettete `project.xcworkspace`
+  im Bundle zählt nicht); öffnet es direkt, kurze Bestätigung.
 - **Szenario:** `.xcworkspace` **und** `.xcodeproj` vorhanden.
   **Erwartet:** Bevorzugt `.xcworkspace`.
 - **Szenario:** Kein Projekt gefunden, leeres Argument.
@@ -66,10 +86,21 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
   **Erwartet:** Fragt nach, statt zu raten.
 - **Szenario (Dogfood):** `/optimieren optimieren`.
   **Erwartet:** Kann sich selbst gegen den Standard prüfen.
+- **Szenario (Meta):** `/optimieren authoring-guide`.
+  **Erwartet:** Erkennt den Standard selbst als Ziel; prüft ihn gegen seinen
+  Zweck und die aktuellen Upstream-Best-Practices (nicht gegen sich selbst);
+  schlägt gezielte Revisionen vor.
 - **Szenario:** Ziel ist standard-konform, aber zu knapp/unklar für seinen Zweck
   (fehlender Schritt, fehlendes Beispiel).
   **Erwartet:** Benennt den Zweck, meldet die Zweck-Lücke als Befund und schlägt
   **Ergänzung/Umformulierung** vor — nicht nur Kürzung. Kein blindes Aufblähen.
+- **Szenario:** Eine Verbesserung ändert die Implementierung, das Outcome eines
+  Eval-Szenarios bleibt erfüllt.
+  **Erwartet:** Verbesserung wird umgesetzt; betrifft die Änderung die
+  *Formulierung* eines Evals, wird der Eval explizit mit angepasst.
+- **Szenario:** Nach den Edits.
+  **Erwartet:** Führt `tools/validate.sh` aus (falls vorhanden) und meldet das
+  Ergebnis; rote Befunde werden gefixt, bevor abgeschlossen wird.
 
 ## /destillieren
 - **Szenario:** Zuletzt geänderte Datei A widerspricht einer abhängigen Datei B,
@@ -82,8 +113,11 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
   ohne separate Rückfrage mitlaufen.
 - **Szenario:** Nach einem Move/Delete zeigen andere Dateien noch auf den alten
   Pfad/Anker.
-  **Erwartet:** Zieht per Grep alle eingehenden Verweise nach; Gegenprüf-Pass
-  endet erst, wenn keine neuen toten Links/Waisen mehr entstehen.
+  **Erwartet:** Zieht alle eingehenden Verweise nach; Gegenprüf-Pass endet erst,
+  wenn keine neuen toten Links/Waisen mehr entstehen.
+- **Szenario:** Lauf auf Linux/Container **und** auf macOS.
+  **Erwartet:** Die System-Kartierung (Schritt 1) liefert auf beiden Plattformen
+  die nach Änderungsdatum sortierte Dateiliste — kein Abbruch wegen `stat`-Dialekt.
 - **Szenario:** System ist gesund, wenig bis nichts zu tun.
   **Erwartet:** Meldet das ehrlich; erfindet keine Eingriffe.
 
@@ -94,8 +128,8 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
   **Erwartet:** Überspringt die Rückfragen (Schritt 5), entscheidet „kein
   Handlungsbedarf", ändert keine Datei.
 - **Szenario:** URL, deren Inhalt bestehendes Projektwissen ergänzt.
-  **Erwartet:** Holt per WebFetch; stellt gezielte, aus Input + Projekt
-  abgeleitete Rückfragen (keine generischen); arbeitet per `Edit` punktuell ein —
+  **Erwartet:** Holt den Inhalt; stellt gezielte, aus Input + Projekt
+  abgeleitete Rückfragen (keine generischen); arbeitet punktuell ein —
   Synthese im Stil der Zieldatei, kein Roh-Copy-Paste.
 - **Szenario:** Input widerspricht einer Annahme in CLAUDE.md glaubwürdig.
   **Erwartet:** Wählt „Infragestellen": benennt den Konflikt explizit, schlägt
@@ -116,7 +150,7 @@ diese Datei und muss das hier beschriebene Verhalten erhalten.
 - **Szenario:** Codespace/Remote-Container mit VS-Code-Server.
   **Erwartet:** Machine-Settings gemerged (Dark Mode, Chat-Panel versteckt),
   Hinweis auf Window-Reload; auf lokalem macOS wird der Schritt nie ausgeführt.
-- **Szenario:** Bundled Status-Line-Skript nicht auffindbar (`$SRC` leer).
+- **Szenario:** Bundled Status-Line-Skript nicht auffindbar.
   **Erwartet:** Stoppt und meldet — schreibt das Skript nicht von Hand.
 - **Szenario:** Status Line rendert im aktuellen Terminal fehlerhaft
   (Mojibake, rohe Escapes).

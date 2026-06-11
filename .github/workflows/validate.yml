@@ -1,0 +1,15 @@
+# Strukturelle Verifikation bei jedem Push/PR — siehe tools/validate.sh.
+# Damit kann auch eine autonome Session selbst prüfen, ob ihre Änderung heil ist.
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: tools/validate.sh
+        run: ./tools/validate.sh

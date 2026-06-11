@@ -13,11 +13,15 @@ Optionaler Fokus: **$ARGUMENTS**
 ## Schritt 1 — System kartieren (eine Bash-Runde)
 
 ```bash
-echo "=== WURZEL ===" && pwd && git rev-parse --show-toplevel 2>/dev/null || echo "KEIN_REPO" && \
-echo "=== KONTEXT ===" && ls -1 CLAUDE.md README* 2>/dev/null || echo "(keiner)" && \
-echo "=== STRUKTUR (Ordner + Dateien, sortiert nach Änderungsdatum) ===" && \
-find . -type f \( -name '*.md' -o -name '*.txt' \) -not -path '*/.git/*' -exec stat -f '%m %z %N' {} + | sort -rn
+echo "=== WURZEL ===" && pwd && (git rev-parse --show-toplevel 2>/dev/null || echo "KEIN_REPO") && \
+echo "=== KONTEXT ===" && (ls -1 CLAUDE.md README* 2>/dev/null || echo "(keiner)") && \
+echo "=== STRUKTUR (Epoch + Bytes + Pfad, neueste zuerst) ===" && \
+stat -c %Y . >/dev/null 2>&1 \
+  && find . -type f \( -name '*.md' -o -name '*.txt' \) -not -path '*/.git/*' -exec stat -c '%Y %s %n' {} + | sort -rn \
+  || find . -type f \( -name '*.md' -o -name '*.txt' \) -not -path '*/.git/*' -exec stat -f '%m %z %N' {} + | sort -rn
 ```
+
+(Die `stat`-Probe wählt einmal die GNU- (Linux/Container) oder BSD-Variante (macOS) — beide liefern dasselbe Format.)
 
 Das gibt dir Ordnerbaum, Dateigrößen und **Änderungsdaten** — letztere sind der Schlüssel: zuletzt geänderte Dateien sind Drift-Quellen, alles was auf sie zeigt, ist Verdacht. Lies `CLAUDE.md`/Index gezielt, um die **beabsichtigte Konvention** des Systems zu verstehen (welcher Ordner wofür, wie verlinkt wird). Was schon im Kontext ist, nicht neu lesen.
 
