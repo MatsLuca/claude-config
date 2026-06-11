@@ -40,6 +40,7 @@ GIT_C='\033[38;5;77m'    # green         -> branch / insertions
 DIFF_C='\033[38;5;220m'  # yellow        -> pending diff vs remote
 DEL_C='\033[38;5;203m'   # soft red      -> deletions
 COST_C='\033[38;5;120m'  # mint green    -> session cost ($)
+TIME_C='\033[38;5;111m'  # soft blue     -> session timer
 ALERT='\033[1;38;5;196m' # bold red  -> critical override (>=85%)
 MODEL_C='\033[1;36m'     # bold cyan -> model name
 DIM='\033[2m'
@@ -48,7 +49,7 @@ RST='\033[0m'
 # strip all color when the terminal can't be trusted with it (output stays readable)
 if [ "$COLOR" = 0 ]; then
   CTX_C=''; H5_C=''; D7_C=''; GIT_C=''; DIFF_C=''; DEL_C=''
-  COST_C=''; ALERT=''; MODEL_C=''; DIM=''; RST=''
+  COST_C=''; TIME_C=''; ALERT=''; MODEL_C=''; DIM=''; RST=''
 fi
 
 # portable file mtime (epoch): detect stat variant once, then never mix them.
@@ -150,6 +151,25 @@ if [ -n "$cost_raw" ]; then
   fi
 fi
 
+# --- Session-Timer (Laufzeit dieser Claude-Code-Instanz) ---------------------
+# Max. 2 Ziffern, Einheit skaliert mit: 0-59s -> 1.0-9.9m -> 10-59m -> 1.0-9.9h -> 10-99h.
+dur_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // empty')
+time_str=""
+if [ -n "$dur_ms" ]; then
+  secs=$(( $(printf '%.0f' "$dur_ms") / 1000 ))
+  if   [ "$secs" -lt 60 ];    then t="${secs}s"
+  elif [ "$secs" -lt 600 ];   then
+    tenths=$(( secs / 6 ))     # Zehntelminuten, abgeschnitten -> nie "10.0m"
+    t="$(( tenths / 10 )).$(( tenths % 10 ))m"
+  elif [ "$secs" -lt 3600 ];  then t="$(( secs / 60 ))m"
+  elif [ "$secs" -lt 36000 ]; then
+    tenths=$(( secs / 360 ))   # Zehntelstunden, abgeschnitten -> nie "10.0h"
+    t="$(( tenths / 10 )).$(( tenths % 10 ))h"
+  else                             t="$(( secs / 3600 ))h"
+  fi
+  time_str="${sep}${TIME_C}${t}${RST}"
+fi
+
 # --- git: lokaler Stand vs. letzter Push (upstream) --------------------------
 git_str=""
 if [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -200,11 +220,11 @@ if [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&
 fi
 
 # --- render (zweizeilig: schneidet auf schmalen Terminals nicht mehr ab) ------
-# Zeile 1: Verzeichnis / Git / Modell (+ aktueller Effort-Level)
+# Zeile 1: Verzeichnis / Git / Modell (+ aktueller Effort-Level) / Session-Timer
 effort_sfx=""
 [ -n "$effort" ] && effort_sfx=" ${MODEL_C}${effort}${RST}"
-printf "${DIM}%s${RST}%b${sep}${MODEL_C}%s${RST}%b\n" \
-  "$dir" "$git_str" "$model" "$effort_sfx"
+printf "${DIM}%s${RST}%b${sep}${MODEL_C}%s${RST}%b%b\n" \
+  "$dir" "$git_str" "$model" "$effort_sfx" "$time_str"
 # Zeile 2: Kontext / Limits / Kosten
 printf "%b%b%b\n" \
   "$ctx_str" "$limits_str" "$cost_str"

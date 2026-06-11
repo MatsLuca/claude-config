@@ -225,7 +225,7 @@ The bundled script handles the cases it knows about; your job is to catch the on
 doesn't. Render it with a realistic payload, mirroring the actual terminal's env:
 
 ```bash
-echo '{"model":{"display_name":"opus"},"workspace":{"current_dir":"'"$PWD"'"},"context_window":{"used_percentage":42},"rate_limits":{"five_hour":{"used_percentage":12},"seven_day":{"used_percentage":92}},"cost":{"total_cost_usd":0.37},"session_id":"verify"}' \
+echo '{"model":{"display_name":"opus"},"workspace":{"current_dir":"'"$PWD"'"},"context_window":{"used_percentage":42},"rate_limits":{"five_hour":{"used_percentage":12},"seven_day":{"used_percentage":92}},"cost":{"total_cost_usd":0.37,"total_duration_ms":754000},"session_id":"verify"}' \
   | sh "$HOME/.claude/statusline-command.sh"
 ```
 
