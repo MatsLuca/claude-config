@@ -1,5 +1,5 @@
 ---
-description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrelevanten Kontextdateien fest, damit du das Fenster schließen kannst, ohne Kontext zu verlieren.
+description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrelevanten Kontextdateien fest — und erntet dabei Zweck & gewachsene Konventionen des Systems, damit kein Kontext verloren geht.
 allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Read, Edit, Write, AskUserQuestion
 ---
 
@@ -12,6 +12,7 @@ Du hältst den aktuellen Arbeitsstand fest, damit der aktive Chat verlassen werd
 ```bash
 echo "=== ORDNER ===" && pwd && \
 echo "=== MARKDOWN & KONTEXT ===" && ls -1 *.md 2>/dev/null || echo "(keine .md im Root)" && \
+echo "=== STRUKTUR (Root) ===" && ls -1F && \
 echo "=== GIT? ===" && git rev-parse --is-inside-work-tree 2>/dev/null && git branch --show-current 2>/dev/null || echo "KEIN_REPO"
 ```
 
@@ -21,12 +22,13 @@ Geh den bisherigen Chatverlauf gedanklich durch und destilliere **nur das, was f
 - **Was wurde getan / entschieden** (Ergebnisse, Festlegungen, verworfene Wege inkl. Grund).
 - **Was ist offen** — der nächste konkrete Schritt, offene Fragen, Blocker.
 - **Wichtiger Kontext**, der sonst verloren ginge (Fundstellen, Annahmen, Zwischenergebnisse, Links/Dateipfade).
+- **Verfassungs-Befunde** — hat die Session sichtbar gemacht oder geändert, **wozu** dieses System existiert oder **wie** es organisiert ist (welcher Ordner wofür, Namensschema, wie verlinkt wird, Grundsatz-Entscheidungen)? Nur zählen, was tatsächlich passiert oder entschieden wurde — nichts spekulieren, kein Interview.
 
 Halte es knapp und handlungsorientiert. Kein Verlaufsprotokoll — der Future-Du soll in 30 Sekunden wieder drin sein. Lass Triviales weg.
 
 ## Schritt 3 — Zieldatei(en) bestimmen
 
-- **`CLAUDE.md` existiert** → sie ist immer ein Ziel. Aktualisiere/ergänze sie. Wenn es schon einen Stand-/Status-/„Aktueller Stand"-Abschnitt gibt, pflege diesen; sonst ergänze einen klar benannten Abschnitt am Ende (z.B. `## Aktueller Stand (<heutiges Datum>)`).
+- **`CLAUDE.md` existiert** → sie ist immer ein Ziel. Aktualisiere/ergänze sie. Wenn es schon einen Stand-/Status-/„Aktueller Stand"-Abschnitt gibt, pflege diesen; sonst ergänze einen klar benannten Abschnitt am Ende (z.B. `## Aktueller Stand (<heutiges Datum>)`). Gibt es Verfassungs-Befunde (Schritt 2), pflege zusätzlich den Zweck-/Konventions-Teil der Datei — meist oben, vor dem Stand.
 - **Weitere projektrelevante Dateien** (meist Markdown): Wenn Inhalt thematisch klar woanders hingehört (z.B. eine `NOTES.md`, `STATUS.md`, ein Themen-Markdown, eine Mitschrift), aktualisiere zusätzlich gezielt **diese** Datei. Lies große Dateien gezielt in den betroffenen Abschnitten, nicht komplett.
 - **Keine CLAUDE.md, kein passendes Ziel** → schlage dem User eine Datei vor (i.d.R. `CLAUDE.md` für ein Arbeitsverzeichnis, sonst eine themenpassende `*.md`) und lege sie nach kurzer Bestätigung an.
 
@@ -36,6 +38,7 @@ Bei Unsicherheit, welche Datei wohin (oder ob eine neue angelegt werden soll): p
 
 - Nutze `Edit` für punktuelle Ergänzungen in bestehenden Dateien, `Write` nur für neu anzulegende.
 - **Passe dich an Stil und Struktur der jeweiligen Datei an** (Überschriftenebenen, Sprache, Ton). Schreibe nicht über bestehende, noch gültige Inhalte — ergänze oder aktualisiere veraltete Stellen.
+- **Verfassung getrennt vom Stand:** Zweck & Konventionen sind langsam veränderlich und gehören nach vorn; der Stand ist schnelllebig und datiert. Ein junges System darf eine Ein-Satz-Verfassung haben — nichts erfinden, nichts aufblähen: ohne Verfassungs-Befund bleibt der Teil unangetastet. (Genau diese Abschnitte lesen `/einarbeiten` und `/destillieren` später als beabsichtigte Konvention des Systems.)
 - Datiere den Stand-Abschnitt mit dem heutigen Datum, wenn die Datei mit Daten arbeitet.
 - Markiere offene Punkte klar (z.B. als Checkliste `- [ ]`), damit der nächste Einstieg sofort sichtbar ist.
 
