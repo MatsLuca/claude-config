@@ -88,6 +88,16 @@ claude() {
   else
     command claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell."
   fi
+  # Repo-Frische: hängt der lokale Klon hinter origin? Einmal fetchen (max 5s) und melden.
+  if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+    if command -v timeout >/dev/null 2>&1; then timeout 5 git fetch --quiet 2>/dev/null
+    elif command -v gtimeout >/dev/null 2>&1; then gtimeout 5 git fetch --quiet 2>/dev/null
+    elif command -v perl >/dev/null 2>&1; then perl -e 'alarm shift; exec @ARGV' 5 git fetch --quiet 2>/dev/null
+    else GIT_TERMINAL_PROMPT=0 git fetch --quiet 2>/dev/null; fi
+    local behind
+    behind=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null)
+    [ "${behind:-0}" -gt 0 ] && echo "⬇️  Repo hängt $behind Commit(s) hinter $(git rev-parse --abbrev-ref '@{u}') — ggf. git pull."
+  fi
   command claude "$@"
 }
 # <<< mats-tools machine-setup <<<
@@ -96,6 +106,9 @@ BLOCK
 
 Notes:
 - `yolo` expands to the `claude` function, so it inherits the update wrapper automatically.
+- The repo-freshness check fetches once per launch (5s cap) and warns when the local
+  clone is behind upstream — the multi-machine staleness guard. It is silent outside
+  git repos and in repos without an upstream.
 - Do **not** add the CLAUDE.md↔GEMINI.md symlink sync — out of scope by request.
 
 ---
