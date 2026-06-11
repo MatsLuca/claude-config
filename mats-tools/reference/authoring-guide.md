@@ -14,6 +14,7 @@ Genutzt vom `/optimieren`-Command als Prüfgrundlage. Wer hier etwas ändert,
 - Commands (`commands/*.md`)
 - Agents (`agents/*.md`)
 - Repo-Konventionen
+- Meta-Pflege des Standards
 - Review-Checkliste
 
 ---
@@ -43,6 +44,14 @@ Gelten für Commands **und** Agents.
 - **Evaluation-first.** Erst die Lücke/das Szenario benennen (siehe `evals.md`),
   dann die minimal nötige Anweisung schreiben, die es löst — nicht Anweisungen
   für eingebildete Probleme.
+- **Evals beschreiben Outcomes, nicht Implementierung.** Szenarien in `evals.md`
+  fixieren *beobachtbares Verhalten*, nie interne Marker, Flags oder konkrete
+  Tool-Aufrufe. Sonst konserviert jeder Optimierungs-Pass die heutige
+  Implementierung und blockiert bessere — das Gegenteil des Zwecks.
+- **Heutige Krücken nicht als Dogma gießen.** Workarounds für aktuelle
+  Modell-/Tool-Limitierungen (exakt vorgegebene Blöcke, harte Reihenfolgen) als
+  das kennzeichnen, was sie sind — beim Optimieren prüfen, ob die Limitierung
+  noch existiert, statt die Krücke zu verewigen.
 
 ---
 
@@ -67,8 +76,14 @@ auslöst. `$ARGUMENTS` wird im Body durch die User-Eingabe ersetzt.
   Vorbild: der kombinierte `echo … && …`-Block in `finish.md`.
 - **Klare nummerierte Schritte** mit `## Schritt N — …`. Pro Schritt eine
   abgegrenzte Aufgabe.
-- **macOS-Tooling:** `date -v` für Zeit-Offsets, `open` für Apps/Dateien,
-  `/opt/homebrew/bin` im PATH wenn `gh`/`jq` gebraucht werden.
+- **Portabel (macOS + Linux):** Commands laufen auch in Containern/Codespaces.
+  Bei BSD↔GNU-Dialekten (`date`, `stat`, `sed -i`) das **Probe-dann-Variante**-Muster
+  nutzen: einmal billig die GNU-Variante testen, dann konsequent eine der beiden
+  fahren (Vorbild: `mtime()` in `statusline-command.sh`, Schritt 1 in
+  `destillieren.md`). Kein `BSD || GNU` ohne Probe — manche Tools verschmutzen
+  stdout, bevor sie fehlschlagen. `/opt/homebrew/bin` im PATH zu ergänzen ist
+  okay (auf Linux wirkungslos). Rein macOS-gebundene Commands (z.B. `/xcode`
+  mit `open`) sind die markierte Ausnahme.
 - **Fragile Schritte wörtlich vorgeben** (exakter Bash-Block zum Kopieren),
   offene Entscheidungen Claude überlassen.
 - **Abschlussmeldung:** knapp halten — was getan wurde, keine langen
@@ -120,6 +135,29 @@ auf Anfrage startet.
 - **Plugin-interne Datei-Referenzen:** über `${CLAUDE_PLUGIN_ROOT}/…`. Keine
   Pfade aus dem Plugin heraus (`../…`) — die werden im installierten Zustand
   nicht mitkopiert.
+- **Mechanische Verifikation:** `tools/validate.sh` (läuft auch in CI) prüft
+  Manifeste, Frontmatter, Listing-Sync, Plugin-Referenzen und den
+  Portabilitäts-Lint. Nach jeder Änderung an Commands/Agents/Manifesten
+  ausführen — grün ist die Mindestbedingung, sie ersetzt keine Verhaltens-Evals.
+
+---
+
+## Meta-Pflege des Standards
+
+Dieser Guide und `evals.md` sind selbst optimierbare Ziele (`/optimieren
+authoring-guide`, `/optimieren evals`) — sie sind von der Schleife, die sie
+definieren, nicht ausgenommen. Beim Meta-Pass gilt:
+
+- **Prüfgrundlage ist nicht der Standard selbst** (Zirkelschluss), sondern:
+  erfüllt er seinen Zweck — und ist er noch deckungsgleich mit den aktuellen
+  [Upstream-Best-Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
+  und den Fähigkeiten der Plattform (Skills, Hooks, neue Frontmatter-Felder)?
+  Der Guide ist ein Destillat mit Verfallsdatum, keine Verfassung.
+- **Format-Annahmen hinterfragen:** Wandert Claude Code zu einem neuen
+  Mechanismus (z.B. Skills statt Commands), gehört das als Befund auf den
+  Tisch — nicht stillschweigend wegadaptiert.
+- Änderungen hier ändern den Standard für alle Commands und Agents — Plan
+  zeigen, dann umsetzen.
 
 ---
 
@@ -144,5 +182,10 @@ Beim Optimieren eines Commands/Agents abhaken:
 
 **Konventionen**
 - [ ] Sprach-Split eingehalten.
+- [ ] Portabel (macOS + Linux): keine BSD-only Aufrufe ohne Probe/Fallback —
+      außer der Command ist inhärent macOS-gebunden.
 - [ ] Agent: Referenzen max. eine Ebene tief; Body < ~500 Zeilen.
 - [ ] Listing-Dateien synchron, falls description/Name/Verhalten sich ändert.
+- [ ] Evals outcome-formuliert; bei geänderter Implementierung Eval-Wortlaut
+      mit angepasst (nicht stillschweigend).
+- [ ] `tools/validate.sh` grün.

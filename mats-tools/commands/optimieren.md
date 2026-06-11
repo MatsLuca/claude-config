@@ -1,10 +1,10 @@
 ---
-description: Optimiert einen Command oder Agent nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition.
-argument-hint: <command- oder agent-name, z.B. "finish" oder "pdf-to-markdown">
-allowed-tools: Read, Edit, Glob, Bash(ls:*), AskUserQuestion
+description: Optimiert einen Command oder Agent nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition. Meta-Pass über Standard/Evals selbst möglich.
+argument-hint: <command-, agent- oder referenz-name, z.B. "finish", "pdf-to-markdown" oder "authoring-guide">
+allowed-tools: Read, Edit, Glob, Bash(ls:*), Bash(./tools/validate.sh:*), WebFetch, AskUserQuestion
 ---
 
-Du optimierst einen Command oder Agent dieses Plugins gegen den Authoring-Standard, damit das Ziel seinen **Zweck besser erfüllt** — klarer, eindeutiger, token-effizienter. Optimieren ist nicht gleich Kürzen: oft heißt das verdichten, genauso aber **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht — ein zu knappes oder unklares Ziel wird durch Addition besser, nicht durch weiteres Streichen.
+Du optimierst einen Command, Agent oder eine Referenzdatei dieses Plugins gegen den Authoring-Standard, damit das Ziel seinen **Zweck besser erfüllt** — klarer, eindeutiger, token-effizienter. Optimieren ist nicht gleich Kürzen: oft heißt das verdichten, genauso aber **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht — ein zu knappes oder unklares Ziel wird durch Addition besser, nicht durch weiteres Streichen.
 
 Zu optimierendes Ziel: **$ARGUMENTS**
 
@@ -22,9 +22,10 @@ Falls die Variable nicht aufgelöst wird (Datei nicht gefunden), suche sie per `
 - Billige Übersicht in *einer* Bash-Runde: `ls mats-tools/commands mats-tools/agents` — listet alle Kandidaten auf einmal. Den Namen (ohne `/` und `.md`) dagegen matchen. Greift `ls` nicht (anderes Arbeitsverzeichnis), per `Glob` `**/commands/*.md` und `**/agents/*.md` nachladen.
 - **Genau ein Treffer** → diese Datei. **Mehrere/keine** → per `AskUserQuestion` kurz rückfragen statt zu raten.
 - Ist `$ARGUMENTS` leer → frage, welcher Command/Agent optimiert werden soll.
+- **Meta-Pass:** Lautet `$ARGUMENTS` auf eine Referenzdatei (`authoring-guide`, `evals`), ist *sie* das Ziel. Prüfgrundlage ist dann **nicht** der Standard selbst (Zirkelschluss), sondern der Abschnitt „Meta-Pflege des Standards" im Guide: Zweck-Erfüllung + Abgleich gegen die dort verlinkten Upstream-Best-Practices (per `WebFetch`) und die aktuellen Plattform-Fähigkeiten.
 - Immer die **Repo-Quelle** auflösen und bearbeiten — nie die installierte Kopie unter `${CLAUDE_PLUGIN_ROOT}` (Plugin-Cache, wird beim nächsten Update überschrieben).
 
-Merke dir, ob es ein **Command** oder **Agent** ist — die Standard-Regeln unterscheiden sich.
+Merke dir, ob es ein **Command**, **Agent** oder eine **Referenzdatei** ist — die Prüfregeln unterscheiden sich.
 
 ## Schritt 3 — Ziel + Evals lesen
 
@@ -50,9 +51,13 @@ Setze die Befunde per `Edit` gezielt um:
 - Nur die betroffenen Stellen ändern, **nicht** die ganze Datei neu schreiben.
 - Sprach-Split und Format-Konventionen wahren (siehe Standard).
 - Noch gültige Inhalte nicht überschreiben — je nach Befund verdichten, präzisieren oder gezielt **ergänzen/umformulieren**; nicht verwässern und nicht aufblähen.
-- Verhalten aus den Eval-Szenarien muss erhalten bleiben.
+- Die **Outcomes** der Eval-Szenarien müssen erhalten bleiben — die Implementierung dahinter darf sich verbessern. Berührt eine Verbesserung den *Wortlaut* eines Evals, passe `evals.md` explizit mit an (nie stillschweigend).
 
-## Schritt 6 — Housekeeping prüfen
+## Schritt 6 — Verifizieren
+
+Existiert `tools/validate.sh` im Repo-Root, führe es aus (`./tools/validate.sh`). Rote Befunde, die deine Edits verursacht haben, sofort fixen und erneut laufen lassen — erst grün abschließen.
+
+## Schritt 7 — Housekeeping prüfen
 
 Wenn sich `description`, Name oder das nach außen sichtbare Verhalten geändert haben, weise darauf hin, dass `README.md`, `marketplace.json` und `plugin.json` synchronisiert werden müssen — und biete an, das via `/finish` mitzunehmen. Diese Dateien hier **nicht** ungefragt ändern.
 

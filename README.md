@@ -5,6 +5,7 @@
 ![Platform](https://img.shields.io/badge/platform-macOS%20·%20Linux%20·%20Windows-blue)
 ![Plugin](https://img.shields.io/badge/plugin-mats--tools-8A2BE2)
 ![Updates](https://img.shields.io/badge/updates-automatisch%20per%20git%20SHA-success)
+[![validate](https://github.com/MatsLuca/claude-config/actions/workflows/validate.yml/badge.svg)](https://github.com/MatsLuca/claude-config/actions/workflows/validate.yml)
 
 Ein persönlicher **Claude-Code-Marketplace** mit einem Plugin (`mats-tools`): meine
 Slash-Commands und Subagents, geräteübergreifend versioniert und synchronisiert.
@@ -86,6 +87,20 @@ liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 
 ---
 
+## ✅ Verifikation
+
+Zwei Ebenen halten das Repo gesund — auch wenn Claude selbst daran weiterbaut:
+
+- **Strukturell (automatisch):** `tools/validate.sh` prüft Manifeste, Frontmatter,
+  Listing-Sync, Plugin-Referenzen und Portabilität (BSD↔GNU). Läuft lokal und
+  bei jedem Push als GitHub Action.
+- **Verhalten (Szenarien):** `mats-tools/reference/evals.md` beschreibt pro
+  Command/Agent die erwarteten **Outcomes** — bewusst implementierungs-agnostisch,
+  damit bessere Umsetzungen nie an alten Details scheitern. Ausführbar interaktiv
+  oder headless (`claude -p "/command"` im Wegwerf-Fixture).
+
+---
+
 ## 🔄 Updates
 
 Das Plugin hat bewusst **keine feste Versionsnummer** in `plugin.json`. Dadurch nutzt
@@ -108,6 +123,10 @@ Manuell braucht es nur, falls der Wrapper (noch) nicht eingerichtet ist:
 claude-config/
 ├── bootstrap.sh                  # Einzeiler-Setup für neue Rechner (macOS/Linux)
 ├── bootstrap.ps1                 # Einzeiler-Setup für neue Rechner (Windows)
+├── tools/
+│   └── validate.sh               # strukturelle Verifikation (lokal + CI)
+├── .github/workflows/
+│   └── validate.yml              # führt validate.sh bei jedem Push/PR aus
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace-Manifest
 └── mats-tools/                   # das Plugin

@@ -4,10 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A personal **Claude Code plugin marketplace** — not an app. There is no build, lint, or
-test step. The "source" is a set of structured Markdown + JSON manifests that Claude Code
-loads as slash-commands and subagents. To "test" a change, install/update the plugin
-locally and invoke the command/agent (see *Local testing*).
+A personal **Claude Code plugin marketplace** — not an app. There is no build step. The
+"source" is a set of structured Markdown + JSON manifests that Claude Code loads as
+slash-commands and subagents. There **is** a check: `tools/validate.sh` verifies manifests,
+frontmatter, listing sync, plugin-internal references, and portability — run it after any
+change to commands/agents/manifests (CI runs it on every push via
+`.github/workflows/validate.yml`). Behavior is verified against the outcome-level scenarios
+in `mats-tools/reference/evals.md` — interactively or headless (see the Loop section there).
 
 ## Architecture
 
@@ -51,8 +54,18 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   templates* (e.g. `## Aufgabe`, `**Gegeben:**`) since the produced files are for German study
   material. Keep new commands German and new agents English-instructions/German-output unless asked otherwise.
 - Command bodies emphasize **token efficiency** — combine status-gathering into a single Bash
-  round (cheap overview first, full content only when needed), and target macOS tooling
-  (e.g. `date -v` offsets, `open` for Xcode). Follow this pattern in new commands.
+  round (cheap overview first, full content only when needed). Follow this pattern in new commands.
+- **Portability (macOS + Linux):** commands must also work in containers/Codespaces. For
+  BSD↔GNU dialect splits (`date`, `stat`, `sed -i`) use the probe-then-variant pattern
+  (cheap GNU probe once, then stick to one dialect — see `mtime()` in
+  `statusline/statusline-command.sh`). Inherently macOS-bound commands (`/xcode`) are the
+  marked exception. The validator's portability lint guards against regressions.
+- **Evals describe outcomes, not implementation** (`mats-tools/reference/evals.md`): they pin
+  observable behavior, never internal markers or specific tool calls — so a better
+  re-implementation is never blocked by an eval. If an implementation change touches an
+  eval's wording, update the eval explicitly, never silently.
+- The authoring standard (`mats-tools/reference/authoring-guide.md`) is itself an optimizable
+  target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
 
 ## Local testing
 
