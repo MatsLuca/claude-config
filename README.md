@@ -74,6 +74,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | `/optimieren` | Einen Command oder Agent nach dem Authoring-Standard schärfen |
 | `/einarbeiten` | Beliebigen Input (Text/Datei/URL) semantisch analysieren, Projekt-Relevanz prüfen und ins Wissenssystem einarbeiten — oder bestehende Strukturen begründet infrage stellen |
 | `/destillieren` | Gewachsenes Wissenssystem pflegen: Drift (veraltete/widersprüchliche Querverweise) heilen, dann Redundanz verdichten & Ordnerstrukturen neu denken — strukturelle Eingriffe erst nach Plan-Zustimmung |
+| `/neudenken` | Ein beliebiges digitales System mit vollem Urteil neu denken: Ziele rekonstruieren, Prämissen & Ansätze gegen diese Ziele hinterfragen und einen priorisierten Aufwertungs-Plan liefern — ohne selbst umzusetzen |
 
 ### 🤖 Agents
 

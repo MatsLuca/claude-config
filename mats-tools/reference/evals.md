@@ -152,6 +152,23 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
   **Erwartet:** Wählt „Infragestellen": benennt den Konflikt explizit, schlägt
   Revision mit Begründung vor; bei größerem Eingriff erst Plan + Zustimmung.
 
+## /neudenken
+- **Szenario:** Argument leer, aufgerufen in einem Projektverzeichnis.
+  **Erwartet:** Nimmt das aktuelle Verzeichnis als Ziel, erkennt den System-Typ
+  (Code-Projekt / Wissenssystem / KI-Workflow / Ordnerstruktur).
+- **Szenario:** Ziel als Pfad oder Beschreibung übergeben.
+  **Erwartet:** Analysiert genau dieses System, nicht das aktuelle Verzeichnis.
+- **Szenario:** Beliebiges System mit ableitbarem Zweck.
+  **Erwartet:** Rekonstruiert **zuerst** die Ziele (belegt, nicht geraten), bevor
+  es bewertet; hinterfragt Prämissen/Ansätze **gegen diese Ziele**; liefert eine
+  nach Hebelwirkung sortierte Befund- und Plan-Liste.
+- **Szenario:** Lauf abgeschlossen.
+  **Erwartet:** Setzt nichts um — nur Plan; keine Datei geändert, kein Commit.
+- **Szenario:** Zweck nicht aus dem System ableitbar.
+  **Erwartet:** Fragt kurz nach dem Ziel, statt auf einer geratenen Prämisse zu bewerten.
+- **Szenario:** System ist gesund, wenig bis nichts zu tun.
+  **Erwartet:** Meldet das ehrlich; erfindet keine Eingriffe (kein blindes Aufblähen).
+
 ## machine-setup (Agent)
 - **Szenario:** Frischer Mac, kein vorheriger Managed-Block.
   **Erwartet:** Recon-Summary („Umgebung erkannt") **vor** jeder Änderung;
