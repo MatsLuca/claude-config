@@ -24,7 +24,7 @@ Falls die Variable nicht aufgelöst wird (Datei nicht gefunden), suche sie per `
 - Ist `$ARGUMENTS` leer → frage, welches Ziel (Command, Agent oder Referenzdatei) optimiert werden soll.
 - **Meta-Pass:** Liegt der Treffer in `reference/` (z.B. `authoring-guide`, `evals`), ist die Referenzdatei *selbst* das Ziel. Prüfgrundlage ist dann **nicht** der Standard selbst (Zirkelschluss), sondern der Abschnitt „Meta-Pflege des Standards" im Guide: Zweck-Erfüllung + Abgleich gegen die dort verlinkten Upstream-Best-Practices (per `WebFetch`) und die aktuellen Plattform-Fähigkeiten.
 - Immer die **Repo-Quelle** auflösen und bearbeiten — nie die installierte Kopie unter `${CLAUDE_PLUGIN_ROOT}` (Plugin-Cache, wird beim nächsten Update überschrieben).
-- **Frische-Check (an die `ls`-Runde anhängen):** `git status --porcelain` und `diff -rq mats-tools "${CLAUDE_PLUGIN_ROOT}"`. Cleaner Baum, aber Abweichung → das Repo hängt vermutlich hinter dem Remote (Push von anderer Maschine): `git pull --ff-only`, danach Geändertes neu lesen. Meldet der Pull „up to date", ist das Repo schlicht voraus — dann gilt die Repo-Fassung auch für Standard + Evals (statt der Cache-Fassung aus Schritt 1/3). Schlägt er fehl: melden und stoppen. Nie eine veraltete Fassung schärfen.
+- **Frische-Check (an die `ls`-Runde anhängen):** `git status --porcelain` und `diff -rq --exclude=.in_use mats-tools "${CLAUDE_PLUGIN_ROOT}"` (nur *inhaltliche* Abweichungen zählen — Cache-Marker wie `.in_use`, die nur im Cache liegen, sind kein Divergenz-Signal und werden ausgeblendet). Cleaner Baum, aber Abweichung → das Repo hängt vermutlich hinter dem Remote (Push von anderer Maschine): `git pull --ff-only`, danach Geändertes neu lesen. Meldet der Pull „up to date", ist das Repo schlicht voraus — dann gilt die Repo-Fassung auch für Standard + Evals (statt der Cache-Fassung aus Schritt 1/3). Schlägt er fehl: melden und stoppen. Nie eine veraltete Fassung schärfen.
 
 Merke dir, ob es ein **Command**, **Agent** oder eine **Referenzdatei** ist — die Prüfregeln unterscheiden sich.
 
@@ -37,7 +37,7 @@ Merke dir, ob es ein **Command**, **Agent** oder eine **Referenzdatei** ist — 
 
 Erst inhaltlich, dann mechanisch. Formuliere in *einem* Satz: **Was soll dieses Ziel erreichen?** Dann prüfe zwei Richtungen:
 - **Wirkt es?** Erreicht das Ziel seinen Zweck zuverlässig — oder fehlt etwas (ein Schritt, ein Beispiel, eine Klärung, ein Eval-Fall), das es wirksamer machen würde? Steht etwas unklar oder schief, das umformuliert gehört? Solche Zweck-Lücken sind echte Befunde, auch wenn nichts gegen die Checkliste verstößt.
-- **Standard-Konformität:** Geh die Review-Checkliste des Standards Punkt für Punkt durch (Command- vs. Agent-Teil je nach Typ).
+- **Standard-Konformität:** Bei **Command/Agent** die Review-Checkliste des Standards Punkt für Punkt durchgehen (Command- vs. Agent-Teil je nach Typ). Bei einer **Referenzdatei** gilt stattdessen der Meta-Pass aus Schritt 2: *nicht* gegen die Checkliste prüfen (Zirkelschluss), sondern gegen Zweck-Erfüllung + Deckung mit den Upstream-Best-Practices und den aktuellen Plattform-Fähigkeiten.
 
 Erstelle eine knappe **Befund-Liste**:
 - was bereits gut ist (kurz),
