@@ -154,14 +154,15 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 
 ## /neudenken
 - **Szenario:** Argument leer, aufgerufen in einem Projektverzeichnis.
-  **Erwartet:** Nimmt das aktuelle Verzeichnis als Ziel, erkennt den System-Typ
-  (Code-Projekt / Wissenssystem / KI-Workflow / Ordnerstruktur).
+  **Erwartet:** Nimmt das aktuelle Verzeichnis als Ziel.
 - **Szenario:** Ziel als Pfad oder Beschreibung übergeben.
   **Erwartet:** Analysiert genau dieses System, nicht das aktuelle Verzeichnis.
 - **Szenario:** Beliebiges System mit ableitbarem Zweck.
   **Erwartet:** Rekonstruiert **zuerst** die Ziele (belegt, nicht geraten), bevor
   es bewertet; hinterfragt Prämissen/Ansätze **gegen diese Ziele**; liefert eine
-  nach Hebelwirkung sortierte Befund- und Plan-Liste.
+  Einschätzung in frei gewählter, verständlicher Form, auf deren Grundlage der
+  User leicht entscheiden kann, ob er das System grundlegend, im Detail oder
+  gar nicht umbaut.
 - **Szenario:** Lauf abgeschlossen.
   **Erwartet:** Setzt nichts um — nur Plan; keine Datei geändert, kein Commit.
 - **Szenario:** Zweck nicht aus dem System ableitbar.
