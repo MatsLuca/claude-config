@@ -44,14 +44,14 @@ Erstelle eine knappe **Befund-Liste**:
 - Zweck-Lücken (fehlt / unklar / schief) — mit kurzer Begründung, *was* das Ziel wirksamer macht,
 - Standard-Verstöße — mit Checklisten-Bezug und kurzer Begründung *warum*.
 
-Jeder Befund braucht Wirkung: jede vorgeschlagene Änderung — Streichen, Umformulieren *oder* Ergänzen — muss das Ziel messbar besser machen. Nichts erfinden, wo Zweck **und** Standard erfüllt sind; und nichts ergänzen, was nur die Knappheit aufbläht (siehe „Knapp ist König").
+Jeder Befund braucht Wirkung: jede Änderung muss das Ziel messbar besser machen. Nichts erfinden, wo Zweck **und** Standard erfüllt sind; und nichts ergänzen, was nur die Knappheit aufbläht (siehe „Knapp ist König").
 
 ## Schritt 5 — Schärfen
 
 Setze die Befunde per `Edit` gezielt um:
 - Nur die betroffenen Stellen ändern, **nicht** die ganze Datei neu schreiben.
 - Sprach-Split und Format-Konventionen wahren (siehe Standard).
-- Noch gültige Inhalte nicht überschreiben — je nach Befund verdichten, präzisieren oder gezielt **ergänzen/umformulieren**; nicht verwässern und nicht aufblähen.
+- Noch gültige Inhalte nicht überschreiben — je nach Befund verdichten, präzisieren oder gezielt ergänzen.
 - Die **Outcomes** der Eval-Szenarien müssen erhalten bleiben — die Implementierung dahinter darf sich verbessern. Berührt eine Verbesserung den *Wortlaut* eines Evals, passe `evals.md` explizit mit an (nie stillschweigend).
 
 ## Schritt 6 — Verifizieren

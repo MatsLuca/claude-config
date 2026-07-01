@@ -24,8 +24,19 @@ Genutzt vom `/optimieren`-Command als Prüfgrundlage. Wer hier etwas ändert,
 Gelten für Commands **und** Agents.
 
 - **Knapp ist König.** Jeder Satz teilt sich das Kontextfenster mit allem
-  anderen. Nur Kontext aufnehmen, den Claude *nicht* schon hat. Bei jedem
-  Absatz fragen: „Muss Claude das wirklich erklärt bekommen?" Triviales weglassen.
+  anderen. Nur Kontext aufnehmen, den Claude *nicht* schon hat. Der Test pro
+  Satz: *Ändert er das Verhalten gegenüber dem Default?* Wenn nein, ist er ein
+  No-op — raus damit, auch wenn er „richtig" klingt. Triviales weglassen.
+- **Eine Quelle pro Bedeutung.** Jede Aussage lebt an *einer* autoritativen
+  Stelle; anderswo nur darauf verweisen, nicht neu formulieren. Dieselbe
+  Botschaft mehrfach ausbuchstabiert kostet Tokens und Pflege und bläht ihre
+  Wichtigkeit über ihren echten Rang.
+- **Leitwörter statt Umschreibungen.** Wo ein im Pretraining verankertes Wort
+  ein ganzes Verhalten trägt (`tight`, „grün/rot", „Frische-Check"), es als
+  *einen* Token setzen und wiederholen, statt die Idee mehrfach zu umschreiben —
+  das ankert Verhalten in wenigsten Tokens und schärft zugleich das Triggern,
+  wenn dasselbe Wort in Prompts und Code lebt. Drei Qualitäten nebeneinander
+  („klar, eindeutig, token-effizient") sind ein Kandidat zum Kollabieren.
 - **Passende Freiheitsgrade.** Anweisungstiefe an die Fragilität der Aufgabe
   koppeln:
   - *Schmaler Grat* (fragil, exakte Reihenfolge nötig) → präzise, wörtliche
@@ -62,7 +73,8 @@ auslöst. `$ARGUMENTS` wird im Body durch die User-Eingabe ersetzt.
 
 ### Frontmatter
 - `description:` — **deutsch**, eine Zeile, picker-tauglich. Sagt knapp, *was*
-  der Command tut.
+  der Command tut; Synonyme, die dasselbe zweimal sagen, kollabieren, und keine
+  Identität, die im Body ohnehin steht.
 - `allowed-tools:` — **eng gescopt**. Bash-Pattern verengen
   (`Bash(git status:*)`, `Bash(gh search commits:*)`) statt blanket `Bash`.
   Nur Tools listen, die der Command tatsächlich braucht.
@@ -75,7 +87,10 @@ auslöst. `$ARGUMENTS` wird im Body durch die User-Eingabe ersetzt.
   erfassen (billige Übersicht zuerst, vollen Inhalt nur bei Bedarf nachladen).
   Vorbild: der kombinierte `echo … && …`-Block in `finish.md`.
 - **Klare nummerierte Schritte** mit `## Schritt N — …`. Pro Schritt eine
-  abgegrenzte Aufgabe.
+  abgegrenzte Aufgabe, die auf einem *prüfbaren* Fertig-Kriterium endet (binär
+  beobachtbar, nicht „fühlt sich fertig an" — Vorbild: „erst **grün**
+  abschließen" in `optimieren.md`). Ein unscharfes Kriterium lädt dazu ein, den
+  Schritt vorzeitig abzuhaken, bevor die eigentliche Arbeit getan ist.
 - **Portabel (macOS + Linux):** Commands laufen auch in Containern/Codespaces.
   Bei BSD↔GNU-Dialekten (`date`, `stat`, `sed -i`) das **Probe-dann-Variante**-Muster
   nutzen: einmal billig die GNU-Variante testen, dann konsequent eine der beiden
@@ -172,13 +187,16 @@ Beim Optimieren eines Commands/Agents abhaken:
 - [ ] `argument-hint` vorhanden, falls der Command Argumente nutzt.
 
 **Body**
-- [ ] Knapp — kein Token ohne Mehrwert, nichts was Claude schon weiß.
-- [ ] Konsistente Begriffe, keine zeit-sensitiven Infos.
+- [ ] Knapp — kein Token ohne Mehrwert; No-op-Test bestanden (ändert der Satz
+      das Verhalten ggü. dem Default?).
+- [ ] Konsistente Begriffe; jede Bedeutung nur an einer Quelle (keine
+      Duplikation). Keine zeit-sensitiven Infos.
+- [ ] Leitwörter genutzt, wo ein Wort ein Verhalten trägt (statt es zu umschreiben).
 - [ ] Token-effizient: Übersicht zuerst, voller Inhalt nur bei Bedarf
       (Commands: kombinierte Bash-Runde).
 - [ ] Freiheitsgrade passend (fragil → exakt, offen → Richtung).
 - [ ] Ein Default statt vieler Optionen; konkrete Beispiele.
-- [ ] Klare Schritte/Checkliste bei komplexen Workflows.
+- [ ] Klare Schritte mit prüfbarem Fertig-Kriterium bei komplexen Workflows.
 
 **Konventionen**
 - [ ] Sprach-Split eingehalten.
