@@ -22,7 +22,7 @@ echo "=== LETZTE COMMITS (Stil-Referenz) ===" && git log -5 --oneline 2>/dev/nul
 
 Auswertung:
 - **Keine Änderungen** (leerer Status, keine unpushed commits) → melde das und stoppe. Nichts zu tun.
-- **Kein Upstream** (`NO_UPSTREAM`) → der Branch wurde nie gepusht. Nimm beim Push `git push -u origin <branch>`. Als "Diff seit Push" gilt dann alles ab dem ersten Commit; nutze `git diff HEAD --stat` plus untracked Dateien aus dem Status.
+- **Kein Upstream** (`NO_UPSTREAM`) → der Branch wurde nie gepusht. Als "Diff seit Push" gilt dann alles ab dem ersten Commit; nutze `git diff HEAD --stat` plus untracked Dateien aus dem Status. Push-Variante: Schritt 6.
 
 ## Schritt 2 — Verstehen, was passiert ist
 
@@ -68,7 +68,9 @@ Conventional-Commits-Stil, an die Stil-Referenz aus Schritt 1 angepasst. Knappe 
 
 ## Schritt 6 — Committen & Pushen in einem Rutsch
 
-Wenn alles bereit ist (inkl. ggf. geänderter README/CHANGELOG), alles stagen und committen. Message via heredoc, damit Mehrzeiler sauber sind, und mit Co-Author-Trailer:
+**Sonderfall:** Working Tree sauber, aber unpushed Commits vorhanden → nichts committen, direkt `git push` (kein leerer Commit).
+
+Sonst, wenn alles bereit ist (inkl. ggf. geänderter README/CHANGELOG), alles stagen und committen. Message via heredoc, damit Mehrzeiler sauber sind, und mit Co-Author-Trailer:
 
 ```bash
 git add -A && git commit -m "$(cat <<'EOF'

@@ -1,5 +1,5 @@
 ---
-description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrelevanten Kontextdateien fest — und erntet dabei Zweck & gewachsene Konventionen des Systems, damit kein Kontext verloren geht.
+description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrelevanten Kontextdateien fest — und erntet dabei Zweck & gewachsene Konventionen des Systems.
 allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Read, Edit, Write, AskUserQuestion
 ---
 
@@ -39,7 +39,7 @@ Bei Unsicherheit, welche Datei wohin (oder ob eine neue angelegt werden soll): p
 - Nutze `Edit` für punktuelle Ergänzungen in bestehenden Dateien, `Write` nur für neu anzulegende.
 - **Passe dich an Stil und Struktur der jeweiligen Datei an** (Überschriftenebenen, Sprache, Ton). Schreibe nicht über bestehende, noch gültige Inhalte — ergänze oder aktualisiere veraltete Stellen.
 - **Verfassung getrennt vom Stand:** Zweck & Konventionen sind langsam veränderlich und gehören nach vorn; der Stand ist schnelllebig und datiert. Ein junges System darf eine Ein-Satz-Verfassung haben — nichts erfinden, nichts aufblähen: ohne Verfassungs-Befund bleibt der Teil unangetastet. (Genau diese Abschnitte lesen `/einarbeiten` und `/destillieren` später als beabsichtigte Konvention des Systems.)
-- Datiere den Stand-Abschnitt mit dem heutigen Datum, wenn die Datei mit Daten arbeitet.
+- Datiere den Stand-Abschnitt mit dem heutigen Datum.
 - Markiere offene Punkte klar (z.B. als Checkliste `- [ ]`), damit der nächste Einstieg sofort sichtbar ist.
 
 ## Schritt 5 — Git nur anbieten (nicht automatisch)
@@ -48,7 +48,7 @@ Bei Unsicherheit, welche Datei wohin (oder ob eine neue angelegt werden soll): p
 - **Repo erkannt** → committe **nicht** ungefragt. Biete am Ende kurz an: „Soll ich die Doku-Änderung committen (und pushen)?" Erst auf Zustimmung:
 
 ```bash
-git add -A && git commit -m "docs: Stand festgehalten (/merken)
+git add <nur die in Schritt 4 geänderten/angelegten Dateien> && git commit -m "docs: Stand festgehalten (/merken)
 
 Co-Authored-By: Claude <noreply@anthropic.com>" && git push
 ```

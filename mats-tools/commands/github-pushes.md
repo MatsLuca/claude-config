@@ -15,15 +15,12 @@ Interpretiere `$ARGUMENTS` (deutsch oder englisch, frei formuliert) und wähle d
 | Eingabe (Beispiele) | `<DAUER>` (GNU) | `<OFFSET>` (BSD) |
 |---|---|---|
 | "Stunde", "1h", "60 min" | `1 hour` | `-v-1H` |
-| "24 Stunden", "ein Tag", "1 Tag", "today", "heute" | `24 hours` | `-v-24H` |
-| "2 Tage", "48h" | `2 days` | `-v-2d` |
+| "24 Stunden", "ein Tag", "today", "heute" | `24 hours` | `-v-24H` |
 | "Woche", "eine Woche", "7 Tage" | `7 days` | `-v-7d` |
-| "2 Wochen", "14 Tage" | `14 days` | `-v-14d` |
 | "Monat", "30 Tage" | `1 month` | `-v-1m` |
-| "3 Monate", "Quartal" | `3 months` | `-v-3m` |
 | "Jahr", "12 Monate" | `1 year` | `-v-1y` |
 
-Zahl + Einheit verallgemeinern (z.B. "5 Tage" → `5 days` / `-v-5d`). GNU-Einheiten: `hours`/`days`/`months`/`years`; BSD-Einheiten: `H`/`d`/`m`/`y`. Wochen in Tage umrechnen (×7, z.B. "3 Wochen" → `21 days` / `-v-21d`).
+Zahl + Einheit verallgemeinern (z.B. "5 Tage" → `5 days` / `-v-5d`, "Quartal" → `3 months` / `-v-3m`). GNU-Einheiten: `hours`/`days`/`months`/`years`; BSD-Einheiten: `H`/`d`/`m`/`y`. Wochen in Tage umrechnen (×7, z.B. "3 Wochen" → `21 days` / `-v-21d`).
 
 Ist `$ARGUMENTS` leer, nimm standardmäßig **die letzten 24 Stunden** (`24 hours` / `-v-24H`) und erwähne das in der Antwort.
 
@@ -55,8 +52,6 @@ gh search commits --author=@me --owner="$LOGIN" --committer-date=">=$SINCE" \
 
 Hinweise:
 - `--author=@me --owner="$LOGIN"` beschränkt auf von dir verfasste Commits in deinen eigenen Repos (inkl. privater).
-- Repos sind nach jüngstem Commit absteigend sortiert, Commits innerhalb eines Repos ebenfalls neueste zuerst.
-- `🔒` markiert private Repos.
 - Die Commit-Suche von GitHub indexiert primär den Default-Branch; Commits auf Nebenbranches können fehlen — bei Bedarf erwähnen.
 - `--limit 200` deckelt die Treffer: kommen genau 200 Commits zurück, ist die Liste womöglich abgeschnitten (relevant bei langen Zeiträumen wie "Jahr") — dann auf mögliche Unvollständigkeit hinweisen und einen kürzeren Zeitraum vorschlagen.
 

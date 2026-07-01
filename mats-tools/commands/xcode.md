@@ -8,7 +8,7 @@ allowed-tools: Bash(find:*), Bash(open:*)
 
 ## Schritt 1 — Suchen
 
-Suche in **einem** Bash-Aufruf nach `.xcworkspace` und `.xcodeproj` (max. 3 Ebenen tief, ohne `build`, `DerivedData`, `node_modules`, `.git`, `Pods`; `.xcodeproj`-Bundles werden geprunt, damit ihr eingebettetes `project.xcworkspace` nicht fälschlich als Workspace-Treffer zählt):
+Suche in **einem** Bash-Aufruf nach `.xcworkspace` und `.xcodeproj`. Wichtig: `.xcodeproj`-Bundles werden geprunt, damit ihr eingebettetes `project.xcworkspace` nicht fälschlich als Workspace-Treffer zählt:
 
 ```bash
 find . -maxdepth 3 \( -name build -o -name DerivedData -o -name node_modules -o -name .git -o -name Pods \) -prune -o -name "*.xcodeproj" -prune -print -o -name "*.xcworkspace" -print 2>/dev/null
@@ -31,4 +31,4 @@ find . -maxdepth 3 \( -name build -o -name DerivedData -o -name node_modules -o 
 open "<gewählter pfad>"
 ```
 
-Kurze Bestätigung melden (welche Datei geöffnet wurde), keine langen Erklärungen.
+Kurz bestätigen, welche Datei geöffnet wurde.

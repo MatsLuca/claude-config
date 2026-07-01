@@ -23,7 +23,7 @@ stat -c %Y . >/dev/null 2>&1 \
 
 (Die `stat`-Probe wählt einmal die GNU- (Linux/Container) oder BSD-Variante (macOS) — beide liefern dasselbe Format.)
 
-Das gibt dir Ordnerbaum, Dateigrößen und **Änderungsdaten** — letztere sind der Schlüssel: zuletzt geänderte Dateien sind Drift-Quellen, alles was auf sie zeigt, ist Verdacht. Lies `CLAUDE.md`/Index gezielt, um die **beabsichtigte Konvention** des Systems zu verstehen (welcher Ordner wofür, wie verlinkt wird). Was schon im Kontext ist, nicht neu lesen.
+Das gibt dir Ordnerbaum, Dateigrößen und **Änderungsdaten** — letztere füttern die Hotspot-Auswahl in Schritt 3. Lies `CLAUDE.md`/Index gezielt, um die **beabsichtigte Konvention** des Systems zu verstehen (welcher Ordner wofür, wie verlinkt wird). Was schon im Kontext ist, nicht neu lesen.
 
 ## Schritt 2 — Fokus setzen
 
@@ -32,20 +32,18 @@ Ist `$ARGUMENTS` gesetzt, ist es deine Priorität: dort beginnst du, dort gewich
 ## Schritt 3 — Verweis-Graph billig aufbauen
 
 Statt alles zu lesen: per `Grep` die Vernetzung kartieren — Wikilinks (`[[…]]`), relative Pfade/Dateinamen, geteilte Schlüsselbegriffe/Überschriften. Daraus:
-- **Hotspots** = zuletzt geänderte Dateien + alles, was auf sie verweist. Nur diese (plus Fokusbereich) tief lesen.
+- **Hotspots** = zuletzt geänderte Dateien + alles, was auf sie verweist.
 - **Tote Links** = Verweise auf Dateien/Anker, die es nicht (mehr) gibt.
 - **Waisen** = Dateien, auf die nichts zeigt und die auf nichts zeigen.
 
 ## Schritt 4 — Befunde sammeln (Drift zuerst, dann Struktur)
 
-Zwei Kategorien, in dieser Reihenfolge:
-
-**A — Drift / Inkonsistenz** (schützt die Wahrheit, kommt zuerst):
+**A — Drift / Inkonsistenz** (schützt die Wahrheit):
 - Veraltete Verweise: Datei B referenziert einen Stand von A, den A nicht mehr hat.
 - Widersprüche: zwei Dateien behaupten Unvereinbares über dasselbe.
 - Tote/verwaiste Links aus Schritt 3.
 
-**B — Wucherung / Redundanz** (verdichtet, kommt danach):
+**B — Wucherung / Redundanz** (verdichtet):
 - Dubletten / Beinah-Dubletten — dieselbe Info mehrfach, leicht abweichend.
 - Überzersplitterung — viele Mini-Dateien, die zusammengehören.
 - Fehlplatzierung — Inhalt im falschen Ordner gemessen an der Konvention aus Schritt 1.
@@ -55,7 +53,7 @@ Jeder Befund braucht eine **konkrete Aktion** (zusammenführen X+Y→Z, verschie
 
 ## Schritt 5 — Plan vorlegen, Zustimmung holen
 
-Bevor du strukturell eingreifst (Vereinen, Verschieben, Löschen, Ordnerumbau): zeig den **geordneten Plan** — Drift-Heilung zuerst, dann Verdichtung —, jeweils Aktion + betroffene Dateien + erwartete Verweis-Updates. Hol das OK per `AskUserQuestion` — bei mehreren unabhängigen Eingriffen mit `multiSelect`, ein Eintrag pro Eingriff, damit der User selektiv zustimmen kann. Risikoarme Reinheilung (toter Link, eindeutiger Tippfehler im Verweis) darf ohne separate Rückfrage mitlaufen, aber kein Merge/Move/Delete ohne Zustimmung.
+Bevor du strukturell eingreifst (Vereinen, Verschieben, Löschen, Ordnerumbau): zeig den **Plan** in der Reihenfolge aus Schritt 4, jeweils Aktion + betroffene Dateien + erwartete Verweis-Updates. Hol das OK per `AskUserQuestion` — bei mehreren unabhängigen Eingriffen mit `multiSelect`, ein Eintrag pro Eingriff, damit der User selektiv zustimmen kann. Risikoarme Reinheilung (toter Link, eindeutiger Tippfehler im Verweis) darf ohne separate Rückfrage mitlaufen, aber kein Merge/Move/Delete ohne Zustimmung.
 
 ## Schritt 6 — Ausführen in fester Reihenfolge
 
