@@ -26,7 +26,7 @@ Fertig-Kriterium: du weißt, welches System du vor dir hast und welchem Typ es e
 
 ## Schritt 2 — Zweck & Ziele rekonstruieren
 
-Bevor du irgendetwas bewertest, rekonstruiere, wofür das System *eigentlich* da ist: Ziele, Nutzer, was es optimiert, welche Randbedingungen galten. Lies die autoritativen Quellen aus Schritt 1 gezielt (nicht alles), plus die Einstiegspunkte, an denen die zentralen Entscheidungen hängen. Leite die Ziele aus **Belegen** ab, rate sie nicht.
+Bevor du irgendetwas bewertest, rekonstruiere, wofür das System *eigentlich* da ist: Ziele, Nutzer, was es optimiert, welche Randbedingungen galten. Lies die autoritativen Quellen aus Schritt 1 gezielt (nicht alles), plus die Einstiegspunkte, an denen die zentralen Entscheidungen hängen; wo eine Versionshistorie existiert, ist `git log` oft der stärkste Beleg für den *tatsächlichen* Zweck und dafür, welche Prämissen bloß Altlast sind. Leite die Ziele aus **Belegen** ab, rate sie nicht.
 
 Fertig-Kriterium: du kannst die Ziele des Systems in 1-3 Sätzen benennen — belegt, nicht angenommen. Ohne klare Ziele keine Bewertung; ist der Zweck nicht ableitbar, frag kurz nach, was das System erreichen soll.
 
@@ -40,7 +40,7 @@ Das ist die eigentliche Arbeit — **offenes Feld**, kein festes Rezept. Geh die
 
 Nutze dein volles Urteil — nimm nichts als „so macht man das" hin. Aber jeder Befund braucht eine **Wirkung aufs Ziel**; Änderung um der Änderung willen ist kein Befund.
 
-Fertig-Kriterium: eine Befund-Liste, nach **Hebelwirkung** sortiert — je Befund: die hinterfragte Prämisse/der Ansatz, warum fragwürdig, der bessere Weg, die erwartete Wirkung aufs Ziel.
+Fertig-Kriterium: eine nach **Hebelwirkung** sortierte Befund-Liste im Format aus Schritt 4 — je Befund mit belegter **Wirkung aufs Ziel**.
 
 ## Schritt 4 — Plan liefern (nicht umsetzen)
 
