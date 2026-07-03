@@ -66,6 +66,11 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   eval's wording, update the eval explicitly, never silently.
 - The authoring standard (`mats-tools/reference/authoring-guide.md`) is itself an optimizable
   target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
+- **Precedence over plugin-dev:** Anthropic's `plugin-dev` plugin (if installed) serves as a
+  *technical reference only* (hook definitions, MCP bundling, plugin.json/marketplace schemas).
+  For style and quality questions about commands/agents/skills (frontmatter, clarity, token
+  efficiency), the `/optimieren` authoring standard is authoritative — do not apply plugin-dev's
+  style recommendations unprompted.
 
 ## Local testing
 
