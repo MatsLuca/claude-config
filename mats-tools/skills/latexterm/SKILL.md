@@ -1,6 +1,6 @@
 ---
 name: latexterm
-description: Steuert das LatexTerm-Terminal von innen — Kacheln (Panes) auflisten/öffnen, Befehle oder Prompts in andere Kacheln schicken, zoomen, fokussieren. Nutzen, wenn die Session in LatexTerm läuft und der User etwas mit „Kachel", „Pane", „Split" oder einem zweiten Terminal will (z. B. „öffne eine Kachel und starte da den Server", „frag die andere Claude-Session").
+description: Steuert das LatexTerm-Terminal von innen — Kacheln (Panes) auflisten/öffnen, Befehle oder Prompts in andere Kacheln schicken, zoomen, fokussieren. Nutzen, sobald es ums Terminal geht — „Terminal", „Kachel", „Pane", „Split", eine zweite Session/Claude-Instanz, oder die Frage, was sich im/mit dem Terminal machen lässt (z. B. „öffne eine Kachel und starte da den Server", „frag die andere Claude-Session", „was kannst du mit dem Terminal machen"). Mats' Sessions laufen fast immer in LatexTerm — im Zweifel laden; die Anwendbarkeit klärt der Skill selbst über `$LATEXTERM_PANE_ID`.
 ---
 
 # LatexTerm steuern

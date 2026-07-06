@@ -87,7 +87,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 
 | Skill | Zweck |
 |---|---|
-| `latexterm` | LatexTerm-Terminal von innen steuern (Kacheln auflisten/öffnen, Befehle/Prompts in andere Kacheln schicken, zoomen, fokussieren) — lädt sich von selbst, wenn die Session in LatexTerm läuft und Kachel-Arbeit ansteht; auf Rechnern ohne LatexTerm inaktiv |
+| `latexterm` | LatexTerm-Terminal von innen steuern (Kacheln auflisten/öffnen, Befehle/Prompts in andere Kacheln schicken, zoomen, fokussieren) — lädt sich von selbst, sobald es ums Terminal geht (Kachel, Pane, Split, zweite Session, „was kannst du mit dem Terminal"); auf Rechnern ohne LatexTerm inaktiv |
 
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
 liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
