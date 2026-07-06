@@ -33,5 +33,13 @@ anwendbar — normal weiterarbeiten, nichts simulieren.
   ohne expliziten User-Auftrag.
 - Prompts an eine andere Claude-Session sind der Normalfall: `awaitingInput`
   = sie nimmt Input an; `working` = erst warten oder den User fragen.
+- Neue Claude-Instanzen in Kacheln mit `yolo` starten (Mats' Alias für
+  bypass-permissions), nicht mit `claude` — sonst bleibt die Session an
+  Bestätigungs-Prompts hängen, die niemand wegklickt.
+- Prompt-Text in eine Claude-TUI kommt als Paste an — das mitgesendete Enter
+  wird geschluckt, die Nachricht bleibt im Eingabefeld stehen. Zweistufig
+  senden: erst den Text, dann nach ~1 s `latexterm send --pane SEL ' '` als
+  Abschick-Enter (das CLI verlangt Text, daher das Leerzeichen). Reine
+  Shell-Befehle sind nicht betroffen.
 - Frisch geöffnete Kacheln melden ihren CWD erst nach dem ersten Prompt
   (kurz `?` in `list-panes`) — 1–2 s warten, dann erneut listen.
