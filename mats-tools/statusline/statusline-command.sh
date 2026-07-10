@@ -36,6 +36,7 @@ fi
 CTX_C='\033[38;5;51m'    # bright cyan   -> context window
 H5_C='\033[38;5;214m'    # vivid orange  -> 5-hour limit
 D7_C='\033[38;5;171m'    # vivid violet  -> 7-day limit
+FAB_C='\033[38;5;205m'   # pink          -> Fable weekly limit (scoped)
 GIT_C='\033[38;5;77m'    # green         -> branch / insertions
 DIFF_C='\033[38;5;220m'  # yellow        -> pending diff vs remote
 DEL_C='\033[38;5;203m'   # soft red      -> deletions
@@ -48,7 +49,7 @@ RST='\033[0m'
 
 # strip all color when the terminal can't be trusted with it (output stays readable)
 if [ "$COLOR" = 0 ]; then
-  CTX_C=''; H5_C=''; D7_C=''; GIT_C=''; DIFF_C=''; DEL_C=''
+  CTX_C=''; H5_C=''; D7_C=''; FAB_C=''; GIT_C=''; DIFF_C=''; DEL_C=''
   COST_C=''; TIME_C=''; ALERT=''; MODEL_C=''; DIM=''; RST=''
 fi
 
@@ -117,6 +118,44 @@ if [ -n "$week_pct" ]; then
   v=$(printf '%.0f' "$week_pct"); c=$(hue "$v" "$D7_C")
   r=""; [ -n "$week_rst" ] && r=" ${DIM}${G_REL}$(reltime "$week_rst")${RST}"
   limits_str="${limits_str}  ${DIM}7d${RST} ${c}${v}%${RST}${r}"
+fi
+
+# --- Fable-Wochenlimit (eigener Zähler, nicht Teil von seven_day) -------------
+# Claude Code reicht das modell-gescopte Wochenlimit (limits[].kind ==
+# "weekly_scoped") nicht ins Statusline-JSON durch — die Desktop-App holt es vom
+# OAuth-Usage-Endpoint. Gleicher Weg hier, entkoppelt vom Rendern: der Render-
+# Pfad liest nur den Datei-Cache; ist der älter als 60 s, refresht ein Hinter-
+# grund-Fetch (Token aus Keychain auf macOS, sonst ~/.claude/.credentials.json).
+# Liefert der Endpoint kein weekly_scoped mehr (Aktion vorbei), wird lim=null
+# gecacht und der Badge verschwindet von selbst. Kein Reset-Countdown: resets_at
+# ist identisch mit dem 7d-Fenster daneben.
+fable_cache="$HOME/.claude/.fable-limit.json"
+if [ $(( $(date +%s) - $(mtime "$fable_cache") )) -gt 60 ]; then
+  touch "$fable_cache" 2>/dev/null   # Drossel: max. ein Fetch-Versuch pro Intervall
+  (
+    if [ -f "$HOME/.claude/.credentials.json" ]; then
+      tok=$(jq -r '.claudeAiOauth.accessToken // empty' "$HOME/.claude/.credentials.json" 2>/dev/null)
+    else
+      tok=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null \
+            | jq -r '.claudeAiOauth.accessToken // empty')
+    fi
+    [ -n "$tok" ] && curl -s --max-time 3 'https://api.anthropic.com/api/oauth/usage' \
+        -H "Authorization: Bearer $tok" -H 'anthropic-beta: oauth-2025-04-20' 2>/dev/null \
+      | jq -c '{ts: now|floor, lim: ([.limits[]? | select(.kind=="weekly_scoped")][0])}' \
+        > "${fable_cache}.tmp" 2>/dev/null \
+      && mv "${fable_cache}.tmp" "$fable_cache" 2>/dev/null
+  ) >/dev/null 2>&1 &
+fi
+fable_pct=""
+if [ -s "$fable_cache" ]; then
+  f_ts=$(jq -r '.ts // 0' "$fable_cache" 2>/dev/null)
+  # Zahlen älter als 30 min verwerfen (Fetch schlägt dauerhaft fehl) -> nie lügen
+  [ "${f_ts:-0}" -gt 0 ] 2>/dev/null && [ $(( $(date +%s) - f_ts )) -lt 1800 ] \
+    && fable_pct=$(jq -r '.lim.percent // empty' "$fable_cache" 2>/dev/null)
+fi
+if [ -n "$fable_pct" ]; then
+  v=$(printf '%.0f' "$fable_pct"); c=$(hue "$v" "$FAB_C")
+  limits_str="${limits_str}  ${DIM}F5${RST} ${c}${v}%${RST}"
 fi
 
 # --- session cost (Anthropic-Token diese Session, in EUR) --------------------
