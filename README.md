@@ -68,7 +68,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | Command | Zweck |
 |---|---|
 | `/finish` | Änderungen seit letztem Push analysieren, README/CHANGELOG & zugehörige GitHub-Issues pflegen, committen & pushen — in einem Rutsch |
-| `/finish-lite` | Leichter /finish für Wissensprojekte: committen mit Zeitstempel-Message, Remote-Stand einrebasen, pushen — ohne Analyse & Doku-Pflege |
+| `/finish-lite` | Leichter /finish für Wissensprojekte: committen mit Zeitstempel-Message, auf den Default-Branch rebasen & dorthin pushen — ohne Analyse & Doku-Pflege; identisch auf Laptop und in Cloud-Sessions (Session-Branch landet direkt auf main) |
 | `/github-pushes` | Eigene GitHub-Pushes in einem Zeitraum strukturiert anzeigen |
 | `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems |
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
