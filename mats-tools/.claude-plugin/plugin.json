@@ -1,6 +1,6 @@
 {
   "name": "mats-tools",
-  "description": "Persönliche Slash-Commands und Subagents für Claude Code: finish, github-pushes, merken, xcode, optimieren, einarbeiten, destillieren, neudenken, der pdf-to-markdown Agent (PDFs → Markdown), der machine-setup Agent (frische Installation einrichten: yolo-Alias, Status Line, Plugin-Auto-Update, settings.json) sowie der latexterm-Skill (LatexTerm-Terminal von innen steuern: Panes öffnen, Befehle/Prompts in andere Kacheln schicken).",
+  "description": "Persönliche Slash-Commands und Subagents für Claude Code: finish, finish-lite, github-pushes, merken, xcode, optimieren, einarbeiten, destillieren, neudenken, der pdf-to-markdown Agent (PDFs → Markdown), der machine-setup Agent (frische Installation einrichten: yolo-Alias, Status Line, Plugin-Auto-Update, settings.json) sowie der latexterm-Skill (LatexTerm-Terminal von innen steuern: Panes öffnen, Befehle/Prompts in andere Kacheln schicken).",
   "author": {
     "name": "Mats Dagott"
   },
