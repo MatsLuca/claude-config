@@ -128,9 +128,11 @@ fi
 # grund-Fetch (Token aus Keychain auf macOS, sonst ~/.claude/.credentials.json).
 # Liefert der Endpoint kein weekly_scoped mehr (Aktion vorbei), wird lim=null
 # gecacht und der Badge verschwindet von selbst. Kein Reset-Countdown: resets_at
-# ist identisch mit dem 7d-Fenster daneben.
+# ist identisch mit dem 7d-Fenster daneben. Intervall 300 s: das Endpoint
+# rate-limitet (429) — seltener fragen heißt seltener scheitern, und ein
+# Wochenlimit ändert sich ohnehin langsam.
 fable_cache="$HOME/.claude/.fable-limit.json"
-if [ $(( $(date +%s) - $(mtime "$fable_cache") )) -gt 60 ]; then
+if [ $(( $(date +%s) - $(mtime "$fable_cache") )) -gt 300 ]; then
   touch "$fable_cache" 2>/dev/null   # Drossel: max. ein Fetch-Versuch pro Intervall
   (
     if [ -f "$HOME/.claude/.credentials.json" ]; then
@@ -139,10 +141,15 @@ if [ $(( $(date +%s) - $(mtime "$fable_cache") )) -gt 60 ]; then
       tok=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null \
             | jq -r '.claudeAiOauth.accessToken // empty')
     fi
+    # Cache nur bei valider Antwort ersetzen: select(.limits) filtert Fehler-JSON
+    # (Rate-Limit, Auth) weg, [ -s ] fängt leere curl-Ausgabe (Timeout) ab —
+    # sonst bliebe der alte Stand stehen statt den Badge fälschlich auszublenden.
     [ -n "$tok" ] && curl -s --max-time 3 'https://api.anthropic.com/api/oauth/usage' \
         -H "Authorization: Bearer $tok" -H 'anthropic-beta: oauth-2025-04-20' 2>/dev/null \
-      | jq -c '{ts: now|floor, lim: ([.limits[]? | select(.kind=="weekly_scoped")][0])}' \
+      | jq -c 'select(.limits != null)
+               | {ts: now|floor, lim: ([.limits[] | select(.kind=="weekly_scoped")][0])}' \
         > "${fable_cache}.tmp" 2>/dev/null \
+      && [ -s "${fable_cache}.tmp" ] \
       && mv "${fable_cache}.tmp" "$fable_cache" 2>/dev/null
   ) >/dev/null 2>&1 &
 fi
