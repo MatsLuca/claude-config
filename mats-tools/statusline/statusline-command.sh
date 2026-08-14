@@ -224,13 +224,16 @@ if [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&
   git_str="${sep}${GIT_C}${G_BR} ${branch}${RST}"
 
   if git -C "$cwd" rev-parse --abbrev-ref @{u} >/dev/null 2>&1; then
-    # Remote-Refs frisch halten: max. alle 15 min ein Fetch, im Hintergrund
-    # (blockiert das Rendern nie). Drosselung über eigene Marker-Datei, kein
+    # Remote-Refs frisch halten: Hintergrund-Fetch, gedrosselt (Default 15 min).
+    # Per-Repo übersteuerbar: `git config statusline.fetch-interval <sekunden>`
+    # (z. B. 120 für aktive Kollab-Repos). Drosselung über Marker-Datei, kein
     # Credential-Prompt (GIT_TERMINAL_PROMPT=0), damit nichts hängen bleibt.
     gitdir=$(git -C "$cwd" rev-parse --absolute-git-dir 2>/dev/null)
     if [ -n "$gitdir" ]; then
+      fetch_interval=$(git -C "$cwd" config --get statusline.fetch-interval 2>/dev/null)
+      case "$fetch_interval" in ''|*[!0-9]*) fetch_interval=900 ;; esac
       fetch_marker="$gitdir/statusline-fetch"
-      if [ $(( $(date +%s) - $(mtime "$fetch_marker") )) -gt 900 ]; then
+      if [ $(( $(date +%s) - $(mtime "$fetch_marker") )) -gt "$fetch_interval" ]; then
         touch "$fetch_marker" 2>/dev/null
         GIT_TERMINAL_PROMPT=0 git -C "$cwd" fetch --quiet >/dev/null 2>&1 &
       fi
