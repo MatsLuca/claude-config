@@ -27,7 +27,8 @@ Three nesting levels, each with its own manifest:
      `description`); companion files live next to the SKILL.md (e.g. `claude-md/verfassung.md`,
      `claude-md/scripts/inventar.sh`) and are referenced as `${CLAUDE_PLUGIN_ROOT}/skills/<name>/…`.
 
-`plans/` holds multi-session work plans (waves with checkboxes + protocol) — not plugin content.
+`plans/` holds multi-session work plans (waves with checkboxes + protocol) — not plugin content and
+**gitignored** (local only): the protocols name private folders/people, and the repo is public.
 
 Adding a command, agent or skill = dropping a new file in the right directory with valid
 frontmatter. No manifest edit is needed for discovery — but **do** update the human-facing
