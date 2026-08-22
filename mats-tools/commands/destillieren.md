@@ -25,6 +25,8 @@ stat -c %Y . >/dev/null 2>&1 \
 
 Das gibt dir Ordnerbaum, Dateigrößen und **Änderungsdaten** — letztere füttern die Hotspot-Auswahl in Schritt 3. Lies `CLAUDE.md`/Index gezielt, um die **beabsichtigte Konvention** des Systems zu verstehen (welcher Ordner wofür, wie verlinkt wird). Was schon im Kontext ist, nicht neu lesen.
 
+Die `CLAUDE.md` selbst ist dabei Prüfobjekt: Wird sie in Schritt 4 umgebaut (Status verdichten, Ballast verschieben), gilt der Skill `claude-md` — Höhe (Router/Bereich/Projekt) und Checkliste von dort, Verlauf nach `HISTORIE.md`, nicht löschen.
+
 ## Schritt 2 — Fokus setzen
 
 Ist `$ARGUMENTS` gesetzt, ist es deine Priorität: dort beginnst du, dort gewichtest du Befunde stärker — aber du ignorierst den Rest nicht. Ist es leer, ist es ein vollständiger Pflege-Pass über das ganze System.

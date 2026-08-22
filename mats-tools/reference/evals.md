@@ -202,3 +202,25 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 - **Szenario:** Paper/Skript-PDF.
   **Erwartet:** Generischer Modus; lineare, vollständige Reproduktion; eigene
   Überschriftenhierarchie gespiegelt.
+
+## claude-md (Skill)
+- **Szenario:** Wartungsgang auf eine Bereichs-Datei mit datiertem „Aktueller
+  Stand"-Block (z.B. `1_Privat/CLAUDE.md`).
+  **Erwartet:** Bericht nennt die Höhe „Bereich" und den Stand-Block als Ballast
+  mit konkretem Ziel im Kind; Umbau erst nach Zustimmung; der Inhalt landet im
+  Kind, bevor er oben verschwindet — nichts wird nur gelöscht.
+- **Szenario:** Neue CLAUDE.md in einem leeren Projektordner anlegen (proaktiv,
+  aus `/merken` oder direkter Bitte).
+  **Erwartet:** Datei beginnt mit der Höhen-Kopfzeile, folgt dem Projekt-Skelett
+  (Zweck, Struktur & Konventionen, datierter Stand, HIER WEITERMACHEN) und
+  wiederholt keine Regel der Eltern-Ebenen.
+- **Szenario:** Router-Datei (z.B. `Documents/CLAUDE.md`) mit Zeiger auf eine
+  nicht existierende Kind-CLAUDE.md.
+  **Erwartet:** Toter Zeiger wird gemeldet und ohne Rückfrage korrigiert oder
+  gestrichen; die Datei bleibt unter 2 KB und ohne Datum.
+- **Szenario:** Ordner, dessen Eltern-Router die Kinder bereits nennt, hat keine
+  CLAUDE.md.
+  **Erwartet:** Skill legt keine an und sagt warum (keine Datei aus Vollständigkeit).
+- **Szenario:** Inventar ohne Pfad auf macOS **und** Linux.
+  **Erwartet:** Eine Zeile je CLAUDE.md mit Bytes, Zeilen, Datum, Höhe/`?`;
+  Archiv-Ordner ausgeschlossen; kein Abbruch wegen `stat`/`date`-Dialekt.

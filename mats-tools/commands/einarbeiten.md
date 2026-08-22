@@ -75,6 +75,7 @@ Entscheide ehrlich: nicht einarbeiten um des Einarbeitens willen.
 Wenn Handlungsbedarf besteht:
 - **Synthese statt Copy-Paste** — Input in Sprache und Struktur des Projekts übersetzen, nicht roh einkleben.
 - `Edit` für punktuelle Ergänzungen, `Write` nur für neu anzulegende Dateien; Stil der Zieldatei wahren, gültige Inhalte nicht überschreiben.
+- Ist die Zieldatei eine `CLAUDE.md`, gilt der Skill `claude-md`: Fakten und Status nur in eine **Projekt**-CLAUDE.md; auf Router-/Bereichs-Höhe höchstens einen Zeiger setzen und den Inhalt im Kind ablegen.
 - Bei größeren Eingriffen oder beim Infragestellen bestehender Strukturen erst kurz den Plan zeigen und Zustimmung holen, bevor du schreibst.
 
 ## Abschluss

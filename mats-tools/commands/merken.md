@@ -31,6 +31,7 @@ Halte es knapp und handlungsorientiert. Kein Verlaufsprotokoll — der Future-Du
 - **`CLAUDE.md` existiert** → sie ist immer ein Ziel. Aktualisiere/ergänze sie. Wenn es schon einen Stand-/Status-/„Aktueller Stand"-Abschnitt gibt, pflege diesen; sonst ergänze einen klar benannten Abschnitt am Ende (z.B. `## Aktueller Stand (<heutiges Datum>)`). Gibt es Verfassungs-Befunde (Schritt 2), pflege zusätzlich den Zweck-/Konventions-Teil der Datei — meist oben, vor dem Stand.
 - **Weitere projektrelevante Dateien** (meist Markdown): Wenn Inhalt thematisch klar woanders hingehört (z.B. eine `NOTES.md`, `STATUS.md`, ein Themen-Markdown, eine Mitschrift), aktualisiere zusätzlich gezielt **diese** Datei. Lies große Dateien gezielt in den betroffenen Abschnitten, nicht komplett.
 - **Keine CLAUDE.md, kein passendes Ziel** → schlage dem User eine Datei vor (i.d.R. `CLAUDE.md` für ein Arbeitsverzeichnis, sonst eine themenpassende `*.md`) und lege sie nach kurzer Bestätigung an.
+- **Höhen-Check (Skill `claude-md`):** Ist die Ziel-CLAUDE.md laut Kopfzeile oder Rolle des Ordners ein **Router** oder **Bereich** (Ordner mit gleichartigen Kindern, selten cwd), gehört dort kein Stand hinein — den Stand in die CLAUDE.md/README des betroffenen Kindes schreiben und oben höchstens einen Zeiger lassen. Beim Neuanlegen einer CLAUDE.md den Skill laden (Höhe + Skelett).
 
 Bei Unsicherheit, welche Datei wohin (oder ob eine neue angelegt werden soll): per `AskUserQuestion` kurz rückfragen, statt zu raten.
 

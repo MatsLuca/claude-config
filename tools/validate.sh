@@ -4,8 +4,8 @@
 # Läuft lokal (macOS + Linux) und in CI (.github/workflows/validate.yml).
 # Prüft alles, was sich mechanisch prüfen lässt:
 #   1. Manifeste sind valides JSON; plugin.json hat keinen version-Key (SHA = Version).
-#   2. Jeder Command/Agent hat vollständiges Frontmatter.
-#   3. Listing-Sync: jeder Command/Agent ist in README, plugin.json und
+#   2. Jeder Command/Agent/Skill hat vollständiges Frontmatter.
+#   3. Listing-Sync: jeder Command/Agent/Skill ist in README, plugin.json und
 #      marketplace.json erwähnt (die Dreifach-Listung driftet sonst).
 #   4. Plugin-interne ${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien.
 #   5. Portabilitäts-Lint: BSD-only Aufrufe (date -v / stat -f) nur mit GNU-Fallback
@@ -88,6 +88,25 @@ for f in mats-tools/agents/*.md; do
 done
 ok "Agents: Frontmatter + Listing-Sync geprüft"
 
+# ── 2 + 3. Skills: Frontmatter + Listing-Sync ─────────────────────────────────
+for f in mats-tools/skills/*/SKILL.md; do
+  [ -f "$f" ] || continue
+  dir=$(basename "$(dirname "$f")")
+  if fm=$(frontmatter "$f"); then
+    for key in name description; do
+      printf '%s\n' "$fm" | grep -q "^$key:" || fail "$f: $key fehlt im Frontmatter"
+    done
+    skill=$(printf '%s\n' "$fm" | sed -n 's/^name:[[:space:]]*//p' | head -1)
+    [ "$skill" = "$dir" ] || fail "$f: Frontmatter-name ($skill) ≠ Ordnername ($dir)"
+  else
+    fail "$f: kein YAML-Frontmatter"
+  fi
+  grep -q "$dir" "$README"      || fail "Skill $dir fehlt in README.md"
+  grep -q "$dir" "$PLUGIN_JSON" || fail "Skill $dir fehlt in der plugin.json-description"
+  grep -q "$dir" "$MARKET_JSON" || fail "Skill $dir fehlt in der marketplace.json-description"
+done
+ok "Skills: Frontmatter + Listing-Sync geprüft"
+
 # ── 4. Plugin-interne Referenzen ──────────────────────────────────────────────
 refs=$(grep -rhoE '\$\{CLAUDE_PLUGIN_ROOT(:-)?\}[A-Za-z0-9_./-]*' mats-tools --include='*.md' \
        | sed 's/^[^}]*}//' | sort -u)
@@ -97,10 +116,11 @@ for p in $refs; do
 done
 ok "\${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien"
 
-# ── 5. Portabilitäts-Lint (Commands + Agents) ─────────────────────────────────
+# ── 5. Portabilitäts-Lint (Commands + Agents + Skills) ─────────────────────────────────
 # BSD-only Muster brauchen einen GNU-Gegenpart in derselben Datei (oder umgekehrt) —
 # sonst bricht der Command auf Linux (Container/Codespaces) bzw. macOS.
-for f in mats-tools/commands/*.md mats-tools/agents/*.md; do
+for f in mats-tools/commands/*.md mats-tools/agents/*.md mats-tools/skills/*/SKILL.md mats-tools/skills/*/scripts/*.sh; do
+  [ -f "$f" ] || continue
   if grep -Eq -- '-v-[0-9]' "$f" && ! grep -q 'date -u -d\|date -d' "$f"; then
     fail "$f: BSD-date-Offset (-v-N) ohne GNU-Fallback (date -u -d \"… ago\")"
   fi
@@ -111,7 +131,7 @@ done
 ok "Portabilitäts-Lint (date/stat GNU↔BSD) durchlaufen"
 
 # ── 6. Shell-Syntax der Skripte ───────────────────────────────────────────────
-for s in bootstrap.sh tools/validate.sh mats-tools/statusline/statusline-command.sh; do
+for s in bootstrap.sh tools/validate.sh mats-tools/statusline/statusline-command.sh mats-tools/skills/*/scripts/*.sh; do
   bash -n "$s" 2>/dev/null && ok "Syntax ok: $s" || fail "Shell-Syntaxfehler: $s"
 done
 

@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "mats-tools",
-      "description": "Persönliche Slash-Commands (finish, finish-lite, github-pushes, merken, xcode, optimieren, einarbeiten, destillieren, neudenken), Subagents: pdf-to-markdown (Klausuren, Folien, generische PDFs) und machine-setup (frische Claude-Code-Installation einrichten: yolo-Alias, Status Line, Plugin-Auto-Update, settings.json) sowie der latexterm-Skill (LatexTerm-Terminal von innen steuern).",
+      "description": "Persönliche Slash-Commands (finish, finish-lite, github-pushes, merken, xcode, optimieren, einarbeiten, destillieren, neudenken), Subagents: pdf-to-markdown (Klausuren, Folien, generische PDFs) und machine-setup (frische Claude-Code-Installation einrichten: yolo-Alias, Status Line, Plugin-Auto-Update, settings.json) sowie die Skills latexterm (LatexTerm-Terminal von innen steuern) und claude-md (CLAUDE.md-Dateien nach Verfassung auf Höhe halten).",
       "author": {
         "name": "Mats Dagott"
       },

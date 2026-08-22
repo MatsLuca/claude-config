@@ -89,6 +89,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | Skill | Zweck |
 |---|---|
 | `latexterm` | LatexTerm-Terminal von innen steuern (Kacheln auflisten/öffnen, Befehle/Prompts in andere Kacheln schicken, zoomen, fokussieren) — lädt sich von selbst, sobald es ums Terminal geht (Kachel, Pane, Split, zweite Session, „was kannst du mit dem Terminal"); auf Rechnern ohne LatexTerm inaktiv |
+| `claude-md` | Hält CLAUDE.md-Dateien auf der richtigen Höhe — Router / Bereich / Projekt nach der Verfassung in `skills/claude-md/verfassung.md`: prüft eine Datei oder inventarisiert einen Teilbaum, verschiebt Ballast nach unten, ergänzt Zeiger; lädt sich von selbst, sobald eine CLAUDE.md angelegt oder umgebaut wird |
 
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
 liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
@@ -142,6 +143,7 @@ claude-config/
     │   └── plugin.json           # Plugin-Manifest
     ├── commands/                 # Slash-Commands (*.md)
     ├── agents/                   # Subagents (*.md)
+    ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
     ├── statusline/               # vendored Status-Line-Skript (vom machine-setup Agent installiert)
     └── reference/                # Authoring-Standard + Eval-Szenarien
 ```
