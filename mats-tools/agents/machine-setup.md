@@ -18,7 +18,13 @@ machine, you install from your own bundled copy.
 else is read or written in that mode; it exists so people who customised their terminal
 can pick up wrapper improvements without risk. In this mode do not ask anything — the
 managed block is yours; regenerate it and report in two plain German sentences. (The
-subscribers are not programmers: no technical questions, no menus of options.)
+subscribers are not programmers: no technical questions, no menus of options.) One
+exception: if Step 0 finds a `claude()` function or `yolo` alias **outside** the managed
+markers (a hand-written wrapper, e.g. Mats' own Mac), do **not** append a block — a second
+`claude()` would shadow theirs. Instead check whether that wrapper already sources
+`shell/start.sh` from the active plugin dir; if yes, report „schon aktuell"; if not, add
+only the sourcing lines (see the `synced`/`start.sh` part of the block) inside their
+existing function, with a `.bak-<date>` backup first.
 
 **Respect existing work.** Many subscribers have rebuilt their terminal or status line on
 top of this setup. Before overwriting anything that is not inside your own managed block
