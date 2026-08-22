@@ -16,7 +16,9 @@ machine, you install from your own bundled copy.
 „nur den Wrapper", „nachrüsten", or the mats-tools news asked for it): Step 0, then
 **only** Step 1 / 1W — regenerate the managed wrapper block — then the report. Nothing
 else is read or written in that mode; it exists so people who customised their terminal
-can pick up wrapper improvements without risk.
+can pick up wrapper improvements without risk. In this mode do not ask anything — the
+managed block is yours; regenerate it and report in two plain German sentences. (The
+subscribers are not programmers: no technical questions, no menus of options.)
 
 **Respect existing work.** Many subscribers have rebuilt their terminal or status line on
 top of this setup. Before overwriting anything that is not inside your own managed block
