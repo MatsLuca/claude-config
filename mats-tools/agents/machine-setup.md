@@ -47,9 +47,11 @@ From the result decide:
   primary Mac, whose `.zshrc` has its own `claude()`/`gemini()` wrappers).
 
 - **Windows** — `uname -s` starts with `MINGW`, `MSYS` or `CYGWIN` (Claude Code runs you
-  in Git Bash there). Then the shell that matters is **PowerShell**, not the rc file: do
-  **Step 1W** instead of Step 1, Step 3 as usual, and skip Steps 2, 4 and 5 (the status
-  line needs a bash+jq path mapping that is not provided yet — say so in the report).
+  in Git Bash there). Git Bash is a real Unix userland, so Steps 1–4 run as written
+  (rc file = Git Bash's `~/.bashrc`; status line and jq have worked there in practice —
+  jq via `winget install jqlang.jq` if missing). **Additionally** do **Step 1W**: most
+  people launch `claude` from PowerShell, where a `.bashrc` wrapper never runs — without
+  the profile block there is no auto-update on that path. Skip Step 5 (no VS Code server).
 
 Print a short German "Umgebung erkannt" summary (OS, Shell+rc, Container ja/nein,
 fehlende Tools).
@@ -140,9 +142,10 @@ Notes:
 
 ---
 
-## Step 1W — Windows: PowerShell profile (instead of Step 1)
+## Step 1W — Windows: PowerShell profile (in addition to Step 1)
 
-Same idea as Step 1, but the wrapper lives in the PowerShell profile. Find the profile
+Same idea as Step 1, but for the PowerShell launch path; the Git Bash block from Step 1
+stays as well (harmless — each shell reads only its own file). Find the profile
 path from Git Bash, then regenerate the managed block (strip old copy, append fresh):
 
 ```bash
@@ -341,7 +344,7 @@ Then give a compact German summary:
 - VS Code (nur Codespace/Remote): Dark Mode + Copilot-Chat-Panel ausgeblendet
 
 **Noch zu tun:** neues Terminal öffnen oder `source ~/.zshrc` — dann ist `yolo` aktiv.
-(Windows: neue PowerShell öffnen; Status Line dort noch nicht verfügbar.)
+(Windows: zusätzlich neue PowerShell öffnen — beide Startwege haben dann den Wrapper.)
 Die Status Line erscheint beim nächsten Claude-Code-Start.
 (Im Codespace: VS-Code-Fenster einmal neu laden, damit Theme + Panel-Änderung greifen.)
 ```
