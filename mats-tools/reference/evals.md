@@ -74,6 +74,11 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 - **Szenario:** Rein inhaltliche Session ohne Grundsatz-/Strukturänderung.
   **Erwartet:** Nur der Stand-Abschnitt wird gepflegt; Zweck/Konventionen
   bleiben unangetastet.
+- **Szenario:** Projekt-CLAUDE.md hat bereits einen datierten Stand-Abschnitt; die
+  Session hat den Stand verändert.
+  **Erwartet:** Danach genau *ein* datierter Stand-Block; der ersetzte Inhalt steht
+  in `HISTORIE.md` desselben Ordners (angelegt, falls nötig) — kein „Vorheriger
+  Stand" in der CLAUDE.md. Fehlte die Höhen-Kopfzeile, ist sie jetzt gesetzt.
 - **Szenario:** Kein Git-Repo.
   **Erwartet:** Git-Schritt übersprungen, kein Commit-Angebot.
 - **Szenario:** Repo erkannt.

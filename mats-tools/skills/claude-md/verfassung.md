@@ -65,8 +65,9 @@ aus Vollständigkeit**.
   höher nur referenziert, nie kopiert.
 - **Kopfzeile.** Erste Zeile: `# CLAUDE.md — <Ordnername> (<Router|Bereich|Projekt>)`.
   Macht Höhe und Prüfung per Grep trivial.
-- **Kein Datum auf Router/Bereich.** Ein „Stand 22.08." ist ein Versprechen, das dort
-  niemand einlöst. Datierte Abschnitte nur im Projekt.
+- **Kein Stand-Datum auf Router/Bereich.** Ein „Stand 22.08." ist ein Versprechen, das dort
+  niemand einlöst. Datierte Abschnitte nur im Projekt. Ein Herkunftsdatum an einer Regel
+  („seit 2026-08-22", „Entscheidung 2026-06-11") ist kein Stand und darf bleiben.
 - **Höhen-Check beim Schreiben.** Wer Inhalt in eine CLAUDE.md schreibt, prüft: passt er
   zur Höhe? Sonst eine Ebene tiefer ablegen (Kind-CLAUDE.md oder README) und oben
   höchstens einen Zeiger lassen.
@@ -161,7 +162,7 @@ Befund für den Prinzip-Abschnitt, nicht stillschweigend wegzuadaptieren.
 
 - [ ] Kopfzeile nennt Höhe; Höhe passt zur Rolle des Ordners.
 - [ ] Budget eingehalten (Router ≤ 2 KB, Maschine ≤ 4 KB, Bereich ≤ 4 KB).
-- [ ] Router/Bereich: kein Datum, kein Status, keine Fakten, die veralten können.
+- [ ] Router/Bereich: kein Stand-Datum, kein Status, keine Fakten, die veralten können.
 - [ ] Kinderliste vollständig; jeder Zeiger trifft eine existierende Datei.
 - [ ] Nichts wiederholt, was eine Eltern-Ebene schon sagt.
 - [ ] Projekt: Verfassungs-Teil vorn, genau ein datierter Stand, Stand-Punkte = Stand + Zeiger, kein Verlauf.

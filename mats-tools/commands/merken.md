@@ -40,7 +40,8 @@ Bei Unsicherheit, welche Datei wohin (oder ob eine neue angelegt werden soll): p
 - Nutze `Edit` für punktuelle Ergänzungen in bestehenden Dateien, `Write` nur für neu anzulegende.
 - **Passe dich an Stil und Struktur der jeweiligen Datei an** (Überschriftenebenen, Sprache, Ton). Schreibe nicht über bestehende, noch gültige Inhalte — ergänze oder aktualisiere veraltete Stellen.
 - **Verfassung getrennt vom Stand:** Zweck & Konventionen sind langsam veränderlich und gehören nach vorn; der Stand ist schnelllebig und datiert. Ein junges System darf eine Ein-Satz-Verfassung haben — nichts erfinden, nichts aufblähen: ohne Verfassungs-Befund bleibt der Teil unangetastet. (Genau diese Abschnitte lesen `/einarbeiten` und `/destillieren` später als beabsichtigte Konvention des Systems.)
-- Datiere den Stand-Abschnitt mit dem heutigen Datum.
+- Datiere den Stand-Abschnitt mit dem heutigen Datum. **Genau ein Stand-Block:** Inhalt, den du dabei ersetzt, wandert nach `HISTORIE.md` im selben Ordner (neueste zuerst; anlegen, falls fehlt) — nie als „Vorheriger Stand" in der CLAUDE.md stehen lassen.
+- Fehlt der Projekt-CLAUDE.md die Kopfzeile `# CLAUDE.md — <Ordnername> (Projekt)`, setze sie beim Schreiben mit (Verfassung im Skill `claude-md`); sonst nichts umbauen.
 - Markiere offene Punkte klar (z.B. als Checkliste `- [ ]`), damit der nächste Einstieg sofort sichtbar ist.
 
 ## Schritt 5 — Git nur anbieten (nicht automatisch)
