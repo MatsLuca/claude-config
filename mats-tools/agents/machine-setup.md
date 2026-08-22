@@ -68,6 +68,23 @@ cat >> "$RC" <<'BLOCK'
 # Managed by the mats-tools `machine-setup` agent — safe to re-run, this block is regenerated.
 alias yolo='claude --dangerously-skip-permissions'
 
+# How long ago was the last *real* mats-tools update? (newest version dir in the plugin cache;
+# `claude plugin update` leaves that mtime untouched when nothing changed). GNU stat first, BSD fallback.
+_mats_tools_alter() {
+  local dir ts now d
+  dir=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
+  [ -n "$dir" ] || return 1
+  ts=$(stat -c %Y "$dir" 2>/dev/null || stat -f %m "$dir" 2>/dev/null) || return 1
+  now=$(date +%s); d=$(( now - ts )); [ "$d" -lt 0 ] && d=0
+  if   [ "$d" -lt 60 ];      then echo "vor ${d} Sek."
+  elif [ "$d" -lt 3600 ];    then echo "vor $(( d/60 )) Min."
+  elif [ "$d" -lt 86400 ];   then echo "vor $(( d/3600 )) Std."
+  elif [ "$d" -lt 604800 ];  then echo "vor $(( d/86400 )) Tag(en)"
+  elif [ "$d" -lt 2629800 ]; then echo "vor $(( d/604800 )) Woche(n)"
+  else                            echo "vor $(( d/2629800 )) Monat(en)"
+  fi
+}
+
 # Wrap `claude`: daily self-update check + sync the mats-tools plugin on every launch.
 claude() {
   local today last_update_file="$HOME/.claude_last_update"
@@ -80,13 +97,13 @@ claude() {
   # Plugin-Sync, max. 8s, hängt nie (timeout/gtimeout/perl je nach System; sonst direkt).
   # Hinweis: `claude` hinter timeout/perl ist das Binary (kein Funktions-Rekurs).
   if command -v timeout >/dev/null 2>&1; then
-    timeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell."
+    timeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
   elif command -v gtimeout >/dev/null 2>&1; then
-    gtimeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell."
+    gtimeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
   elif command -v perl >/dev/null 2>&1; then
-    perl -e 'alarm shift; exec @ARGV' 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell."
+    perl -e 'alarm shift; exec @ARGV' 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
   else
-    command claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell."
+    command claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
   fi
   # Repo-Frische: hängt der lokale Klon hinter origin? Einmal fetchen (max 5s) und melden.
   if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
