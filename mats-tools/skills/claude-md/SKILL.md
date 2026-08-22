@@ -15,8 +15,9 @@ oder **Projekt** und sagt es in der Kopfzeile.
 
 **Wartungsgang** (`/claude-md [pfad]`): Datei oder Teilbaum prüfen, Bericht, Umbau erst nach Zustimmung.
 **Proaktiv** (beim Anlegen/Umbauen einer CLAUDE.md aus anderer Arbeit heraus): Höhe bestimmen,
-Skelett aus der Verfassung nehmen, Höhen-Check auf den Inhalt — ohne eigenen Bericht, der
-Umbau ist Teil der laufenden Aufgabe.
+Skelett aus der Verfassung nehmen (Projekt: Zweck → „Struktur & Konventionen" → „Aktueller
+Stand (<Datum>)" → „HIER WEITERMACHEN"), Höhen-Check auf den Inhalt — ohne eigenen Bericht,
+der Umbau ist Teil der laufenden Aufgabe.
 
 ## Schritt 1 — Lage erfassen
 
@@ -37,7 +38,8 @@ bereits im Kontext ist, nicht neu lesen.
 Regel aus der Verfassung: gleichartige Kinder + selten cwd → Router (ohne gemeinsame
 Arbeitsmuster) oder Bereich (mit); hier wird gearbeitet → Projekt. Widerspricht die
 Kopfzeile der Rolle, ist *das* der erste Befund. Fehlt die Datei und der nächsthöhere
-Router nennt die Kinder schon → keine anlegen.
+Router nennt die Kinder schon → keine anlegen. Ein `@datei`-Einzeiler ist ein Include,
+kein Zombie.
 
 ## Schritt 3 — Gegen die Checkliste prüfen
 
@@ -58,6 +60,14 @@ Im Wartungsgang Zustimmung per `AskUserQuestion` holen (mehrere unabhängige Ein
 toten Zeiger korrigieren.
 
 Umbau: **erst das Ziel schreiben, dann oben kürzen** — Inhalt darf nie nur gelöscht werden.
+- Ist die Datei nicht versioniert (kein Git, gitignored), vorher Kopie nach `~/Documents/9_Temp/`.
+- Verlauf geht **1:1** (Beleg: `diff` bzw. Zeilenabgleich alt ↔ Ziel zeigen); vorher im Verlauf
+  vergrabene zeitlose Konventionen/Fallen in den Verfassungs-Teil heben — danach aktiv suchen,
+  nicht warten, bis es auffällt.
+- Zeiger von außen nachziehen: Memory-Dateien, andere CLAUDE.md, Skripte, die auf den
+  verschobenen Abschnitt zeigten (`grep -rl` über `~/Documents` und `~/.claude`).
+- Nicht committen — Abschluss per `/finish` ist Mats' Sache.
+
 `Edit` für punktuelle Änderungen, `Write` nur für neue Dateien. Stil der Zieldatei wahren.
 Nach dem Umbau: Bytes erneut messen, Checkliste nochmal — erst wenn alle Punkte grün, fertig.
 

@@ -41,13 +41,13 @@ Jede CLAUDE.md ist genau **eine** davon und sagt es in ihrer ersten Zeile
 | **Wo** | `~/.claude` (Maschine), `Documents`, `4_Projekte`, `3_Studium` | `1_Privat`, ein Semester, `Hetzner_Server` — Ordner mit gleichartigen Kindern | Referenzprojekt, LatexTerm, ein Fach — hier wird gearbeitet |
 | **Job** | Karte der Kinder (eine Zeile Zweck je Kind) + Konventionen, die für den ganzen Teilbaum gelten + der Satz „hier oben: Allgemeines; für Details runter nach X" | Arbeitsmuster, die für *alle* Kinder gelten + Kinderliste mit je einer Zeile Zweck | Zweck, Konventionen (Verfassungs-Teil), **Status-Dashboard mit Zeigern**, „HIER WEITERMACHEN" |
 | **Nicht-Job** | Fakten, Status, Historie, Verhaltensskripte, Befund-Protokolle | Projektstatus, „Aktueller Stand"-Blöcke, Technik-Details eines Kindes | Erledigt-Verläufe (→ `HISTORIE.md`), Vollreferenz (→ READMEs), Medien-Dumps |
-| **Budget** | ≤ 2 KB (`~/.claude`: ≤ 4 KB) | ≤ 4 KB | kein Limit — aber *verdichtet*: jeder Status-Punkt ist Stand + Zeiger, nicht Verlauf |
+| **Budget** | ≤ 2 KB (`~/.claude`: ≤ 4 KB) | ≤ 4 KB | kein Limit — aber *verdichtet*: **ein** datierter Stand-Block, jeder Punkt Stand + Zeiger; ältere Stände sind Verlauf → `HISTORIE.md` |
 | **Pflege** | nur bei Strukturänderung | bei neuem Kind / neuem Muster | `/merken` nach Sessions, `/destillieren` bei Wucherung |
 
 **Maschine** (`~/.claude/CLAUDE.md`) ist ein Router mit Sonderbudget: pro Thema 1–3 Zeilen
 *Verhaltensregel* + Pfad nach `~/.claude/reference/<thema>.md`, wo das Protokoll liegt.
 Verhaltensregel = ändert, was Claude tut („nie Mail.app per AppleScript", „Browser nur auf
-Aufforderung"); alles andere ist Referenz.
+Aufforderung", „Standort über Skill X") — auch die Werkzeugwahl zählt; alles andere ist Referenz.
 
 **Höhe bestimmen:** Hat der Ordner gleichartige Kinder mit je eigener CLAUDE.md/README und
 wird selbst selten als cwd geöffnet → Router oder Bereich (Bereich, wenn es gemeinsame
@@ -70,6 +70,11 @@ aus Vollständigkeit**.
 - **Höhen-Check beim Schreiben.** Wer Inhalt in eine CLAUDE.md schreibt, prüft: passt er
   zur Höhe? Sonst eine Ebene tiefer ablegen (Kind-CLAUDE.md oder README) und oben
   höchstens einen Zeiger lassen.
+- **Verlauf wandert 1:1, Regeln steigen auf.** Datierte Alt-Stände gehen unverändert nach
+  `HISTORIE.md` — vorher die dort vergrabenen zeitlosen Konventionen und Fallen (Build-Fallen,
+  Verifikations-Workflow, Modell-Konvention) herausziehen und in den Verfassungs-Teil heben.
+  Gekürzt wird erst, wenn das Ziel den Inhalt belegt trägt (diff/Zeilenabgleich); was keinen
+  Zweitbeleg hat, wird vorher gesichert, nie gelöscht.
 
 ## Skelette
 
@@ -125,11 +130,22 @@ langsam veränderlich, steht vorn)
 - **Finder-Sync mit Gemini** (`GEMINI.md` daneben): Claude Code lädt nur `CLAUDE.md`.
   Abschnitte „Wenn du Gemini bist" gehören nach `GEMINI.md`; gemeinsam genutzter Inhalt
   (Status, Struktur) in eine neutrale Datei (`README.md`, `MASTERPLAN.md`), auf die beide
-  zeigen. Kein `# GEMINI Context`-Header in einer CLAUDE.md.
+  zeigen. Kein `# GEMINI Context`-Header in einer CLAUDE.md. Ist `GEMINI.md` ein Symlink
+  auf `CLAUDE.md`, gilt die CLAUDE.md für beide — kein Konflikt, nichts aufzuteilen.
+- **Include-Einzeiler** (`@AGENTS.md`): eine CLAUDE.md, die nur aus einer `@`-Zeile besteht,
+  ist kein Zombie, sondern ein Include — bleibt, Höhe ist die der eingebundenen Datei.
 - **Software-Repo** (`4_Projekte/01_Aktiv/*`): Projekt-Höhe; Stack/Build/Test-Teil darf
-  länger sein — das ist Konvention, kein Status. Historie trotzdem ins `CHANGELOG`/Git.
+  länger sein — das ist Konvention, kein Status. Feature-Verlauf ins `CHANGELOG`/Git;
+  Debug-Funde und Entscheidungen, die dort nicht stehen, nach `HISTORIE.md`. Bei **zwei
+  Autoren** (geteiltes Repo, fremdes Tooling): Kopfzeile setzen, die fremde Kennzeile als
+  zweite Zeile behalten, Format-Eigenheiten (BOM, Abschnittsnamen) nicht stillschweigend kippen.
 - **Verhaltens-Personas** (Lern-Coach, Autopilot): gehören nicht in eine CLAUDE.md —
-  als Command/Skill nach mats-tools, die CLAUDE.md verweist darauf.
+  als Command/Skill nach mats-tools, die CLAUDE.md verweist darauf; wird die Persona nicht
+  mehr gebraucht, reicht Archivieren (`_Archiv_<Name>_<YYYY-MM>.md` im Ordner, Zeiger bleibt).
+- **Beendetes Projekt, Ordner bleibt Datenquelle** (Reise vorbei, App liest weiter daraus):
+  Projekt-Höhe bleibt, Stand „beendet (<Datum>)" mit nur noch lebenden Punkten (Nachzahlungen,
+  Fristen, Build-Pipeline); ob es nach `8_Archive/` umzieht, ist Mats' Entscheidung und steht
+  unter HIER WEITERMACHEN.
 - **Archiv** (`8_Archive`, `_Archiv_`-Präfix): keine CLAUDE.md nötig; eine vorhandene
   wird nicht gepflegt.
 
@@ -148,5 +164,6 @@ Befund für den Prinzip-Abschnitt, nicht stillschweigend wegzuadaptieren.
 - [ ] Router/Bereich: kein Datum, kein Status, keine Fakten, die veralten können.
 - [ ] Kinderliste vollständig; jeder Zeiger trifft eine existierende Datei.
 - [ ] Nichts wiederholt, was eine Eltern-Ebene schon sagt.
-- [ ] Projekt: Verfassungs-Teil vorn, Stand datiert, Stand-Punkte = Stand + Zeiger, kein Verlauf.
+- [ ] Projekt: Verfassungs-Teil vorn, genau ein datierter Stand, Stand-Punkte = Stand + Zeiger, kein Verlauf.
+- [ ] Beim Schnitt: Ziel trägt den Inhalt belegt; zeitlose Regeln aus dem Verlauf stehen vorn.
 - [ ] Kein Gemini-Header, keine Persona-Skripte, kein Befund-Protokoll (→ `reference/`).

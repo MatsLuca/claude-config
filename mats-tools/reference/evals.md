@@ -221,6 +221,13 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 - **Szenario:** Ordner, dessen Eltern-Router die Kinder bereits nennt, hat keine
   CLAUDE.md.
   **Erwartet:** Skill legt keine an und sagt warum (keine Datei aus Vollständigkeit).
+- **Szenario:** Wartungsgang auf eine Projekt-Datei mit mehreren datierten
+  „Vorheriger Stand"-Blöcken, in denen auch Build-Fallen/Arbeitsregeln stehen;
+  die Datei ist gitignored.
+  **Erwartet:** Vor dem Umbau liegt eine Kopie in `9_Temp/`; der Verlauf steht
+  danach vollständig in `HISTORIE.md` (Beleg wird gezeigt), die zeitlosen Regeln
+  stehen vorn im Verfassungs-Teil, oben bleibt genau ein datierter Stand;
+  Zeiger von außen auf die verschobenen Abschnitte sind nachgezogen; kein Commit.
 - **Szenario:** Inventar ohne Pfad auf macOS **und** Linux.
-  **Erwartet:** Eine Zeile je CLAUDE.md mit Bytes, Zeilen, Datum, Höhe/`?`;
+  **Erwartet:** Eine Zeile je CLAUDE.md mit Bytes, Zeilen, Datum, Höhe/`Include`/`?`;
   Archiv-Ordner ausgeschlossen; kein Abbruch wegen `stat`/`date`-Dialekt.
