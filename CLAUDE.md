@@ -79,6 +79,12 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   eval's wording, update the eval explicitly, never silently.
 - The authoring standard (`mats-tools/reference/authoring-guide.md`) is itself an optimizable
   target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
+- **Public repo, real subscribers.** Two friends pull this plugin automatically at every
+  launch; they are not programmers, trust Mats' setup, and one has rebuilt his Windows terminal
+  (own status panel, start output suppressed). Consequences: nothing private or third-party in
+  tracked files (`plans/` stays gitignored; protocols live in `HISTORIE.md` only if harmless);
+  `NEWS.md` entries are written for non-coders and make Claude *act*, never ask; `machine-setup`
+  never overwrites customised pieces without being in its own managed block.
 - **Precedence over plugin-dev:** Anthropic's `plugin-dev` plugin (if installed) serves as a
   *technical reference only* (hook definitions, MCP bundling, plugin.json/marketplace schemas).
   For style and quality questions about commands/agents/skills (frontmatter, clarity, token
@@ -98,21 +104,32 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
 
-## Aktueller Stand (2026-08-22)
+## Aktueller Stand (2026-08-22, abends)
 
-- **CLAUDE.md-Verfassung delivered** (`plans/claude-md-verfassung.md`, waves 1–6 done + post-wave
-  fix `d56d653`): skill `claude-md` (+ `verfassung.md`, `inventar.sh`), `/merken` now keeps exactly
-  one dated Stand block (replaced content → `HISTORIE.md`) and sets the height header; validator
-  covers skills. Ancestor chains under `~/Documents` are ≤ ~5 KB; 28 project-level CLAUDE.md still
-  lack a height header (handled lazily by `/merken` / the proactive skill).
-- Plugin cache on this Mac is behind the repo until `/plugin update mats-tools@claude-config` (the
-  `/merken` that wrote this ran from the old cached text).
+- **Repo bereinigt (public!):** `plans/` aus Tracking *und* Historie entfernt (`git filter-repo`,
+  Force-Push `8274494`), Beispielname in `verfassung.md` neutralisiert. `plugin update` aus einem
+  Clone mit alter Historie verifiziert: springt fehlerfrei auf die neue. Alte Commits
+  (`0c8a095`, `9aaa01c`, `a635851`) sind auf GitHub noch per SHA erreichbar (dangling).
+- **News-Kanal live** (`NEWS.md` + `hooks/news.sh` SessionStart-Hook, verifiziert per `claude -p`):
+  erste Nachricht „Live-Nachrichten — dein Claude richtet das jetzt ein". Claude handelt
+  eigenständig: 1:1-Setup → `machine-setup` Nachrüst-Modus; angepasstes Setup → `start.sh` +
+  `news.sh --shell` an passender Stelle des eigenen Systems, kleinster Eingriff mit Backup.
+- **Startzeile fernsteuerbar:** `shell/start.sh` (Update-Alter aus mtime des aktiven Cache-Ordners;
+  aktiver Ordner aus `installed_plugins.json`, nicht per `ls -t` — ein Update berührt auch den
+  alten Ordner). Wrapper in `~/.zshrc` dieses Macs sourct es bereits; Vorlage in `machine-setup`.
+- **machine-setup:** Nachrüst-Modus (nur Wrapper-Block, fragt nichts; bei fremdem `claude()`
+  kein zweiter Block), Überschreib-Schutz für Status Line/settings.json im Vollmodus, Windows =
+  Unix-Schritte via Git Bash **plus** PowerShell-Profil (Step 1W, ungetestet).
+- Seen-Datei auf diesem Mac gesetzt (hier ist alles eingebaut) — `news.sh --reset` zeigt erneut.
 
 ## HIER WEITERMACHEN
 
-- [ ] `/plugin update mats-tools@claude-config`, then a fresh session — verify the new `/merken`
-  sentences are in the loaded command text.
-- [ ] Wiedervorlage 2026-11-22: run `inventar.sh ~/Documents`, check budgets/height headers, feed
-  findings into `/optimieren claude-md` (Meta-Pflege section of the Verfassung).
-- [ ] `inventar.sh` GNU branch (Linux) only statically checked — run once in a container.
-- [ ] `~/Documents/9_Temp/welle*-bak/` (≈200 KB wave backups) can go once nothing is missed.
+- [ ] Erstes echtes Exemplar des autonomen Nachrüstens kommt von einem der Jungs — deren
+  Zwei-Sätze-Zusammenfassung einholen; Windows-Zweig (Step 1W) danach korrigieren, falls nötig.
+- [ ] Entscheidung Mats: GitHub-Support anfragen, um die dangling Commits mit `plans/` zu purgen.
+- [ ] Optional: Nachrüst-Modus auf einer Test-Maschine/Container live durchspielen (auf diesem
+  Mac bewusst nicht — eigener `claude()`-Wrapper).
+- [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents`, Budgets/Kopfzeilen prüfen →
+  `/optimieren claude-md`.
+- [ ] `inventar.sh` GNU-Zweig einmal im Container laufen lassen.
+- [ ] `~/Documents/9_Temp/welle*-bak/` (≈200 KB) löschen, wenn nichts vermisst wird.
