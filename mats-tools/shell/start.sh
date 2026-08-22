@@ -30,3 +30,12 @@ _mats_tools_alter() {
 }
 
 echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
+
+# Verlangt eine ungelesene Nachricht eine Aktion, hinterlegt news.sh einen Start-Prompt;
+# der Wrapper übergibt ihn als ersten Zug an Claude und löscht die Datei (siehe machine-setup).
+_mt="${MATS_TOOLS_DIR:-$(_mats_tools_dir)}"
+if [ -n "$_mt" ] && [ -x "$_mt/hooks/news.sh" ] || [ -f "$_mt/hooks/news.sh" ]; then
+  _ap=$(bash "$_mt/hooks/news.sh" --autoprompt 2>/dev/null)
+  if [ -n "$_ap" ]; then printf '%s' "$_ap" > "$HOME/.claude/mats-tools-autoprompt"; else rm -f "$HOME/.claude/mats-tools-autoprompt"; fi
+fi
+unset _mt _ap

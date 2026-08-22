@@ -141,7 +141,16 @@ claude() {
     behind=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null)
     [ "${behind:-0}" -gt 0 ] && echo "⬇️  Repo hängt $behind Commit(s) hinter $(git rev-parse --abbrev-ref '@{u}') — ggf. git pull."
   fi
-  command claude "$@"
+  # Auto-Start: hat start.sh einen Prompt hinterlegt (Nachricht von Mats mit Aktion), geht er
+  # als erster Zug mit — nur bei nacktem Start, nie bei -p/--resume/Subcommands.
+  local ap="$HOME/.claude/mats-tools-autoprompt"
+  if [ -s "$ap" ] && { [ $# -eq 0 ] || [ "${1#-}" != "$1" ]; } \
+     && ! printf ' %s ' "$@" | grep -qE ' (-p|--print|-c|--continue|-r|--resume|--version|--help|-h|-v) '; then
+    local prompt; prompt=$(cat "$ap"); rm -f "$ap"
+    command claude "$@" "$prompt"
+  else
+    command claude "$@"
+  fi
 }
 # <<< mats-tools machine-setup <<<
 BLOCK
@@ -149,6 +158,10 @@ BLOCK
 
 Notes:
 - `yolo` expands to the `claude` function, so it inherits the update wrapper automatically.
+- **Auto-Start:** a news entry carrying the line `<!-- aktion -->` makes `start.sh` drop a
+  prompt into `~/.claude/mats-tools-autoprompt`; the wrapper hands it to Claude as the first
+  turn, so Claude acts without anyone typing. Hooks alone cannot start a turn — this is why
+  the wrapper must be current.
 - The wrapper itself is a static copy in the rc file — keep it **thin**. Everything that
   should evolve without re-running this agent (start line, future shell-side features)
   lives in the plugin at `shell/start.sh`, which the wrapper sources from the freshest
@@ -198,7 +211,16 @@ function claude {
             bash ($start -replace '\\','/')
         } else { Write-Host '🔄 mats-tools aktuell.' }
     }
-    & $exe @args
+    # Auto-Start (siehe Unix-Block): hinterlegten Prompt als ersten Zug mitgeben.
+    $ap = Join-Path $env:USERPROFILE '.claude\mats-tools-autoprompt'
+    $bare = ($args.Count -eq 0) -or ($args[0] -like '-*')
+    $skip = $args | Where-Object { $_ -in @('-p','--print','-c','--continue','-r','--resume','--version','--help','-h','-v') }
+    if ((Test-Path $ap) -and $bare -and -not $skip) {
+        $prompt = Get-Content $ap -Raw; Remove-Item $ap -Force
+        & $exe @args $prompt
+    } else {
+        & $exe @args
+    }
 }
 function yolo { claude --dangerously-skip-permissions @args }
 # <<< mats-tools machine-setup <<<

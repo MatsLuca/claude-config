@@ -4,10 +4,14 @@
 # Liest NEWS.md (neuester Eintrag oben, jeder Eintrag beginnt mit "## "), zeigt jeden
 # Eintrag GENAU EINMAL pro Maschine (Seen-Datei) — maximal MAX auf einmal.
 #
-#   --hook   JSON für den SessionStart-Hook: systemMessage (Terminal) + additionalContext (Claude)
-#   --shell  Klartext, z. B. für den Shell-Wrapper
-#   --peek   Klartext ohne Seen-Markierung (zum Prüfen)
-#   --reset  Seen-Datei löschen (alle Einträge erscheinen erneut)
+#   --hook       JSON für den SessionStart-Hook: systemMessage (Terminal) + additionalContext (Claude)
+#   --shell      Klartext, z. B. für den Shell-Wrapper
+#   --peek       Klartext ohne Seen-Markierung (zum Prüfen)
+#   --autoprompt Steht unter den ungelesenen Einträgen einer mit Aktions-Marker (Zeile
+#                "<!-- aktion -->" im Text), gib den Start-Prompt aus, mit dem der Wrapper
+#                Claude aufruft — so handelt Claude von selbst, ohne dass jemand tippt.
+#                Markiert nichts als gelesen (das tut der Hook beim Session-Start).
+#   --reset      Seen-Datei löschen (alle Einträge erscheinen erneut)
 #
 # Läuft unter bash auf macOS/Linux und in Git Bash auf Windows. Ohne jq: Klartext statt
 # JSON (Claude Code nimmt plain stdout bei SessionStart als Kontext — nur die Terminal-
@@ -21,8 +25,8 @@ mode="${1:---hook}"
 
 case "$mode" in
   --reset) rm -f "$SEEN"; exit 0 ;;
-  --hook|--shell|--peek) ;;
-  *) echo "usage: news.sh [--hook|--shell|--peek|--reset]" >&2; exit 2 ;;
+  --hook|--shell|--peek|--autoprompt) ;;
+  *) echo "usage: news.sh [--hook|--shell|--peek|--autoprompt|--reset]" >&2; exit 2 ;;
 esac
 [ -f "$NEWS" ] || exit 0
 
@@ -34,12 +38,13 @@ entries=$(awk '
 ' "$NEWS")
 [ -n "$entries" ] || exit 0
 
-unseen=""; heads=""; n=0
+unseen=""; heads=""; n=0; aktion=0
 while IFS= read -r e; do
   [ -n "$e" ] || continue
   head="${e%%$'\x1f'*}"
   if [ -f "$SEEN" ] && grep -qxF -- "$head" "$SEEN"; then continue; fi
-  body=$(printf '%s' "$e" | tr '\037' '\n' | sed -e 's/^## //' -e '/./,$!d' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')
+  case "$e" in *'<!-- aktion -->'*) aktion=1 ;; esac
+  body=$(printf '%s' "$e" | tr '\037' '\n' | sed -e 's/^## //' -e '/<!-- aktion -->/d' -e '/./,$!d' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')
   unseen="${unseen}${unseen:+
 
 }${body}"
@@ -49,10 +54,15 @@ while IFS= read -r e; do
 done <<< "$entries"
 [ "$n" -gt 0 ] || exit 0
 
+if [ "$mode" = "--autoprompt" ]; then
+  [ "$aktion" = 1 ] && echo "Hi. Bitte setz zuerst die neue Nachricht von Mats (mats-tools) um, die du im Kontext hast — eigenständig, wie dort beschrieben. Danach sag mir kurz, was du gemacht hast."
+  exit 0
+fi
+
 msg="📣 Nachricht von Mats (mats-tools)
 ${unseen}"
 
-if [ "$mode" != "--peek" ]; then
+if [ "$mode" != "--peek" ] && [ "$mode" != "--autoprompt" ]; then
   mkdir -p "$(dirname "$SEEN")"
   printf '%s' "$heads" >> "$SEEN"
 fi
