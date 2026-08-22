@@ -74,6 +74,16 @@ cat >> "$RC" <<'BLOCK'
 # Managed by the mats-tools `machine-setup` agent — safe to re-run, this block is regenerated.
 alias yolo='claude --dangerously-skip-permissions'
 
+# Aktiver mats-tools-Ordner im Plugin-Cache: laut installed_plugins.json (user-scope);
+# Fallback: jüngster Versionsordner. (Ein Update berührt auch den alten Ordner — mtime allein
+# ist deshalb kein sicheres Kriterium.)
+_mats_tools_dir() {
+  f="$HOME/.claude/plugins/installed_plugins.json"; d=""
+  [ -f "$f" ] && d=$(awk '/"mats-tools@claude-config"/{b=1} b&&/"scope": *"user"/{u=1} b&&u&&/"installPath"/{sub(/.*"installPath": *"/,""); sub(/",?[[:space:]]*$/,""); print; exit}' "$f")
+  { [ -n "$d" ] && [ -d "$d" ]; } || d=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
+  [ -n "$d" ] && printf '%s' "${d%/}"
+}
+
 # Wrap `claude`: daily self-update check + sync the mats-tools plugin on every launch.
 claude() {
   local today last_update_file="$HOME/.claude_last_update"
@@ -97,8 +107,8 @@ claude() {
   fi
   # Startzeile lebt im Plugin (shell/start.sh) — so ist sie per Plugin-Update fernsteuerbar.
   if [ "$synced" = 0 ]; then
-    local mt; mt=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
-    if [ -n "$mt" ] && [ -f "${mt}shell/start.sh" ]; then . "${mt}shell/start.sh"; else echo "🔄 mats-tools aktuell."; fi
+    local mt; mt=$(_mats_tools_dir)
+    if [ -n "$mt" ] && [ -f "$mt/shell/start.sh" ]; then MATS_TOOLS_DIR="$mt" . "$mt/shell/start.sh"; else echo "🔄 mats-tools aktuell."; fi
   fi
   # Repo-Frische: hängt der lokale Klon hinter origin? Einmal fetchen (max 5s) und melden.
   if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
@@ -152,11 +162,19 @@ function claude {
     $rc = if (Wait-Job $job -Timeout 8) { Receive-Job $job } else { 1 }
     Remove-Job $job -Force
     if ($rc -eq 0) {
-        # Startzeile lebt im Plugin (shell/start.sh), läuft über Git Bash.
-        $cache = Join-Path $env:USERPROFILE '.claude\plugins\cache\claude-config\mats-tools'
-        $dir = Get-ChildItem $cache -Directory -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-        $start = if ($dir) { Join-Path $dir.FullName 'shell\start.sh' } else { $null }
-        if ($start -and (Test-Path $start) -and (Get-Command bash -ErrorAction SilentlyContinue)) { bash $start } else { Write-Host '🔄 mats-tools aktuell.' }
+        # Startzeile lebt im Plugin (shell/start.sh), läuft über Git Bash. Aktiver Ordner laut
+        # installed_plugins.json (user-scope); Pfad mit Slashes, damit Git Bash ihn versteht.
+        $reg = Join-Path $env:USERPROFILE '.claude\plugins\installed_plugins.json'
+        $dir = $null
+        if (Test-Path $reg) {
+            $e = (Get-Content $reg -Raw | ConvertFrom-Json).plugins.'mats-tools@claude-config' | Where-Object scope -eq 'user' | Select-Object -First 1
+            if ($e) { $dir = $e.installPath }
+        }
+        $start = if ($dir) { Join-Path $dir 'shell\start.sh' } else { $null }
+        if ($start -and (Test-Path $start) -and (Get-Command bash -ErrorAction SilentlyContinue)) {
+            $env:MATS_TOOLS_DIR = $dir -replace '\\','/'
+            bash ($start -replace '\\','/')
+        } else { Write-Host '🔄 mats-tools aktuell.' }
     }
     & $exe @args
 }
