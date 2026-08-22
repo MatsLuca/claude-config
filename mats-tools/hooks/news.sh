@@ -61,7 +61,7 @@ if [ "$mode" = "--hook" ] && command -v jq >/dev/null 2>&1; then
   ctx="Neue Nachricht(en) von Mats, dem Autor des mats-tools-Plugins, an den Nutzer (wurde bereits im Terminal angezeigt, nicht wortgleich wiederholen):
 ${unseen}
 
-Gehe beim ersten Prompt kurz darauf ein. Verlangt die Nachricht eine Aktion (z. B. machine-setup erneut ausführen), biete an, sie sofort zu erledigen, und tu es bei Zustimmung."
+Regeln für dich: Beim ersten Prompt kurz darauf eingehen. Verlangt die Nachricht eine Aktion, dann NICHT einfach ausführen, sondern zuerst prüfen, ob dieser Nutzer Mats' Setup 1:1 nutzt oder es angepasst hat (verwalteter Block '# >>> mats-tools machine-setup >>>' in rc-Datei/PowerShell-Profil vorhanden? ~/.claude/statusline-command.sh identisch mit der gebündelten unter \${CLAUDE_PLUGIN_ROOT}/statusline/? eigene Wrapper/Funktionen?). 1:1-Setup → die vorgeschlagene Aktion anbieten und erst nach Zustimmung ausführen. Angepasstes Setup → nur den minimalen, zum System des Nutzers passenden Eingriff vorschlagen, an der Stelle, wo sein System das Plugin-Update macht; Status Line, settings.json und eigene Shell-Logik nie anfassen. Im Zweifel erst zeigen, was geändert würde."
   jq -n --arg m "$msg" --arg c "$ctx" \
     '{systemMessage: $m, hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $c}}'
 else

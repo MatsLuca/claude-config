@@ -5,12 +5,21 @@ Neuester Eintrag oben. Jeder Eintrag beginnt mit `## <Datum> · <Titel>`; der Ho
 (Seen-Datei `~/.claude/mats-tools-news-seen`, `news.sh --reset` zeigt alles erneut).
 Kurz halten — das landet 1:1 im Terminal der Leute.
 
-## 2026-08-22 · Bitte einmal das machine-setup neu laufen lassen
+## 2026-08-22 · Neu: Live-Nachrichten & fernsteuerbare Startzeile — einmal nachrüsten
 
-Neu in mats-tools: die Startzeile sagt jetzt, wie lange das letzte Plugin-Update her ist,
-und dieser News-Kanal hier. Damit künftige Verbesserungen am Start-Wrapper automatisch bei
-dir ankommen, braucht es einmalig ein frisches Setup — einfach als Prompt schicken:
+Zwei neue Dinge in mats-tools: (1) dieser Kanal hier — ich kann euch ab jetzt Nachrichten
+direkt in den Session-Start schicken (seht ihr genau einmal). (2) Die Startzeile des
+Auto-Update-Wrappers („🔄 mats-tools aktuell …") kommt jetzt aus dem Plugin selbst und
+zeigt, wie lange das letzte Update her ist.
 
-    Führe das machine-setup durch.
+Damit (2) bei dir ankommt, muss dein Wrapper einmal neu erzeugt werden — je nachdem, wie
+du Claude Code nutzt:
+- Nutzt du mein Setup 1:1 → sag deinem Claude „Führe das machine-setup im Nachrüst-Modus
+  durch" — das erneuert nur den Wrapper-Block, sonst nichts.
+- Hast du dein Terminal/deine Status Line selbst umgebaut → **nicht** blind das
+  machine-setup laufen lassen. Lass dir von Claude zeigen, wo bei dir das Plugin-Update
+  beim Start läuft, und bau nur dort die eine Zeile ein, die `shell/start.sh` aus dem
+  aktiven Plugin-Ordner sourct. Claude weiß, wie das geht.
 
-Ist idempotent, überschreibt nichts Eigenes. Danach neues Terminal öffnen — fertig.
+Kaputt machen kann der Nachrüst-Modus nichts Eigenes — aber frag im Zweifel erst, was er
+ändern würde.

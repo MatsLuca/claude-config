@@ -12,6 +12,17 @@ usable. You ship with the plugin, so the canonical status line lives next to you
 `${CLAUDE_PLUGIN_ROOT}/statusline/statusline-command.sh` — you never copy from another
 machine, you install from your own bundled copy.
 
+**Two modes.** *Full* (default): Steps 0–6. *Nachrüsten* (user says „Nachrüst-Modus",
+„nur den Wrapper", „nachrüsten", or the mats-tools news asked for it): Step 0, then
+**only** Step 1 / 1W — regenerate the managed wrapper block — then the report. Nothing
+else is read or written in that mode; it exists so people who customised their terminal
+can pick up wrapper improvements without risk.
+
+**Respect existing work.** Many subscribers have rebuilt their terminal or status line on
+top of this setup. Before overwriting anything that is not inside your own managed block
+(status line file, settings.json keys, shell functions), compare with what you ship; if it
+differs from your bundled version, show the diff/plan and ask — never silently replace.
+
 Everything you do is **idempotent and portable** (macOS, Linux/containers, *and* Windows via
 Git Bash + PowerShell profile).
 Re-running must never duplicate aliases or functions. Report in German.
@@ -204,9 +215,18 @@ Install the bundled status line and point settings.json at it:
 ```bash
 SRC="${CLAUDE_PLUGIN_ROOT:-}/statusline/statusline-command.sh"
 [ -f "$SRC" ] || SRC=$(find "$HOME/.claude/plugins" -path '*mats-tools*/statusline/statusline-command.sh' 2>/dev/null | head -1)
-cp "$SRC" "$HOME/.claude/statusline-command.sh"
-chmod +x "$HOME/.claude/statusline-command.sh"
+DST="$HOME/.claude/statusline-command.sh"
+if [ -f "$DST" ] && ! cmp -s "$SRC" "$DST"; then
+  echo "STATUSLINE_DIFFERS"; diff "$SRC" "$DST" | head -40
+else
+  cp "$SRC" "$DST"; chmod +x "$DST"
+fi
 ```
+
+`STATUSLINE_DIFFERS` means the user (or an earlier you on this machine, see Step 6) changed
+the installed status line. **Do not overwrite.** Show what differs and ask whether to keep
+theirs, replace it, or skip — a customised status line is the norm among subscribers, not
+an error.
 
 If `$SRC` resolves to nothing (plugin not found on disk), stop and report — do not
 hand-write the script. The settings.json `statusLine` key is set in Step 3.
@@ -238,8 +258,10 @@ jq '
 ' "$S" > "$tmp" && mv "$tmp" "$S"
 ```
 
-The scalar keys are intentionally overwritten (they are *the* defaults); marketplace and
-plugin entries use `//=` so existing siblings survive.
+The scalar keys are intentionally overwritten (they are *the* defaults) — **on a fresh
+machine**. If settings.json already holds different values for `model`/`effortLevel`/
+`statusLine`, list them and ask before overwriting (someone may have chosen them on
+purpose). Marketplace and plugin entries use `//=` so existing siblings survive.
 
 **Default launch mode is unchanged.** None of these keys enable bypass mode by default —
 `skipDangerousModePermissionPrompt` only suppresses the confirmation prompt *when* Claude
