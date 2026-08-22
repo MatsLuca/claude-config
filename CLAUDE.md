@@ -1,4 +1,4 @@
-# CLAUDE.md
+# CLAUDE.md — claude-config (Projekt)
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -20,11 +20,16 @@ Three nesting levels, each with its own manifest:
    and lists its plugins. Each plugin entry points at a subdirectory via `source` (e.g. `./mats-tools`).
 2. **Plugin** — `mats-tools/.claude-plugin/plugin.json` is the plugin manifest.
    Commands and agents are auto-discovered from convention directories, *not* listed in the manifest.
-3. **Commands & agents** — Markdown files with YAML frontmatter:
+3. **Commands, agents & skills** — Markdown files with YAML frontmatter:
    - `mats-tools/commands/*.md` → slash-commands (filename = command name, so `finish.md` → `/finish`).
    - `mats-tools/agents/*.md` → subagents (the `name:` field in frontmatter is the agent id).
+   - `mats-tools/skills/<name>/SKILL.md` → skills (user-invocable *and* model-triggered via
+     `description`); companion files live next to the SKILL.md (e.g. `claude-md/verfassung.md`,
+     `claude-md/scripts/inventar.sh`) and are referenced as `${CLAUDE_PLUGIN_ROOT}/skills/<name>/…`.
 
-Adding a command or agent = dropping a new `.md` file in the right directory with valid
+`plans/` holds multi-session work plans (waves with checkboxes + protocol) — not plugin content.
+
+Adding a command, agent or skill = dropping a new file in the right directory with valid
 frontmatter. No manifest edit is needed for discovery — but **do** update the human-facing
 tables in `README.md`, `marketplace.json` description, and `plugin.json` description/keywords
 so the listing stays accurate.
@@ -84,3 +89,22 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 ```
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
+
+## Aktueller Stand (2026-08-22)
+
+- **CLAUDE.md-Verfassung delivered** (`plans/claude-md-verfassung.md`, waves 1–6 done + post-wave
+  fix `d56d653`): skill `claude-md` (+ `verfassung.md`, `inventar.sh`), `/merken` now keeps exactly
+  one dated Stand block (replaced content → `HISTORIE.md`) and sets the height header; validator
+  covers skills. Ancestor chains under `~/Documents` are ≤ ~5 KB; 28 project-level CLAUDE.md still
+  lack a height header (handled lazily by `/merken` / the proactive skill).
+- Plugin cache on this Mac is behind the repo until `/plugin update mats-tools@claude-config` (the
+  `/merken` that wrote this ran from the old cached text).
+
+## HIER WEITERMACHEN
+
+- [ ] `/plugin update mats-tools@claude-config`, then a fresh session — verify the new `/merken`
+  sentences are in the loaded command text.
+- [ ] Wiedervorlage 2026-11-22: run `inventar.sh ~/Documents`, check budgets/height headers, feed
+  findings into `/optimieren claude-md` (Meta-Pflege section of the Verfassung).
+- [ ] `inventar.sh` GNU branch (Linux) only statically checked — run once in a container.
+- [ ] `~/Documents/9_Temp/welle*-bak/` (≈200 KB wave backups) can go once nothing is missed.
