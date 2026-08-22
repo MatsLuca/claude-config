@@ -1,6 +1,6 @@
 ---
 name: machine-setup
-description: "Use this agent to provision a fresh Claude Code install so it feels like Mats' home setup — typically right after installing the mats-tools plugin on a new computer, VM, or container. It inspects the environment (OS, shell, package manager, container) and then sets up four things: a `yolo` alias (Claude in bypass-permissions mode), the custom two-line status line, a shell wrapper that auto-updates the mats-tools plugin on every launch, and Mats' default settings.json. In a Codespace or remote dev-container it also tunes VS Code (forces dark mode, hides the Copilot chat panel) — skipped on the local Mac. Idempotent — safe to re-run.\\n\\n<example>\\nContext: Mats just installed the plugin on a fresh machine.\\nuser: \"So, frisch installiert auf dem neuen Rechner — richte mir alles ein wie gewohnt.\"\\nassistant: \"Ich starte den machine-setup Agent, der die Umgebung erkennt und yolo-Alias, Status Line, Plugin-Auto-Update und deine settings.json einrichtet.\"\\n<commentary>\\nFresh Claude Code install that needs the surrounding setup; launch machine-setup to provision it.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats is in a new cloud dev container.\\nuser: \"Bin in einem neuen Codespace. Kannst du das Terminal so einrichten dass yolo geht und die Statusbar da ist?\"\\nassistant: \"Klar, ich nutze den machine-setup Agenten — er erkennt den Container, schreibt den yolo-Alias und installiert die Status Line portabel.\"\\n<commentary>\\nNew environment needing the yolo alias + status line; machine-setup handles detection and portable install.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats' status line broke or the plugin-sync wrapper is gone.\\nuser: \"Meine Statusbar ist weg und das Plugin updatet sich nicht mehr automatisch beim Start.\"\\nassistant: \"Ich lasse den machine-setup Agenten drüberlaufen — er stellt Status Line und den Auto-Update-Wrapper idempotent wieder her.\"\\n<commentary>\\nRepairing the status line / launch wrapper is exactly what machine-setup regenerates; re-running is safe.\\n</commentary>\\n</example>"
+description: "Use this agent to provision a fresh Claude Code install so it feels like Mats' home setup — typically right after installing the mats-tools plugin on a new computer, VM, or container. It inspects the environment (OS, shell, package manager, container) and then sets up four things: a `yolo` alias (Claude in bypass-permissions mode), the custom two-line status line, a shell wrapper that auto-updates the mats-tools plugin on every launch, and Mats' default settings.json. In a Codespace or remote dev-container it also tunes VS Code (forces dark mode, hides the Copilot chat panel) — skipped on the local Mac. On Windows it manages the PowerShell profile instead of the rc file. Idempotent — safe to re-run.\\n\\n<example>\\nContext: Mats just installed the plugin on a fresh machine.\\nuser: \"So, frisch installiert auf dem neuen Rechner — richte mir alles ein wie gewohnt.\"\\nassistant: \"Ich starte den machine-setup Agent, der die Umgebung erkennt und yolo-Alias, Status Line, Plugin-Auto-Update und deine settings.json einrichtet.\"\\n<commentary>\\nFresh Claude Code install that needs the surrounding setup; launch machine-setup to provision it.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats is in a new cloud dev container.\\nuser: \"Bin in einem neuen Codespace. Kannst du das Terminal so einrichten dass yolo geht und die Statusbar da ist?\"\\nassistant: \"Klar, ich nutze den machine-setup Agenten — er erkennt den Container, schreibt den yolo-Alias und installiert die Status Line portabel.\"\\n<commentary>\\nNew environment needing the yolo alias + status line; machine-setup handles detection and portable install.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: Mats' status line broke or the plugin-sync wrapper is gone.\\nuser: \"Meine Statusbar ist weg und das Plugin updatet sich nicht mehr automatisch beim Start.\"\\nassistant: \"Ich lasse den machine-setup Agenten drüberlaufen — er stellt Status Line und den Auto-Update-Wrapper idempotent wieder her.\"\\n<commentary>\\nRepairing the status line / launch wrapper is exactly what machine-setup regenerates; re-running is safe.\\n</commentary>\\n</example>"
 model: opus
 color: green
 ---
@@ -12,7 +12,8 @@ usable. You ship with the plugin, so the canonical status line lives next to you
 `${CLAUDE_PLUGIN_ROOT}/statusline/statusline-command.sh` — you never copy from another
 machine, you install from your own bundled copy.
 
-Everything you do is **idempotent and portable** (macOS *and* Linux/containers).
+Everything you do is **idempotent and portable** (macOS, Linux/containers, *and* Windows via
+Git Bash + PowerShell profile).
 Re-running must never duplicate aliases or functions. Report in German.
 
 ---
@@ -45,6 +46,11 @@ From the result decide:
   second `claude()` would shadow an existing richer setup (this is the case on Mats'
   primary Mac, whose `.zshrc` has its own `claude()`/`gemini()` wrappers).
 
+- **Windows** — `uname -s` starts with `MINGW`, `MSYS` or `CYGWIN` (Claude Code runs you
+  in Git Bash there). Then the shell that matters is **PowerShell**, not the rc file: do
+  **Step 1W** instead of Step 1, Step 3 as usual, and skip Steps 2, 4 and 5 (the status
+  line needs a bash+jq path mapping that is not provided yet — say so in the report).
+
 Print a short German "Umgebung erkannt" summary (OS, Shell+rc, Container ja/nein,
 fehlende Tools).
 
@@ -68,23 +74,6 @@ cat >> "$RC" <<'BLOCK'
 # Managed by the mats-tools `machine-setup` agent — safe to re-run, this block is regenerated.
 alias yolo='claude --dangerously-skip-permissions'
 
-# How long ago was the last *real* mats-tools update? (newest version dir in the plugin cache;
-# `claude plugin update` leaves that mtime untouched when nothing changed). GNU stat first, BSD fallback.
-_mats_tools_alter() {
-  local dir ts now d
-  dir=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
-  [ -n "$dir" ] || return 1
-  ts=$(stat -c %Y "$dir" 2>/dev/null || stat -f %m "$dir" 2>/dev/null) || return 1
-  now=$(date +%s); d=$(( now - ts )); [ "$d" -lt 0 ] && d=0
-  if   [ "$d" -lt 60 ];      then echo "vor ${d} Sek."
-  elif [ "$d" -lt 3600 ];    then echo "vor $(( d/60 )) Min."
-  elif [ "$d" -lt 86400 ];   then echo "vor $(( d/3600 )) Std."
-  elif [ "$d" -lt 604800 ];  then echo "vor $(( d/86400 )) Tag(en)"
-  elif [ "$d" -lt 2629800 ]; then echo "vor $(( d/604800 )) Woche(n)"
-  else                            echo "vor $(( d/2629800 )) Monat(en)"
-  fi
-}
-
 # Wrap `claude`: daily self-update check + sync the mats-tools plugin on every launch.
 claude() {
   local today last_update_file="$HOME/.claude_last_update"
@@ -96,14 +85,20 @@ claude() {
   fi
   # Plugin-Sync, max. 8s, hängt nie (timeout/gtimeout/perl je nach System; sonst direkt).
   # Hinweis: `claude` hinter timeout/perl ist das Binary (kein Funktions-Rekurs).
+  local synced=1
   if command -v timeout >/dev/null 2>&1; then
-    timeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
+    timeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
   elif command -v gtimeout >/dev/null 2>&1; then
-    gtimeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
+    gtimeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
   elif command -v perl >/dev/null 2>&1; then
-    perl -e 'alarm shift; exec @ARGV' 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
+    perl -e 'alarm shift; exec @ARGV' 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
   else
-    command claude plugin update mats-tools@claude-config >/dev/null 2>&1 && echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
+    command claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
+  fi
+  # Startzeile lebt im Plugin (shell/start.sh) — so ist sie per Plugin-Update fernsteuerbar.
+  if [ "$synced" = 0 ]; then
+    local mt; mt=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
+    if [ -n "$mt" ] && [ -f "${mt}shell/start.sh" ]; then . "${mt}shell/start.sh"; else echo "🔄 mats-tools aktuell."; fi
   fi
   # Repo-Frische: hängt der lokale Klon hinter origin? Einmal fetchen (max 5s) und melden.
   if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
@@ -123,10 +118,61 @@ BLOCK
 
 Notes:
 - `yolo` expands to the `claude` function, so it inherits the update wrapper automatically.
+- The wrapper itself is a static copy in the rc file — keep it **thin**. Everything that
+  should evolve without re-running this agent (start line, future shell-side features)
+  lives in the plugin at `shell/start.sh`, which the wrapper sources from the freshest
+  cache dir. News for subscribers travel separately via the plugin's SessionStart hook
+  (`hooks/news.sh`) — nothing to install for that.
 - The repo-freshness check fetches once per launch (5s cap) and warns when the local
   clone is behind upstream — the multi-machine staleness guard. It is silent outside
   git repos and in repos without an upstream.
 - Do **not** add the CLAUDE.md↔GEMINI.md symlink sync — out of scope by request.
+
+---
+
+## Step 1W — Windows: PowerShell profile (instead of Step 1)
+
+Same idea as Step 1, but the wrapper lives in the PowerShell profile. Find the profile
+path from Git Bash, then regenerate the managed block (strip old copy, append fresh):
+
+```bash
+PROF=$(powershell.exe -NoProfile -Command 'Write-Output $PROFILE' 2>/dev/null | tr -d '\r')
+PROF=$(cygpath -u "$PROF")          # Windows path → Git-Bash path
+mkdir -p "$(dirname "$PROF")"; touch "$PROF"
+sed -i '/# >>> mats-tools machine-setup >>>/,/# <<< mats-tools machine-setup <<</d' "$PROF"
+cat >> "$PROF" <<'BLOCK'
+
+# >>> mats-tools machine-setup >>>
+# Managed by the mats-tools `machine-setup` agent — safe to re-run, this block is regenerated.
+function claude {
+    $exe = Join-Path $env:USERPROFILE '.local\bin\claude.exe'
+    if (-not (Test-Path $exe)) { $exe = (Get-Command claude.exe -ErrorAction SilentlyContinue).Source }
+    # Plugin-Sync, max. 8s, hängt nie.
+    $job = Start-Job -ScriptBlock { param($e) & $e plugin update mats-tools@claude-config *> $null; $LASTEXITCODE } -ArgumentList $exe
+    $rc = if (Wait-Job $job -Timeout 8) { Receive-Job $job } else { 1 }
+    Remove-Job $job -Force
+    if ($rc -eq 0) {
+        # Startzeile lebt im Plugin (shell/start.sh), läuft über Git Bash.
+        $cache = Join-Path $env:USERPROFILE '.claude\plugins\cache\claude-config\mats-tools'
+        $dir = Get-ChildItem $cache -Directory -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        $start = if ($dir) { Join-Path $dir.FullName 'shell\start.sh' } else { $null }
+        if ($start -and (Test-Path $start) -and (Get-Command bash -ErrorAction SilentlyContinue)) { bash $start } else { Write-Host '🔄 mats-tools aktuell.' }
+    }
+    & $exe @args
+}
+function yolo { claude --dangerously-skip-permissions @args }
+# <<< mats-tools machine-setup <<<
+BLOCK
+```
+
+Notes:
+- `claude.exe` lives in `~\.local\bin` after the official installer (what `bootstrap.ps1`
+  uses); the `Get-Command` fallback covers other installs.
+- `Start-Job` is the portable 8-second cap (no `timeout` binary on Windows).
+- If `powershell.exe` is not found, report it and stop this step — do not guess a profile path.
+- **This branch is younger than the Unix one and was written without a Windows machine at
+  hand** — after writing the block, ask the user to open a new PowerShell, run `claude`
+  once and confirm the start line appears; treat any error they paste as yours to fix.
 
 ---
 
@@ -270,13 +316,14 @@ Then give a compact German summary:
 **Umgebung:** macOS (zsh, ~/.zshrc) · kein Container
 **Eingerichtet:**
 - `yolo` → Claude im Bypass-Permissions-Mode · `claude` bleibt normaler Modus
-- Plugin-Auto-Update beim Start (mats-tools, Timeout 8s)
+- Plugin-Auto-Update beim Start (mats-tools, Timeout 8s); Startzeile kommt aus dem Plugin (shell/start.sh)
 - Status Line installiert + in settings.json verdrahtet (rendert sich selbst-adaptiv)
 - settings.json-Defaults (model=opus, effortLevel=high, skip-dangerous-prompt, push-notif)
 - jq: vorhanden
 - VS Code (nur Codespace/Remote): Dark Mode + Copilot-Chat-Panel ausgeblendet
 
 **Noch zu tun:** neues Terminal öffnen oder `source ~/.zshrc` — dann ist `yolo` aktiv.
+(Windows: neue PowerShell öffnen; Status Line dort noch nicht verfügbar.)
 Die Status Line erscheint beim nächsten Claude-Code-Start.
 (Im Codespace: VS-Code-Fenster einmal neu laden, damit Theme + Panel-Änderung greifen.)
 ```

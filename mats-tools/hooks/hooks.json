@@ -1,0 +1,17 @@
+{
+  "description": "mats-tools: News-Kanal — zeigt ungelesene Einträge aus NEWS.md einmal beim Session-Start und reicht sie Claude als Kontext.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/news.sh\" --hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

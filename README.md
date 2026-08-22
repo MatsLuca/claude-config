@@ -82,7 +82,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | Agent | Zweck |
 |---|---|
 | `pdf-to-markdown` | Beliebige PDFs in LLM-optimiertes Markdown konvertieren — erkennt Klausur / Folien / generisch und wählt die passende Struktur |
-| `machine-setup` | Frische Claude-Code-Installation einrichten wie zuhause: `yolo`-Alias, Status Line, Plugin-Auto-Update + Repo-Frische-Check beim Start, settings.json-Defaults; in Codespaces/Remote zusätzlich VS Code (Dark Mode, Copilot-Chat aus). Portabel (macOS + Linux), idempotent |
+| `machine-setup` | Frische Claude-Code-Installation einrichten wie zuhause: `yolo`-Alias, Status Line, Plugin-Auto-Update + Repo-Frische-Check beim Start (Startzeile kommt aus dem Plugin, `shell/start.sh`), settings.json-Defaults; in Codespaces/Remote zusätzlich VS Code (Dark Mode, Copilot-Chat aus); auf Windows PowerShell-Profil statt rc-Datei. Portabel (macOS + Linux + Windows), idempotent |
 
 ### 🧩 Skills
 
@@ -126,6 +126,15 @@ Manuell braucht es nur, falls der Wrapper (noch) nicht eingerichtet ist:
 
 ---
 
+## 📣 News an alle Abonnenten
+
+Wer das Plugin installiert hat, zieht es bei jedem Start. Das ist auch ein Nachrichtenkanal:
+ein neuer Eintrag oben in `mats-tools/NEWS.md` (`## <Datum> · <Titel>` + kurzer Text) wird
+beim nächsten Session-Start **einmal** im Terminal angezeigt und Claude als Kontext mitgegeben —
+verlangt die Nachricht etwas (z. B. „machine-setup neu laufen lassen"), bietet Claude das
+direkt an. Gelesenes merkt sich `~/.claude/mats-tools-news-seen`; `hooks/news.sh --reset`
+zeigt alles erneut, `--peek` zeigt ohne zu markieren.
+
 ## 🗂️ Struktur
 
 ```
@@ -144,6 +153,9 @@ claude-config/
     ├── commands/                 # Slash-Commands (*.md)
     ├── agents/                   # Subagents (*.md)
     ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
+    ├── hooks/                    # SessionStart-Hook: zeigt NEWS.md-Einträge einmal + gibt sie Claude als Kontext
+    ├── shell/start.sh            # Startzeile des claude()-Wrappers (per Plugin-Update fernsteuerbar)
+    ├── NEWS.md                   # Nachrichten an alle Abonnenten (neuester Eintrag oben)
     ├── statusline/               # vendored Status-Line-Skript (vom machine-setup Agent installiert)
     └── reference/                # Authoring-Standard + Eval-Szenarien
 ```

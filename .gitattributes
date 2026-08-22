@@ -1,0 +1,4 @@
+# Shell-Skripte und Hooks laufen unter Windows in Git Bash — CRLF würde den Shebang brechen.
+*.sh   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf

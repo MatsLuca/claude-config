@@ -39,7 +39,7 @@ json_valid() {
 command -v jq >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1 \
   || fail "weder jq noch python3 vorhanden — JSON-Checks unmöglich"
 
-for f in "$MARKET_JSON" "$PLUGIN_JSON"; do
+for f in "$MARKET_JSON" "$PLUGIN_JSON" mats-tools/hooks/hooks.json; do
   [ -f "$f" ] || { fail "Manifest fehlt: $f"; continue; }
   json_valid "$f" && ok "JSON valide: $f" || fail "ungültiges JSON: $f"
 done
@@ -119,7 +119,7 @@ ok "\${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien"
 # ── 5. Portabilitäts-Lint (Commands + Agents + Skills) ─────────────────────────────────
 # BSD-only Muster brauchen einen GNU-Gegenpart in derselben Datei (oder umgekehrt) —
 # sonst bricht der Command auf Linux (Container/Codespaces) bzw. macOS.
-for f in mats-tools/commands/*.md mats-tools/agents/*.md mats-tools/skills/*/SKILL.md mats-tools/skills/*/scripts/*.sh; do
+for f in mats-tools/commands/*.md mats-tools/agents/*.md mats-tools/skills/*/SKILL.md mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh; do
   [ -f "$f" ] || continue
   if grep -Eq -- '-v-[0-9]' "$f" && ! grep -q 'date -u -d\|date -d' "$f"; then
     fail "$f: BSD-date-Offset (-v-N) ohne GNU-Fallback (date -u -d \"… ago\")"
@@ -131,7 +131,7 @@ done
 ok "Portabilitäts-Lint (date/stat GNU↔BSD) durchlaufen"
 
 # ── 6. Shell-Syntax der Skripte ───────────────────────────────────────────────
-for s in bootstrap.sh tools/validate.sh mats-tools/statusline/statusline-command.sh mats-tools/skills/*/scripts/*.sh; do
+for s in bootstrap.sh tools/validate.sh mats-tools/statusline/statusline-command.sh mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh; do
   bash -n "$s" 2>/dev/null && ok "Syntax ok: $s" || fail "Shell-Syntaxfehler: $s"
 done
 

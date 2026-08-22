@@ -27,6 +27,13 @@ Three nesting levels, each with its own manifest:
      `description`); companion files live next to the SKILL.md (e.g. `claude-md/verfassung.md`,
      `claude-md/scripts/inventar.sh`) and are referenced as `${CLAUDE_PLUGIN_ROOT}/skills/<name>/…`.
 
+   - `mats-tools/hooks/hooks.json` → plugin hooks; the only one is the **SessionStart news
+     hook** (`hooks/news.sh` reads `mats-tools/NEWS.md`, shows unread entries once per machine
+     as `systemMessage` + hands them to Claude as `additionalContext`). Writing to `NEWS.md`
+     = messaging every subscriber at their next session start.
+   - `mats-tools/shell/start.sh` → sourced by the `claude()` wrapper that `machine-setup`
+     installs; the wrapper in the rc file stays thin, the start line evolves here.
+
 `plans/` holds multi-session work plans (waves with checkboxes + protocol) — not plugin content and
 **gitignored** (local only): the protocols name private folders/people, and the repo is public.
 
