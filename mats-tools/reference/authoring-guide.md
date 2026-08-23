@@ -1,18 +1,18 @@
 # Authoring-Standard für mats-tools
 
-Der verbindliche Maßstab für Commands (`commands/*.md`) und Agents (`agents/*.md`)
-in diesem Plugin. Destilliert aus Anthropics
+Der verbindliche Maßstab für Commands (`commands/*.md`), Agents (`agents/*.md`)
+und Skills (`skills/<name>/SKILL.md`) in diesem Plugin. Destilliert aus Anthropics
 [Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
-und den Repo-Konventionen aus `CLAUDE.md`, adaptiert auf das hiesige
-Command/Agent-Format (kein `SKILL.md`).
+und den Repo-Konventionen aus `CLAUDE.md`.
 
 Genutzt vom `/optimieren`-Command als Prüfgrundlage. Wer hier etwas ändert,
-ändert den Standard für alle Commands und Agents.
+ändert den Standard für alle Commands, Agents und Skills.
 
 ## Inhalt
-- Geteilte Prinzipien (Command + Agent)
+- Geteilte Prinzipien
 - Commands (`commands/*.md`)
 - Agents (`agents/*.md`)
+- Skills (`skills/<name>/SKILL.md`) — inkl. der Entscheidung Command vs. Skill
 - Repo-Konventionen
 - Meta-Pflege des Standards
 - Review-Checkliste
@@ -21,7 +21,7 @@ Genutzt vom `/optimieren`-Command als Prüfgrundlage. Wer hier etwas ändert,
 
 ## Geteilte Prinzipien
 
-Gelten für Commands **und** Agents.
+Gelten für Commands, Agents **und** Skills.
 
 - **Knapp ist König.** Jeder Satz teilt sich das Kontextfenster mit allem
   anderen. Nur Kontext aufnehmen, den Claude *nicht* schon hat. Der Test pro
@@ -135,6 +135,47 @@ auf Anfrage startet.
 
 ---
 
+## Skills (`skills/<name>/SKILL.md`)
+
+Ein Skill ist ein Prompt-Paket, das Claude **selbst lädt**, sobald die
+`description` zur Situation passt — und das der User zusätzlich per `/name`
+aufrufen kann. Companion-Dateien (Verfassung, Skripte) liegen im selben Ordner.
+
+### Entscheidung: Command oder Skill?
+Die Trennung im Repo ist historisch gewachsen (Commands zuerst, Skills seit
+2026-07). Die Regel, damit das nächste Feature nicht zufällig entscheidet:
+- **Command**, wenn nur der User den Ablauf auslöst (`/finish`, `/merken`) —
+  ein Verb, das Mats tippt. Bestehende Commands bleiben Commands; kein Umzug um
+  der Einheitlichkeit willen.
+- **Skill**, wenn Claude den Inhalt *von sich aus* brauchen soll, weil er in
+  anderer Arbeit relevant wird (`claude-md` beim Anlegen einer CLAUDE.md,
+  `latexterm` bei Terminal-Fragen) — der Trigger ist die Situation, nicht ein
+  Tipp-Befehl.
+- Wandert die Plattform weiter (Commands als Skill-Sonderfall), ist das ein
+  Befund für die Meta-Pflege — nicht stillschweigend migrieren.
+
+### Frontmatter
+- `name:` — gleich dem Ordnernamen (der Validator prüft das).
+- `description:` — **deutsch**, 3. Person, trägt das **Triggern**: *was* der
+  Skill tut **und wann** er zu laden ist, mit den Wörtern, die in echten
+  Anfragen vorkommen („Kachel", „Pane", „leg eine CLAUDE.md an"), plus der
+  Abgrenzung, wann *nicht* (sonst lädt er bei jedem Streifen des Themas).
+  Vorbild: `claude-md/SKILL.md`.
+
+### Body
+- **Sprache: deutsch** (wie Commands — der Body ist Mats' Arbeitsanweisung).
+- **Anwendbarkeit zuerst klären**, wenn der Skill an eine Umgebung gebunden ist
+  (`$LATEXTERM_PANE_ID`): fehlt sie, normal weiterarbeiten, nichts simulieren.
+- **Betriebsarten benennen**, wenn der Skill sowohl per `/name` als auch
+  proaktiv läuft (Wartungsgang mit Bericht vs. stiller Teil der laufenden
+  Aufgabe) — sonst erzeugt der proaktive Fall ungewollte Berichte.
+- **Companion-Dateien** über `${CLAUDE_PLUGIN_ROOT}/skills/<name>/…` referenzieren,
+  eine Ebene tief; Skripte unter `scripts/` laufen portabel (Probe-dann-Variante).
+- Sonst gelten die Command-Regeln (Schritte mit Fertig-Kriterium, kombinierte
+  Bash-Runde, knappe Abschlussmeldung).
+
+---
+
 ## Repo-Konventionen
 
 (Aus `CLAUDE.md` — beim Optimieren mitprüfen.)
@@ -143,10 +184,12 @@ auf Anfrage startet.
   Agent-Instruktionen englisch, Agent-Output-Templates deutsch.
 - **Keine `version` in `plugin.json`** — der Git-SHA ist die Version. Nicht
   hinzufügen, außer der User will gepinnte Releases.
-- **Auto-Discovery:** Commands/Agents werden über die Verzeichnisse gefunden,
-  nicht im Manifest gelistet. Trotzdem bei neuem/geändertem Command/Agent die
+- **Auto-Discovery:** Commands/Agents/Skills werden über die Verzeichnisse
+  gefunden, nicht im Manifest gelistet. Trotzdem bei neuem/geändertem Ziel die
   menschenlesbaren Listen synchron halten: `README.md`, `marketplace.json`,
-  `plugin.json` (description/keywords).
+  `plugin.json` (description/keywords) — **und** einen Abschnitt in `evals.md`
+  (der Validator verlangt alle vier; ohne Evals ist ein Ziel vom
+  Optimier-Loop abgekoppelt).
 - **Plugin-interne Datei-Referenzen:** über `${CLAUDE_PLUGIN_ROOT}/…`. Keine
   Pfade aus dem Plugin heraus (`../…`) — die werden im installierten Zustand
   nicht mitkopiert.
@@ -178,11 +221,14 @@ definieren, nicht ausgenommen. Beim Meta-Pass gilt:
 
 ## Review-Checkliste
 
-Beim Optimieren eines Commands/Agents abhaken:
+Beim Optimieren eines Commands/Agents/Skills abhaken:
 
 **Frontmatter**
-- [ ] `description` spezifisch — sagt *was* (Agent zusätzlich: *wann*).
+- [ ] `description` spezifisch — sagt *was* (Agent und Skill zusätzlich: *wann*;
+      Skill auch: wann *nicht*).
 - [ ] Agent-`description` in 3. Person, mit `<example>`-Blöcken.
+- [ ] Skill: Command-oder-Skill-Entscheidung hält (Trigger ist die Situation,
+      nicht ein Tipp-Befehl); Anwendbarkeit wird im Body zuerst geklärt.
 - [ ] `allowed-tools` eng gescopt (verengte Bash-Pattern, nur Nötiges).
 - [ ] `argument-hint` vorhanden, falls der Command Argumente nutzt.
 

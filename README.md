@@ -72,7 +72,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | `/github-pushes` | Eigene GitHub-Pushes in einem Zeitraum strukturiert anzeigen |
 | `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems |
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
-| `/optimieren` | Einen Command oder Agent nach dem Authoring-Standard schärfen |
+| `/optimieren` | Einen Command, Agent oder Skill nach dem Authoring-Standard schärfen |
 | `/einarbeiten` | Beliebigen Input (Text/Datei/URL) semantisch analysieren, Projekt-Relevanz prüfen und ins Wissenssystem einarbeiten — oder bestehende Strukturen begründet infrage stellen |
 | `/destillieren` | Gewachsenes Wissenssystem pflegen: Drift (veraltete/widersprüchliche Querverweise) heilen, dann Redundanz verdichten & Ordnerstrukturen neu denken — strukturelle Eingriffe erst nach Plan-Zustimmung |
 | `/neudenken` | Ein digitales System vom Zweck her neu denken: Ziele belegt rekonstruieren, Prämissen mit vollem Urteil hinterfragen und einschätzen, ob und wie tief sich ein Umbau lohnt — ohne selbst umzusetzen |
@@ -101,7 +101,7 @@ liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 Zwei Ebenen halten das Repo gesund — auch wenn Claude selbst daran weiterbaut:
 
 - **Strukturell (automatisch):** `tools/validate.sh` prüft Manifeste, Frontmatter,
-  Listing-Sync, Plugin-Referenzen und Portabilität (BSD↔GNU). Läuft lokal und
+  Listing-Sync, Eval-Abdeckung, Plugin-Referenzen und Portabilität (BSD↔GNU). Läuft lokal und
   bei jedem Push als GitHub Action.
 - **Verhalten (Szenarien):** `mats-tools/reference/evals.md` beschreibt pro
   Command/Agent die erwarteten **Outcomes** — bewusst implementierungs-agnostisch,
@@ -130,10 +130,12 @@ Manuell braucht es nur, falls der Wrapper (noch) nicht eingerichtet ist:
 
 Wer das Plugin installiert hat, zieht es bei jedem Start. Das ist auch ein Nachrichtenkanal:
 ein neuer Eintrag oben in `mats-tools/NEWS.md` (`## <Datum> · <Titel>` + kurzer Text) wird
-beim nächsten Session-Start **einmal** im Terminal angezeigt und Claude als Kontext mitgegeben —
-verlangt die Nachricht etwas (z. B. „machine-setup neu laufen lassen"), bietet Claude das
-direkt an. Gelesenes merkt sich `~/.claude/mats-tools-news-seen`; `hooks/news.sh --reset`
-zeigt alles erneut, `--peek` zeigt ohne zu markieren.
+beim nächsten Session-Start **einmal** im Terminal angezeigt und Claude als Kontext mitgegeben.
+Soll Claude dabei etwas *tun*, steht die Anweisung im Eintrag selbst (Block `<!-- claude: … -->`,
+unsichtbar im Terminal); `<!-- aktion -->` lässt Claude von selbst loslegen, ohne dass jemand tippt.
+Der Hook kennt keine einzelne Nachricht — jede bringt ihre Anweisung mit. Gelesenes merkt sich
+`~/.claude/mats-tools-news-seen`; `hooks/news.sh --reset` zeigt alles erneut, `--peek` zeigt
+ohne zu markieren, `--context` zeigt, was Claude bekommt.
 
 ## 🗂️ Struktur
 
@@ -154,7 +156,7 @@ claude-config/
     ├── agents/                   # Subagents (*.md)
     ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
     ├── hooks/                    # SessionStart-Hook: zeigt NEWS.md-Einträge einmal + gibt sie Claude als Kontext
-    ├── shell/start.sh            # Startzeile des claude()-Wrappers (per Plugin-Update fernsteuerbar)
+    ├── shell/start.sh            # Start-Logik des claude()-Wrappers: Update-Check, Startzeile, Repo-Frische, Auto-Prompt (per Plugin-Update fernsteuerbar; der Wrapper selbst bleibt dünn)
     ├── NEWS.md                   # Nachrichten an alle Abonnenten (neuester Eintrag oben)
     ├── statusline/               # vendored Status-Line-Skript (vom machine-setup Agent installiert)
     └── reference/                # Authoring-Standard + Eval-Szenarien

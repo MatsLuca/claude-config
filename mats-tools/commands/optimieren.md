@@ -1,5 +1,5 @@
 ---
-description: Optimiert einen Command oder Agent nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition. Meta-Pass über Standard/Evals selbst möglich.
+description: Optimiert einen Command, Agent oder Skill nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition. Meta-Pass über Standard/Evals selbst möglich.
 argument-hint: <command-, agent- oder referenz-name, z.B. "finish", "pdf-to-markdown" oder "authoring-guide">
 allowed-tools: Read, Edit, Glob, Bash(ls:*), Bash(git status:*), Bash(diff:*), Bash(git pull --ff-only:*), Bash(./tools/validate.sh:*), WebFetch(domain:platform.claude.com), AskUserQuestion
 ---

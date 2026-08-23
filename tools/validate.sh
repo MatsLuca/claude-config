@@ -6,7 +6,8 @@
 #   1. Manifeste sind valides JSON; plugin.json hat keinen version-Key (SHA = Version).
 #   2. Jeder Command/Agent/Skill hat vollständiges Frontmatter.
 #   3. Listing-Sync: jeder Command/Agent/Skill ist in README, plugin.json und
-#      marketplace.json erwähnt (die Dreifach-Listung driftet sonst).
+#      marketplace.json erwähnt (die Dreifach-Listung driftet sonst) — und hat einen
+#      Abschnitt in reference/evals.md (sonst ist er vom Optimier-Loop abgekoppelt).
 #   4. Plugin-interne ${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien.
 #   5. Portabilitäts-Lint: BSD-only Aufrufe (date -v / stat -f) nur mit GNU-Fallback
 #      in derselben Datei (Regressionsschutz, siehe authoring-guide.md).
@@ -24,6 +25,7 @@ ok()   { printf '✓ %s\n' "$*"; }
 README=README.md
 PLUGIN_JSON=mats-tools/.claude-plugin/plugin.json
 MARKET_JSON=.claude-plugin/marketplace.json
+EVALS=mats-tools/reference/evals.md
 
 # Frontmatter (Zeilen zwischen erstem und zweitem ---) extrahieren; rc 1 wenn keins.
 frontmatter() {
@@ -65,8 +67,9 @@ for f in mats-tools/commands/*.md; do
   grep -q "/$name" "$README"      || fail "Command /$name fehlt in README.md"
   grep -q "$name" "$PLUGIN_JSON"  || fail "Command $name fehlt in der plugin.json-description"
   grep -q "$name" "$MARKET_JSON"  || fail "Command $name fehlt in der marketplace.json-description"
+  grep -Eq "^## /$name( |$)" "$EVALS" || fail "Command /$name hat keinen Abschnitt in $EVALS (Outcome-Evals)"
 done
-ok "Commands: Frontmatter + Listing-Sync geprüft"
+ok "Commands: Frontmatter + Listing-Sync + Eval-Abdeckung geprüft"
 
 # ── 2 + 3. Agents: Frontmatter + Listing-Sync ─────────────────────────────────
 for f in mats-tools/agents/*.md; do
@@ -85,8 +88,9 @@ for f in mats-tools/agents/*.md; do
   grep -q "$base" "$README"      || fail "Agent $base fehlt in README.md"
   grep -q "$base" "$PLUGIN_JSON" || fail "Agent $base fehlt in der plugin.json-description"
   grep -q "$base" "$MARKET_JSON" || fail "Agent $base fehlt in der marketplace.json-description"
+  grep -q "^## $base (Agent)" "$EVALS" || fail "Agent $base hat keinen Abschnitt in $EVALS (Outcome-Evals)"
 done
-ok "Agents: Frontmatter + Listing-Sync geprüft"
+ok "Agents: Frontmatter + Listing-Sync + Eval-Abdeckung geprüft"
 
 # ── 2 + 3. Skills: Frontmatter + Listing-Sync ─────────────────────────────────
 for f in mats-tools/skills/*/SKILL.md; do
@@ -104,8 +108,9 @@ for f in mats-tools/skills/*/SKILL.md; do
   grep -q "$dir" "$README"      || fail "Skill $dir fehlt in README.md"
   grep -q "$dir" "$PLUGIN_JSON" || fail "Skill $dir fehlt in der plugin.json-description"
   grep -q "$dir" "$MARKET_JSON" || fail "Skill $dir fehlt in der marketplace.json-description"
+  grep -q "^## $dir (Skill)" "$EVALS" || fail "Skill $dir hat keinen Abschnitt in $EVALS (Outcome-Evals)"
 done
-ok "Skills: Frontmatter + Listing-Sync geprüft"
+ok "Skills: Frontmatter + Listing-Sync + Eval-Abdeckung geprüft"
 
 # ── 4. Plugin-interne Referenzen ──────────────────────────────────────────────
 refs=$(grep -rhoE '\$\{CLAUDE_PLUGIN_ROOT(:-)?\}[A-Za-z0-9_./-]*' mats-tools --include='*.md' \

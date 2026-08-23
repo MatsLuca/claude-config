@@ -101,56 +101,33 @@ alias yolo='claude --dangerously-skip-permissions'
 _mats_tools_dir() {
   f="$HOME/.claude/plugins/installed_plugins.json"; d=""
   [ -f "$f" ] && d=$(awk '/"mats-tools@claude-config"/{b=1} b&&/"scope": *"user"/{u=1} b&&u&&/"installPath"/{sub(/.*"installPath": *"/,""); sub(/",?[[:space:]]*$/,""); print; exit}' "$f")
-  { [ -n "$d" ] && [ -d "$d" ]; } || d=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
-  [ -n "$d" ] && printf '%s' "${d%/}"
+  c="$HOME/.claude/plugins/cache/claude-config/mats-tools"   # kein Glob: zsh bricht bei leerem Muster ab
+  { [ -n "$d" ] && [ -d "$d" ]; } || { n=$(ls -t "$c" 2>/dev/null | head -1); [ -n "$n" ] && d="$c/$n"; }
+  [ -n "$d" ] && [ -d "$d" ] && printf '%s' "${d%/}"
 }
 
-# Wrap `claude`: daily self-update check + sync the mats-tools plugin on every launch.
+# Befehl mit Zeitlimit (Sekunden): timeout/gtimeout/perl, sonst ohne Limit.
+# Hinweis: `claude` hinter timeout/perl ist das Binary (kein Funktions-Rekurs).
+_mats_tools_timeout() {
+  if command -v timeout >/dev/null 2>&1; then timeout "$@"
+  elif command -v gtimeout >/dev/null 2>&1; then gtimeout "$@"
+  elif command -v perl >/dev/null 2>&1; then perl -e 'alarm shift; exec @ARGV' "$@"
+  else shift; command "$@"; fi
+}
+
+# Wrap `claude`: Plugin-Sync (max. 8s, hängt nie), dann macht shell/start.sh aus dem Plugin
+# den Rest (Update-Check, Startzeile, Repo-Frische, Auto-Prompt) — so ändert sich der
+# Startablauf per Plugin-Update, ohne dass dieser Block je neu geschrieben werden muss.
 claude() {
-  local today last_update_file="$HOME/.claude_last_update"
-  today=$(date +%Y-%m-%d)
-  if [ "$today" != "$(cat "$last_update_file" 2>/dev/null)" ]; then
-    echo "⏳ Täglicher Update-Check für Claude Code…"
-    command claude update >/dev/null 2>&1
-    echo "$today" > "$last_update_file"
+  local mt synced=1
+  _mats_tools_timeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
+  mt=$(_mats_tools_dir); MATS_TOOLS_PROMPT=""
+  if [ -n "$mt" ] && [ -f "$mt/shell/start.sh" ]; then
+    MATS_TOOLS_DIR="$mt" MATS_TOOLS_SYNCED="$synced" . "$mt/shell/start.sh"
+  elif [ "$synced" = 0 ]; then echo "🔄 mats-tools aktuell."
   fi
-  # Plugin-Sync, max. 8s, hängt nie (timeout/gtimeout/perl je nach System; sonst direkt).
-  # Hinweis: `claude` hinter timeout/perl ist das Binary (kein Funktions-Rekurs).
-  local synced=1
-  if command -v timeout >/dev/null 2>&1; then
-    timeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
-  elif command -v gtimeout >/dev/null 2>&1; then
-    gtimeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
-  elif command -v perl >/dev/null 2>&1; then
-    perl -e 'alarm shift; exec @ARGV' 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
-  else
-    command claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
-  fi
-  # Startzeile lebt im Plugin (shell/start.sh) — so ist sie per Plugin-Update fernsteuerbar.
-  if [ "$synced" = 0 ]; then
-    local mt; mt=$(_mats_tools_dir)
-    if [ -n "$mt" ] && [ -f "$mt/shell/start.sh" ]; then MATS_TOOLS_DIR="$mt" . "$mt/shell/start.sh"; else echo "🔄 mats-tools aktuell."; fi
-  fi
-  # Repo-Frische: hängt der lokale Klon hinter origin? Einmal fetchen (max 5s) und melden.
-  if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-    if command -v timeout >/dev/null 2>&1; then timeout 5 git fetch --quiet 2>/dev/null
-    elif command -v gtimeout >/dev/null 2>&1; then gtimeout 5 git fetch --quiet 2>/dev/null
-    elif command -v perl >/dev/null 2>&1; then perl -e 'alarm shift; exec @ARGV' 5 git fetch --quiet 2>/dev/null
-    else GIT_TERMINAL_PROMPT=0 git fetch --quiet 2>/dev/null; fi
-    local behind
-    behind=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null)
-    [ "${behind:-0}" -gt 0 ] && echo "⬇️  Repo hängt $behind Commit(s) hinter $(git rev-parse --abbrev-ref '@{u}') — ggf. git pull."
-  fi
-  # Auto-Start: hat start.sh einen Prompt hinterlegt (Nachricht von Mats mit Aktion), geht er
-  # als erster Zug mit — nur bei nacktem Start, nie bei -p/--resume/Subcommands.
-  local ap="$HOME/.claude/mats-tools-autoprompt"
-  if [ -s "$ap" ] && { [ $# -eq 0 ] || [ "${1#-}" != "$1" ]; } \
-     && ! printf ' %s ' "$@" | grep -qE ' (-p|--print|-c|--continue|-r|--resume|--version|--help|-h|-v) '; then
-    local prompt; prompt=$(cat "$ap"); rm -f "$ap"
-    command claude "$@" "$prompt"
-  else
-    command claude "$@"
-  fi
+  if [ -n "${MATS_TOOLS_PROMPT:-}" ]; then command claude "$@" "$MATS_TOOLS_PROMPT"
+  else command claude "$@"; fi
 }
 # <<< mats-tools machine-setup <<<
 BLOCK
@@ -158,18 +135,19 @@ BLOCK
 
 Notes:
 - `yolo` expands to the `claude` function, so it inherits the update wrapper automatically.
-- **Auto-Start:** a news entry carrying the line `<!-- aktion -->` makes `start.sh` drop a
-  prompt into `~/.claude/mats-tools-autoprompt`; the wrapper hands it to Claude as the first
-  turn, so Claude acts without anyone typing. Hooks alone cannot start a turn — this is why
-  the wrapper must be current.
-- The wrapper itself is a static copy in the rc file — keep it **thin**. Everything that
-  should evolve without re-running this agent (start line, future shell-side features)
-  lives in the plugin at `shell/start.sh`, which the wrapper sources from the freshest
-  cache dir. News for subscribers travel separately via the plugin's SessionStart hook
+- **The block is deliberately thin** — only what must exist *before* the plugin is known:
+  the alias, finding the active plugin dir, a timeout helper, the sync call, and handing
+  over to `shell/start.sh`. Everything else (daily Claude self-update, start line,
+  repo-freshness fetch, Auto-Start prompt) lives in `start.sh` and changes via plugin
+  update. Never add logic here that could live there. The contract between the two is
+  documented at the top of `start.sh` (`MATS_TOOLS_SYNCED` in, `MATS_TOOLS_PROMPT` out).
+- **Auto-Start:** a news entry carrying `<!-- aktion -->` makes `start.sh` hand a prompt to
+  the wrapper, which passes it to Claude as the first turn — Claude acts without anyone
+  typing. Hooks alone cannot start a turn; this is the one thing the wrapper must do itself.
+  `start.sh` also writes `~/.claude/mats-tools-autoprompt` for older wrappers and the
+  PowerShell profile — both still work unchanged.
+- News for subscribers travel separately via the plugin's SessionStart hook
   (`hooks/news.sh`) — nothing to install for that.
-- The repo-freshness check fetches once per launch (5s cap) and warns when the local
-  clone is behind upstream — the multi-machine staleness guard. It is silent outside
-  git repos and in repos without an upstream.
 - Do **not** add the CLAUDE.md↔GEMINI.md symlink sync — out of scope by request.
 
 ---

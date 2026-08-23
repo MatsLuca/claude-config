@@ -1,16 +1,38 @@
-# shell/start.sh — wird vom claude()-Wrapper (machine-setup, Step 1) nach erfolgreichem
-# Plugin-Sync GESOURCT (sh/bash/zsh; unter Windows via `bash start.sh`). Hier lebt die
-# Startzeile — was hier steht, kommt per Plugin-Update automatisch auf alle Maschinen.
-# Muss POSIX-sh-kompatibel bleiben und darf nichts Langsames tun (kein Netz).
+# shell/start.sh — wird vom claude()-Wrapper (machine-setup, Step 1) nach dem Plugin-Sync
+# GESOURCT (sh/bash/zsh; unter Windows via `bash start.sh`). Hier lebt alles, was beim
+# Start passiert und sich ändern darf — was hier steht, kommt per Plugin-Update automatisch
+# auf alle Maschinen. Muss POSIX-sh-kompatibel bleiben und darf nicht hängen (Netz nur mit
+# Zeitlimit).
+#
+# Vertrag mit dem Wrapper:
+#   rein  MATS_TOOLS_DIR     aktiver Plugin-Ordner (optional, sonst selbst ermittelt)
+#         MATS_TOOLS_SYNCED  0 = Plugin-Sync ok, 1 = fehlgeschlagen/Timeout. Nur der dünne
+#                            Wrapper (ab 2026-08-23) setzt sie; ist sie unverändert leer, ist
+#                            es ein älterer Wrapper, der Update-Check, Repo-Fetch und
+#                            Auto-Prompt noch selbst macht — dann hier nur Startzeile + Datei.
+#         "$@"               die claude-Argumente (beim Sourcen in der Funktion sichtbar)
+#   raus  MATS_TOOLS_PROMPT  Auto-Prompt für den ersten Zug (leer = keiner); zusätzlich
+#         ~/.claude/mats-tools-autoprompt für ältere Wrapper und das PowerShell-Profil.
 
 # Aktiver mats-tools-Ordner im Plugin-Cache: laut installed_plugins.json (user-scope);
 # Fallback: jüngster Versionsordner. (Ein Update berührt auch den alten Ordner — mtime allein
-# ist deshalb kein sicheres Kriterium.)
+# ist deshalb kein sicheres Kriterium.) Bewusst identisch zur Kopie im Wrapper — der braucht
+# sie, um diese Datei überhaupt zu finden.
 _mats_tools_dir() {
   f="$HOME/.claude/plugins/installed_plugins.json"; d=""
   [ -f "$f" ] && d=$(awk '/"mats-tools@claude-config"/{b=1} b&&/"scope": *"user"/{u=1} b&&u&&/"installPath"/{sub(/.*"installPath": *"/,""); sub(/",?[[:space:]]*$/,""); print; exit}' "$f")
-  { [ -n "$d" ] && [ -d "$d" ]; } || d=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
-  [ -n "$d" ] && printf '%s' "${d%/}"
+  c="$HOME/.claude/plugins/cache/claude-config/mats-tools"   # kein Glob: zsh bricht bei leerem Muster ab
+  { [ -n "$d" ] && [ -d "$d" ]; } || { n=$(ls -t "$c" 2>/dev/null | head -1); [ -n "$n" ] && d="$c/$n"; }
+  [ -n "$d" ] && [ -d "$d" ] && printf '%s' "${d%/}"
+}
+
+# Befehl mit Zeitlimit (Sekunden): timeout/gtimeout/perl, sonst ohne Limit. Der Wrapper
+# bringt dieselbe Funktion mit (er braucht sie vor dem Sync); hier nur als Fallback.
+command -v _mats_tools_timeout >/dev/null 2>&1 || _mats_tools_timeout() {
+  if command -v timeout >/dev/null 2>&1; then timeout "$@"
+  elif command -v gtimeout >/dev/null 2>&1; then gtimeout "$@"
+  elif command -v perl >/dev/null 2>&1; then perl -e 'alarm shift; exec @ARGV' "$@"
+  else shift; command "$@"; fi
 }
 
 # Wie lange ist das letzte *echte* mats-tools-Update her? mtime des aktiven Versionsordners;
@@ -29,13 +51,48 @@ _mats_tools_alter() {
   fi
 }
 
-echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
-
-# Verlangt eine ungelesene Nachricht eine Aktion, hinterlegt news.sh einen Start-Prompt;
-# der Wrapper übergibt ihn als ersten Zug an Claude und löscht die Datei (siehe machine-setup).
 _mt="${MATS_TOOLS_DIR:-$(_mats_tools_dir)}"
-if [ -n "$_mt" ] && [ -x "$_mt/hooks/news.sh" ] || [ -f "$_mt/hooks/news.sh" ]; then
-  _ap=$(bash "$_mt/hooks/news.sh" --autoprompt 2>/dev/null)
-  if [ -n "$_ap" ]; then printf '%s' "$_ap" > "$HOME/.claude/mats-tools-autoprompt"; else rm -f "$HOME/.claude/mats-tools-autoprompt"; fi
+_thin="${MATS_TOOLS_SYNCED+x}"   # gesetzt = dünner Wrapper, Start-Logik liegt hier
+
+# ── Täglicher Selbst-Update-Check von Claude Code (nur dünner Wrapper) ─────────────────
+if [ -n "$_thin" ]; then
+  _luf="$HOME/.claude_last_update"; _today=$(date +%Y-%m-%d)
+  if [ "$_today" != "$(cat "$_luf" 2>/dev/null)" ]; then
+    echo "⏳ Täglicher Update-Check für Claude Code…"
+    _mats_tools_timeout 60 claude update >/dev/null 2>&1
+    echo "$_today" > "$_luf"
+  fi
+  unset _luf _today
 fi
-unset _mt _ap
+
+# ── Startzeile ─────────────────────────────────────────────────────────────────────────
+if [ -z "$_thin" ] || [ "${MATS_TOOLS_SYNCED:-0}" = 0 ]; then
+  echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
+else
+  echo "⚠️  mats-tools-Sync übersprungen (offline/Timeout) — Stand: Update $(_mats_tools_alter || echo unbekannt)"
+fi
+
+# ── Repo-Frische: hängt der lokale Klon hinter origin? (nur dünner Wrapper) ───────────
+if [ -n "$_thin" ] && git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+  GIT_TERMINAL_PROMPT=0 _mats_tools_timeout 5 git fetch --quiet 2>/dev/null
+  _behind=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null)
+  [ "${_behind:-0}" -gt 0 ] && echo "⬇️  Repo hängt $_behind Commit(s) hinter $(git rev-parse --abbrev-ref '@{u}') — ggf. git pull."
+  unset _behind
+fi
+
+# ── Auto-Prompt: verlangt eine ungelesene Nachricht eine Aktion? ───────────────────────
+# Datei immer pflegen (ältere Wrapper + PowerShell lesen sie); Variable nur für den dünnen
+# Wrapper und nur bei nacktem Start — nie bei -p/--resume/Subcommands.
+MATS_TOOLS_PROMPT=""
+_apf="$HOME/.claude/mats-tools-autoprompt"
+if [ -n "$_mt" ] && [ -f "$_mt/hooks/news.sh" ]; then
+  _ap=$(bash "$_mt/hooks/news.sh" --autoprompt 2>/dev/null)
+  if [ -n "$_ap" ]; then printf '%s' "$_ap" > "$_apf"; else rm -f "$_apf"; fi
+  if [ -n "$_thin" ] && [ -n "$_ap" ] && { [ $# -eq 0 ] || [ "${1#-}" != "$1" ]; } \
+     && ! printf ' %s ' "$@" | grep -qE ' (-p|--print|-c|--continue|-r|--resume|--version|--help|-h|-v) '; then
+    MATS_TOOLS_PROMPT="$_ap"
+    rm -f "$_apf"
+  fi
+  unset _ap
+fi
+unset _mt _thin _apf

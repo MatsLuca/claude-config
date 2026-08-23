@@ -104,26 +104,38 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
 
-## Aktueller Stand (2026-08-22, abends)
+## Aktueller Stand (2026-08-23)
 
-- **Repo bereinigt (public!):** `plans/` aus Tracking *und* Historie entfernt (`git filter-repo`,
-  Force-Push `8274494`), Beispielname in `verfassung.md` neutralisiert. `plugin update` aus einem
-  Clone mit alter Historie verifiziert: springt fehlerfrei auf die neue. Alte Commits
-  (`0c8a095`, `9aaa01c`, `a635851`) sind auf GitHub noch per SHA erreichbar (dangling).
-- **News-Kanal live** (`NEWS.md` + `hooks/news.sh` SessionStart-Hook, verifiziert per `claude -p`):
-  erste Nachricht „Live-Nachrichten — dein Claude richtet das jetzt ein". Claude handelt
-  eigenständig: 1:1-Setup → `machine-setup` Nachrüst-Modus; angepasstes Setup → `start.sh` +
-  `news.sh --shell` an passender Stelle des eigenen Systems, kleinster Eingriff mit Backup.
-- **Startzeile fernsteuerbar:** `shell/start.sh` (Update-Alter aus mtime des aktiven Cache-Ordners;
-  aktiver Ordner aus `installed_plugins.json`, nicht per `ls -t` — ein Update berührt auch den
-  alten Ordner). Wrapper in `~/.zshrc` dieses Macs sourct es bereits; Vorlage in `machine-setup`.
-- **machine-setup:** Nachrüst-Modus (nur Wrapper-Block, fragt nichts; bei fremdem `claude()`
-  kein zweiter Block), Überschreib-Schutz für Status Line/settings.json im Vollmodus, Windows =
-  Unix-Schritte via Git Bash **plus** PowerShell-Profil (Step 1W, ungetestet).
-- Seen-Datei auf diesem Mac gesetzt (hier ist alles eingebaut) — `news.sh --reset` zeigt erneut.
+`/neudenken`-Pass über das Repo: Faden trägt, kein Grund-Umbau — vier Re-Optimierungen umgesetzt,
+die die eigenen Prämissen zu Ende anwenden (alles lokal, **noch nicht committet/gepusht**):
+
+- **News-Kanal generisch:** `hooks/news.sh` kennt keine einzelne Nachricht mehr. Die Anweisung an
+  Claude steht pro Eintrag im Block `<!-- claude: … -->` (nur Kontext, unsichtbar im Terminal);
+  ohne Block = „reine Information, nichts zu tun". `--context` zeigt, was Claude bekommt.
+  Die Nachrüst-Anweisung vom 22.08. ist in ihren Eintrag gewandert. Getestet (peek/context/hook/
+  autoprompt/seen, Info-Eintrag).
+- **Wrapper wirklich dünn:** `shell/start.sh` trägt jetzt Update-Check, Startzeile, Repo-Frische
+  und Auto-Prompt; der rc-Block (machine-setup Step 1) macht nur Sync → Ordner → sourcen →
+  `claude "$@" [$MATS_TOOLS_PROMPT]`. Vertrag oben in `start.sh` (`MATS_TOOLS_SYNCED` rein,
+  `MATS_TOOLS_PROMPT` raus); **ältere Wrapper + PowerShell laufen unverändert** (Datei-Weg bleibt,
+  `SYNCED` leer = Legacy). `_mats_tools_dir`-Fallback glob-frei (zsh brach bei leerem Muster).
+  Getestet mit Fake-`claude` in bash/zsh: bare, `-p`, `yolo`, ohne `installed_plugins.json`.
+- **Eval-Abdeckung im Validator:** jeder Command/Agent/Skill braucht einen Abschnitt in `evals.md`
+  (vierte Liste neben README/plugin.json/marketplace.json). `/finish-lite` und `latexterm` nachgetragen.
+- **Guide kennt Skills:** eigener Abschnitt + Entscheidung „Command = Mats tippt, Skill = Situation
+  triggert; bestehende Commands bleiben"; Checkliste erweitert; `/optimieren` nennt Skills.
+- Die `~/.zshrc` dieses Macs ist **nicht** angefasst (eigener Wrapper mit Kickbacks-Logik; läuft
+  als Legacy-Pfad weiter, siehe `reference/kickbacks.md`).
 
 ## HIER WEITERMACHEN
 
+- [ ] `/finish` für den obigen Stand; danach `/plugin update` + neue Session: Startzeile und
+  `news.sh --context` am echten Cache prüfen.
+- [ ] `bootstrap.sh`/`.ps1` könnten Claude direkt mit „Führe das machine-setup durch." starten
+  (Auto-Prompt-Mechanik existiert) — vorher auf Wegwerf-Maschine prüfen, ob der Login-Flow das
+  verträgt. Bewusst nicht blind umgesetzt.
+- [ ] Eigenen Wrapper in `~/.zshrc` optional auf den dünnen Vertrag umstellen (`MATS_TOOLS_SYNCED`
+  setzen, Fetch/Autoprompt-Teil entfernen) — Kickbacks-Blöcke bleiben.
 - [ ] Erstes echtes Exemplar des autonomen Nachrüstens kommt von einem der Jungs — deren
   Zwei-Sätze-Zusammenfassung einholen; Windows-Zweig (Step 1W) danach korrigieren, falls nötig.
 - [ ] Entscheidung Mats: GitHub-Support anfragen, um die dangling Commits mit `plans/` zu purgen.

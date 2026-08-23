@@ -46,6 +46,20 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
   **Erwartet:** Bricht ab und meldet die Ursache — kein `--force`, kein
   automatischer Pull/Rebase.
 
+## /finish-lite
+- **Szenario:** Wissensprojekt auf dem Default-Branch mit geänderten Dateien.
+  **Erwartet:** Genau ein Commit mit Zeitstempel-Message, Remote-Stand
+  hereingeholt, Push auf den Default-Branch; Einzeiler-Meldung. Keine
+  Diff-Analyse, keine README/CHANGELOG-Pflege, keine Rückfrage.
+- **Szenario:** Cloud-Session auf einem Session-Branch (`claude/…`).
+  **Erwartet:** Die Änderungen landen direkt auf dem Default-Branch — kein PR,
+  kein Branch-Wechsel nötig.
+- **Szenario:** Rebase-Konflikt in einer Wissensdatei.
+  **Erwartet:** Rebase abgebrochen, Baum wieder sauber, Ursache in einer Zeile;
+  keine eigenmächtige Konfliktauflösung, kein `--force`.
+- **Szenario:** Nichts geändert, Remote unverändert.
+  **Erwartet:** Meldet nur „Schon synchron." — kein leerer Commit.
+
 ## /github-pushes
 - **Szenario:** Argument leer.
   **Erwartet:** Nimmt die letzten 24 Stunden als Default und erwähnt das in
@@ -236,3 +250,16 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 - **Szenario:** Inventar ohne Pfad auf macOS **und** Linux.
   **Erwartet:** Eine Zeile je CLAUDE.md mit Bytes, Zeilen, Datum, Höhe/`Include`/`?`;
   Archiv-Ordner ausgeschlossen; kein Abbruch wegen `stat`/`date`-Dialekt.
+
+## latexterm (Skill)
+- **Szenario:** Session läuft in LatexTerm; Mats bittet „öffne eine Kachel und
+  starte da den Dev-Server".
+  **Erwartet:** Neue Kachel entsteht, der Befehl läuft dort; die eigene Kachel
+  bleibt frei; kurze Meldung, welche Kachel es ist.
+- **Szenario:** Session läuft **nicht** in LatexTerm (kein `$LATEXTERM_PANE_ID`,
+  z.B. bei einem Abonnenten), Frage „was kannst du mit dem Terminal machen".
+  **Erwartet:** Sagt ehrlich, dass die LatexTerm-Steuerung hier nicht verfügbar
+  ist, und arbeitet normal weiter — nichts wird simuliert, nichts scheitert laut.
+- **Szenario:** „Frag die andere Claude-Session, ob sie fertig ist."
+  **Erwartet:** Der Prompt landet in der anderen Kachel und wird dort abgeschickt
+  (nicht nur eingetippt); Mats' eigene Kachel wird nicht überschrieben.
