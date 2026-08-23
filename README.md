@@ -94,6 +94,21 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
 liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 
+### 🔬 Skill-Werkstatt (`skills/`)
+
+Globale Skills mit Code, Binaries oder Maschinenzustand — noch in Arbeit, aber schon im Einsatz. Sie werden
+nicht über das Plugin verteilt, sondern per **Symlink** in `~/.claude/skills/` eingehängt
+(`bash bootstrap.sh --skills-only` aus einem Clone); Änderungen wirken sofort, Historie liegt je Skill in
+`HISTORIE.md`, Lokales/Privates in `_lokal/` (nicht versioniert). Details: [`skills/README.md`](skills/README.md).
+
+| Skill | Zweck |
+|---|---|
+| `scan` | Handyfotos von (gefalteter) Briefpost → scanähnliches A4-PDF: Browser-Editor mit 4/6/8 Punkten + Wölbung, „Magic Fit" (Apple Vision, Kantenmessung, Falzlinien, Textzeilen-Optimierung), Benchmark gegen eigene Referenzfotos |
+| `pdf-unterschrift` | Unterschrift aus Foto/Scan freistellen und druckfest in ein PDF-Formular einbrennen |
+| `gmail` | Gmail-Entwürfe mit Anhängen und als Thread-Antwort über ein eigenes API-Script bauen |
+| `kalender` | Termine in einen Google-Unterkalender eintragen/abfragen |
+| `standort` | Standort des Macs per CoreLocationCLI |
+
 ---
 
 ## ✅ Verifikation
@@ -141,7 +156,7 @@ ohne zu markieren, `--context` zeigt, was Claude bekommt.
 
 ```
 claude-config/
-├── bootstrap.sh                  # Einzeiler-Setup für neue Rechner (macOS/Linux)
+├── bootstrap.sh                  # Einzeiler-Setup für neue Rechner (macOS/Linux); --skills-only hängt nur die Werkstatt ein
 ├── bootstrap.ps1                 # Einzeiler-Setup für neue Rechner (Windows)
 ├── tools/
 │   └── validate.sh               # strukturelle Verifikation (lokal + CI)
@@ -149,6 +164,7 @@ claude-config/
 │   └── validate.yml              # führt validate.sh bei jedem Push/PR aus
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace-Manifest
+├── skills/                       # Skill-Werkstatt: globale Skills per Symlink (scan, pdf-unterschrift, gmail, kalender, standort)
 └── mats-tools/                   # das Plugin
     ├── .claude-plugin/
     │   └── plugin.json           # Plugin-Manifest

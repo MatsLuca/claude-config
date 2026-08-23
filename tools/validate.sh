@@ -11,6 +11,8 @@
 #   4. Plugin-interne ${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien.
 #   5. Portabilitäts-Lint: BSD-only Aufrufe (date -v / stat -f) nur mit GNU-Fallback
 #      in derselben Datei (Regressionsschutz, siehe authoring-guide.md).
+#   7. Skill-Werkstatt (skills/): Frontmatter, README-Listing, HISTORIE, und dass nichts
+#      Lokales/Privates (_lokal/, venv, Bilder, PDFs) getrackt ist — das Repo ist public.
 #
 # Verhaltens-Evals (reference/evals.md) prüft das hier NICHT — die laufen headless
 # bzw. manuell, siehe den Loop-Abschnitt in evals.md.
@@ -124,7 +126,7 @@ ok "\${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien"
 # ── 5. Portabilitäts-Lint (Commands + Agents + Skills) ─────────────────────────────────
 # BSD-only Muster brauchen einen GNU-Gegenpart in derselben Datei (oder umgekehrt) —
 # sonst bricht der Command auf Linux (Container/Codespaces) bzw. macOS.
-for f in mats-tools/commands/*.md mats-tools/agents/*.md mats-tools/skills/*/SKILL.md mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh; do
+for f in mats-tools/commands/*.md mats-tools/agents/*.md mats-tools/skills/*/SKILL.md mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh skills/*/SKILL.md skills/*/setup.sh; do
   [ -f "$f" ] || continue
   if grep -Eq -- '-v-[0-9]' "$f" && ! grep -q 'date -u -d\|date -d' "$f"; then
     fail "$f: BSD-date-Offset (-v-N) ohne GNU-Fallback (date -u -d \"… ago\")"
@@ -139,6 +141,38 @@ ok "Portabilitäts-Lint (date/stat GNU↔BSD) durchlaufen"
 for s in bootstrap.sh tools/validate.sh mats-tools/statusline/statusline-command.sh mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh; do
   bash -n "$s" 2>/dev/null && ok "Syntax ok: $s" || fail "Shell-Syntaxfehler: $s"
 done
+
+# ── 7. Skill-Werkstatt (skills/) ──────────────────────────────────────────────
+# Globale Skills, per Symlink in ~/.claude/skills eingehängt (siehe skills/README.md). Kein Listing in
+# plugin.json/marketplace.json (kein Plugin-Inhalt), aber: Frontmatter, Name = Ordner, README-Zeile —
+# und NICHTS Lokales/Privates im Tracking (Repo ist public).
+for f in skills/*/SKILL.md; do
+  [ -f "$f" ] || continue
+  dir=$(basename "$(dirname "$f")")
+  if fm=$(frontmatter "$f"); then
+    for key in name description; do
+      printf '%s\n' "$fm" | grep -q "^$key:" || fail "$f: $key fehlt im Frontmatter"
+    done
+    skill=$(printf '%s\n' "$fm" | sed -n 's/^name:[[:space:]]*//p' | head -1)
+    [ "$skill" = "$dir" ] || fail "$f: Frontmatter-name ($skill) ≠ Ordnername ($dir)"
+  else
+    fail "$f: kein YAML-Frontmatter"
+  fi
+  grep -q "\`$dir\`" skills/README.md || fail "Werkstatt-Skill $dir fehlt in skills/README.md"
+  grep -q "$dir" "$README" || fail "Werkstatt-Skill $dir fehlt in README.md"
+  [ -f "skills/$dir/HISTORIE.md" ] || fail "skills/$dir/HISTORIE.md fehlt (Werkstatt-Chronik)"
+done
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  privat=$(git ls-files skills | grep -E '/_lokal/|/venv/|__pycache__|\.(png|jpe?g|JPG|heic|pdf|json)$' || true)
+  [ -z "$privat" ] && ok "skills/: nichts Lokales/Privates getrackt" \
+    || fail "skills/: lokale/private Dateien im Tracking:
+$privat"
+fi
+for s in skills/*/setup.sh; do
+  [ -f "$s" ] || continue
+  bash -n "$s" 2>/dev/null && ok "Syntax ok: $s" || fail "Shell-Syntaxfehler: $s"
+done
+ok "Skill-Werkstatt (skills/): Frontmatter, README-Listing, HISTORIE, Privates geprüft"
 
 # ── Ergebnis ──────────────────────────────────────────────────────────────────
 echo

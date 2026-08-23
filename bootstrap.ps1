@@ -57,6 +57,29 @@ if (-not $claude) {
     Ok "Claude Code vorhanden: $claude"
 }
 
+# ── 2b. Skill-Werkstatt einhängen (nur aus einem Clone; Junctions statt Symlinks) ──
+# skills/<name> → ~\.claude\skills\<name>. setup.sh-Skripte brauchen Git Bash (bash.exe) — optional.
+function Link-Skills {
+    $repo = Split-Path -Parent $PSCommandPath
+    $src  = Join-Path $repo 'skills'
+    if (-not (Test-Path $src)) { Warn 'Kein skills\-Ordner neben dem Script - Werkstatt uebersprungen (Repo klonen, dann erneut).'; return }
+    $dstRoot = Join-Path $env:USERPROFILE '.claude\skills'
+    New-Item -ItemType Directory -Force -Path $dstRoot | Out-Null
+    Get-ChildItem -Directory $src | ForEach-Object {
+        if (-not (Test-Path (Join-Path $_.FullName 'SKILL.md'))) { return }
+        $dst = Join-Path $dstRoot $_.Name
+        if (Test-Path $dst) {
+            $item = Get-Item $dst
+            if ($item.LinkType) { Remove-Item $dst -Force } else { Warn "$dst existiert als echter Ordner - nicht angefasst"; return }
+        }
+        New-Item -ItemType Junction -Path $dst -Target $_.FullName | Out-Null
+        Ok "Skill $($_.Name) verlinkt"
+        $setup = Join-Path $_.FullName 'setup.sh'
+        if ((Test-Path $setup) -and (Get-Command bash -ErrorAction SilentlyContinue)) { bash $setup }
+    }
+}
+if ($PSCommandPath) { Link-Skills }
+
 # ── 3. Marketplace + Plugin (idempotent) ──────────────────────────────────────
 Log "Registriere Marketplace: $Marketplace"
 & $claude plugin marketplace add $Marketplace

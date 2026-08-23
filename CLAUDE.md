@@ -34,6 +34,13 @@ Three nesting levels, each with its own manifest:
    - `mats-tools/shell/start.sh` → sourced by the `claude()` wrapper that `machine-setup`
      installs; the wrapper in the rc file stays thin, the start line evolves here.
 
+4. **Skill-Werkstatt** — `skills/<name>/` (top-level, *not* plugin content): global skills with code,
+   binaries or machine state, linked into `~/.claude/skills/<name>` via symlink (`bootstrap.sh
+   --skills-only`). Edits take effect immediately; each skill carries `HISTORIE.md`; everything local or
+   private (venv, binaries, benchmark photos, notes naming third parties) lives in `_lokal/` (gitignored —
+   the repo is public; validator check 7 enforces it). Mature, markdown-only skills graduate into
+   `mats-tools/skills/`. Conventions: `skills/README.md`.
+
 `plans/` holds multi-session work plans (waves with checkboxes + protocol) — not plugin content and
 **gitignored** (local only): the protocols name private folders/people, and the repo is public.
 
@@ -127,10 +134,17 @@ die die eigenen Prämissen zu Ende anwenden (alles lokal, **noch nicht committet
 - Die `~/.zshrc` dieses Macs ist **nicht** angefasst (eigener Wrapper mit Kickbacks-Logik; läuft
   als Legacy-Pfad weiter, siehe `reference/kickbacks.md`).
 
+## Skill-Werkstatt (2026-08-23)
+
+Fünf globale Skills (`scan`, `pdf-unterschrift`, `gmail`, `kalender`, `standort`) aus `~/.claude/skills/`
+nach `skills/` geholt, Symlinks zurück; `_lokal/` für venv/Binary/Benchmark-Fotos/private Notizen;
+`setup.sh` je Skill (scan: Werkzeuge + Swift-Binary; pdf-unterschrift: venv aus `requirements.txt`);
+`bootstrap.sh`/`.ps1` verlinken; Validator-Check 7. Symlink-Loading in der laufenden Session verifiziert.
+
 ## HIER WEITERMACHEN
 
-- [ ] `/finish` für den obigen Stand; danach `/plugin update` + neue Session: Startzeile und
-  `news.sh --context` am echten Cache prüfen.
+- [ ] Stand vom 23.08. ist lokal committet (`fc12bd3`), **noch nicht gepusht**; danach `/plugin update` + neue Session:
+  Startzeile und `news.sh --context` am echten Cache prüfen.
 - [ ] `bootstrap.sh`/`.ps1` könnten Claude direkt mit „Führe das machine-setup durch." starten
   (Auto-Prompt-Mechanik existiert) — vorher auf Wegwerf-Maschine prüfen, ob der Login-Flow das
   verträgt. Bewusst nicht blind umgesetzt.
