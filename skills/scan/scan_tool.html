@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>Scan-Werkstatt</title>
+<style>
+  :root { --bg:#1e1f24; --panel:#2a2c33; --line:#3b3e48; --text:#e8e8ec; --mute:#9a9db0; --akz:#ffb347; --ok:#6fd38a; --err:#ff6b6b; --blau:#7cc4ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 -apple-system,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); display:grid; grid-template-columns:150px 1fr 330px; grid-template-rows:100vh; }
+  aside, section.rechts { background:var(--panel); overflow:auto; padding:10px; }
+  aside { border-right:1px solid var(--line); }
+  section.rechts { border-left:1px solid var(--line); display:flex; flex-direction:column; gap:12px; }
+  main { position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  canvas#c { max-width:100%; max-height:100%; cursor:crosshair; touch-action:none; }
+  .thumb { display:flex; gap:6px; align-items:center; padding:6px; border-radius:6px; cursor:pointer; margin-bottom:4px; border:1px solid transparent; }
+  .thumb.aktiv { border-color:var(--akz); background:#33343c; }
+  .thumb img { width:44px; height:58px; object-fit:cover; border-radius:3px; background:#000; }
+  .thumb small { display:block; color:var(--mute); font-size:11px; }
+  .thumb .nr { font-weight:600; }
+  .thumb input { margin:0; }
+  h3 { margin:0 0 4px; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--mute); }
+  .gruppe { border:1px solid var(--line); border-radius:8px; padding:10px; }
+  .zeile { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:4px 0; }
+  label.radio { display:inline-flex; gap:4px; align-items:center; padding:4px 8px; border:1px solid var(--line); border-radius:6px; cursor:pointer; }
+  label.radio:has(input:checked) { border-color:var(--akz); background:#3a3420; }
+  label.radio input { display:none; }
+  label.check { display:inline-flex; gap:6px; align-items:center; cursor:pointer; }
+  input[type=number], select { background:#1b1c21; color:var(--text); border:1px solid var(--line); border-radius:5px; padding:4px 6px; width:70px; }
+  select { width:auto; }
+  button { background:#3a3d48; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 10px; cursor:pointer; }
+  button:hover { background:#474a57; }
+  button.primaer { background:var(--akz); color:#1a1a1a; font-weight:600; border-color:var(--akz); }
+  button.primaer:hover { background:#ffc46b; }
+  #vorschau { width:100%; background:#fff; border-radius:4px; display:block; }
+  #status { min-height:2.6em; color:var(--mute); font-size:13px; white-space:pre-wrap; }
+  #status.ok { color:var(--ok); } #status.err { color:var(--err); }
+  #modal { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; overflow:auto; z-index:9; padding:20px; }
+  #modal img { display:block; margin:0 auto; max-width:min(100%, 1100px); box-shadow:0 0 30px #000; }
+  #modal .hinweis { color:#ccc; text-align:center; margin-bottom:8px; }
+  #lupe { position:absolute; width:180px; height:180px; border:2px solid var(--akz); border-radius:50%; pointer-events:none; display:none; background:#000; box-shadow:0 4px 18px #000a; }
+  .hint { color:var(--mute); font-size:12px; }
+  kbd { background:#111; border:1px solid var(--line); border-radius:3px; padding:0 4px; font-size:11px; }
+</style></head>
+<body>
+<aside id="liste"></aside>
+<main><canvas id="c"></canvas><canvas id="lupe"></canvas></main>
+<div id="modal"><div class="hinweis">Volle Vorschau (PDF-Qualität, mit Look) — Esc oder Klick schließt</div><img id="modalbild"></div>
+<section class="rechts">
+  <div class="gruppe">
+    <h3>Blatt</h3>
+    <div class="zeile" id="knicke">
+      <label class="radio"><input type="radio" name="knicke" value="0">ungefaltet · 4 Punkte</label>
+      <label class="radio"><input type="radio" name="knicke" value="1">1 Knick · 6 Punkte</label>
+      <label class="radio"><input type="radio" name="knicke" value="2">2 Knicke · 8 Punkte</label>
+    </div>
+    <div class="zeile" id="falz">Knick bei <input type="number" id="f1" step="1"> mm
+      <span id="f2wrap">und <input type="number" id="f2" step="1"> mm</span>
+      <button id="falzDrittel" title="99 / 198 mm (Wickelfalz) bzw. 148,5 mm (Halbfalz)">Standard</button></div>
+    <div class="zeile">Format <select id="format">
+        <option value="A4">A4</option><option value="A5">A5</option><option value="DINlang">DIN lang</option>
+        <option value="Letter">Letter</option><option value="auto">auto (aus Bildkanten)</option></select>
+      Drehen <button id="dreh-l" title="90° gegen Uhrzeiger">↺</button><button id="dreh-r" title="90° im Uhrzeiger">↻</button></div>
+  </div>
+  <div class="gruppe">
+    <h3>Punkte &amp; Wölbung</h3>
+    <div class="zeile"><button id="magic" class="primaer" title="Apple Vision: Blatt erkennen, 4 Ecken setzen; Knicke gleichmäßig dazwischen">✨ Ecken finden</button></div>
+    <div class="zeile"><button id="reset">Ecken zurücksetzen</button><button id="verteilen" title="Knickpunkte gleichmäßig zwischen die Ecken legen">Knicke verteilen</button><button id="rundReset" title="alle Wölbungen auf 0">Wölbung 0</button></div>
+    <div class="zeile"><label class="check"><input type="checkbox" id="koppeln" checked> Wölbung links ↔ rechts koppeln (je Drittel)</label></div>
+    <div class="hint">Punkte ziehen (Lupe). <kbd>←↑→↓</kbd> feinjustieren, <kbd>⇧</kbd> = 10 px. <b>Auf eine Linie klicken</b> → Wölbungsgriff ◆, zieht nur senkrecht zur Linie; Doppelklick oder <kbd>⌫</kbd> = gerade. Reihenfolge der Punkte: links, rechts — oben nach unten.</div>
+  </div>
+  <div class="gruppe">
+    <h3>Look</h3>
+    <div class="zeile" id="look">
+      <label class="radio"><input type="radio" name="look" value="roh">roh</label>
+      <label class="radio"><input type="radio" name="look" value="farbe">Farbe, Schatten raus</label>
+      <label class="radio"><input type="radio" name="look" value="grau">Graustufen</label>
+      <label class="radio"><input type="radio" name="look" value="sw">Schwarz/Weiß</label>
+    </div>
+    <div class="hint">Der Look wird erst beim PDF-Bau angewendet; die Vorschau zeigt nur die Geometrie.</div>
+  </div>
+  <div class="gruppe">
+    <h3>Vorschau (live)</h3>
+    <canvas id="vorschau"></canvas>
+  </div>
+  <div class="zeile"><button id="speichern">Speichern</button><button id="bauen">PDF bauen (Vorschau)</button><button id="voll" title="aktuelle Seite in PDF-Qualität rendern">🔍 Volle Vorschau</button></div>
+  <div class="zeile"><button id="fertig" class="primaer" style="width:100%">✅ Fertig — PDF bauen &amp; schließen</button></div>
+  <div id="status"></div>
+</section>
+<script>
+// ------------------------------------------------------------------ Zustand
+let daten = {seiten:[]}, idx = 0, bild = null, gewaehlt = -1, gewKante = null, ziehe = false;
+const RAND = 0.10;            // Arbeitsrand um das Foto (Anteil der Bildmaße)
+const NX = 6, NY = 14;        // Gitterzellen je Paneel für die Vorschau (Server: feiner)
+const IDENT = n => { const out = []; for (let i = 0; i <= n + 1; i++) { const t = 0.04 + (0.92 * i) / (n + 1); out.push([0.04, t], [0.96, t]); } return out; };
+const FORMATE = {A4:[210,297], A5:[148,210], DINlang:[99,210], Letter:[215.9,279.4]};
+const seite = () => daten.seiten[idx];
+const c = document.getElementById('c'), ctx = c.getContext('2d');
+const lupe = document.getElementById('lupe'), lctx = lupe.getContext('2d');
+const vor = document.getElementById('vorschau'), vctx = vor.getContext('2d');
+const status = (t, k = '') => { const s = document.getElementById('status'); s.textContent = t; s.className = k; };
+const W = () => bild.naturalWidth, H = () => bild.naturalHeight;
+const zuPx = ([x, y]) => [RAND * W() + x * W(), RAND * H() + y * H()];       // normiert → Canvas
+const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+
+// Kanten eines Blatts: Schlüssel L<k>/R<k> (Seitenkanten Paneel k), H<i> (Zeile i: Außen-/Knicklinie)
+function kanten(s) {
+  const n = s.knicke, out = [];
+  for (let i = 0; i <= n + 1; i++) out.push({ key: 'H' + i, a: 2 * i, b: 2 * i + 1, paneel: null });
+  for (let k = 0; k <= n; k++) { out.push({ key: 'L' + k, a: 2 * k, b: 2 * k + 2, paneel: k }); out.push({ key: 'R' + k, a: 2 * k + 1, b: 2 * k + 3, paneel: k }); }
+  return out;
+}
+const dev = (s, key) => (s.rundung && s.rundung[key]) || [0, 0];   // Wölbung (normiert, Vektor)
+
+// ------------------------------------------------------------------ Laden
+async function lade() {
+  daten = await (await fetch('/daten')).json();
+  daten.seiten.forEach(s => { if (!s.punkte) s.punkte = IDENT(s.knicke); if (!s.rundung) s.rundung = {}; if (s.koppeln === undefined) s.koppeln = true; });
+  fuelleListe(); await zeige(0);
+  const autos = daten.seiten.filter(s => s.auto && s.auto.ok).length;
+  status(`${daten.seiten.length} Seite(n) · Ausgabe: ${daten.ausgabe} · ${daten.dpi} dpi` + (autos ? ` · Magic Fit auf ${autos} Seite(n) vorab gelaufen — durchklicken, ggf. nachziehen, dann „Fertig“.` : ''));
+}
+function fuelleListe() {
+  const l = document.getElementById('liste'); l.innerHTML = '';
+  daten.seiten.forEach((s, i) => {
+    const d = document.createElement('div'); d.className = 'thumb' + (i === idx ? ' aktiv' : '');
+    d.innerHTML = `<input type="checkbox" ${s.aktiv ? 'checked' : ''} title="im PDF enthalten"><img src="vorschau/${s.id}.jpg?${s.breite}x${s.hoehe}"><div><span class="nr">${i + 1}</span><small>${s.knicke} Knick${s.knicke === 1 ? '' : 'e'}</small></div>`;
+    d.querySelector('input').onchange = e => { s.aktiv = e.target.checked; };
+    d.onclick = e => { if (e.target.tagName !== 'INPUT') zeige(i); };
+    l.appendChild(d);
+  });
+}
+async function zeige(i) {
+  idx = i; gewaehlt = -1; gewKante = null;
+  const s = seite();
+  bild = await ladeBild(`vorschau/${s.id}.jpg?${s.breite}x${s.hoehe}`);
+  c.width = Math.round(W() * (1 + 2 * RAND)); c.height = Math.round(H() * (1 + 2 * RAND));
+  document.querySelector(`#knicke input[value="${s.knicke}"]`).checked = true;
+  document.querySelector(`#look input[value="${s.look}"]`).checked = true;
+  document.getElementById('format').value = s.format;
+  document.getElementById('koppeln').checked = s.koppeln;
+  document.getElementById('f1').value = s.falz_mm[0]; document.getElementById('f2').value = s.falz_mm[1];
+  aktualisiereFalzFelder(); fuelleListe(); render(); zeigeVorschau();
+}
+const ladeBild = src => new Promise(r => { const im = new Image(); im.onload = () => r(im); im.src = src; });
+
+// ------------------------------------------------------------------ Zeichnen
+function kurve(A, B, d) { // quadratische Bézier: Mitte weicht um d ab → Kontrollpunkt M + 2d, Griff bei M + d
+  const M = lerp(A, B, 0.5); return { A, B, C: [M[0] + 2 * d[0], M[1] + 2 * d[1]], G: [M[0] + d[0], M[1] + d[1]] };
+}
+function kantePx(s, k) { const A = zuPx(s.punkte[k.a]), B = zuPx(s.punkte[k.b]), d = dev(s, k.key); return kurve(A, B, [d[0] * W(), d[1] * H()]); }
+function render() {
+  const s = seite(), P = s.punkte, ox = RAND * W(), oy = RAND * H();
+  ctx.fillStyle = '#2a2c33'; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(bild, ox, oy);
+  ctx.strokeStyle = '#555'; ctx.lineWidth = 1; ctx.strokeRect(ox, oy, W(), H());
+  const lw = Math.max(2, W() / 600);
+  if (s.maske) { ctx.beginPath(); s.maske.forEach((p, i) => { const [x, y] = zuPx(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.closePath(); ctx.setLineDash([4, 6]); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.stroke(); ctx.setLineDash([]); }
+  const K = Object.fromEntries(kanten(s).map(k => [k.key, kantePx(s, k)]));
+  for (let k = 0; k <= s.knicke; k++) { // Paneele füllen, entlang der gekrümmten Ränder
+    const t = K['H' + k], r = K['R' + k], b = K['H' + (k + 1)], l = K['L' + k];
+    ctx.beginPath(); ctx.moveTo(...t.A); ctx.quadraticCurveTo(...t.C, ...t.B); ctx.quadraticCurveTo(...r.C, ...r.B);
+    ctx.quadraticCurveTo(...b.C, ...b.A); ctx.quadraticCurveTo(...l.C, ...l.A); ctx.closePath();
+    ctx.fillStyle = k % 2 ? 'rgba(255,179,71,0.10)' : 'rgba(111,211,138,0.10)'; ctx.fill();
+  }
+  for (const k of kanten(s)) { // Kanten + Wölbungsgriffe
+    const q = K[k.key], innen = k.key[0] === 'H' && k.a > 0 && k.b < P.length - 1;
+    ctx.beginPath(); ctx.moveTo(...q.A); ctx.quadraticCurveTo(...q.C, ...q.B);
+    ctx.lineWidth = gewKante === k.key ? lw * 1.8 : lw; ctx.setLineDash(innen ? [12, 8] : []);
+    ctx.strokeStyle = gewKante === k.key ? '#fff' : (innen ? '#6fd38a' : '#ffb347'); ctx.stroke(); ctx.setLineDash([]);
+    const d = dev(s, k.key);
+    if (d[0] || d[1] || gewKante === k.key) {
+      const r = Math.max(6, W() / 140);
+      ctx.save(); ctx.translate(...q.G); ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = gewKante === k.key ? '#fff' : '#7cc4ff'; ctx.fillRect(-r, -r, 2 * r, 2 * r);
+      ctx.lineWidth = 2; ctx.strokeStyle = '#000'; ctx.strokeRect(-r, -r, 2 * r, 2 * r); ctx.restore();
+    }
+  }
+  P.forEach((p, i) => { // Punkte
+    const [x, y] = zuPx(p), r = Math.max(7, W() / 120);
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = i === gewaehlt ? '#fff' : (i < 2 || i >= P.length - 2 ? '#ffb347' : '#6fd38a'); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = '#000'; ctx.stroke();
+    ctx.fillStyle = '#000'; ctx.font = `${r * 1.2}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i + 1, x, y);
+  });
+}
+
+// ------------------------------------------------------------------ Maus / Tastatur
+function bildKoord(ev) { // → normierte Bildkoordinaten (Rand herausgerechnet)
+  const r = c.getBoundingClientRect();
+  const cx = (ev.clientX - r.left) / r.width * c.width, cy = (ev.clientY - r.top) / r.height * c.height;
+  return [(cx - RAND * W()) / W(), (cy - RAND * H()) / H()];
+}
+function abstandKurve(q, p) { // minimaler Abstand Punkt ↔ Bézier (abgetastet)
+  let best = 1e9;
+  for (let i = 0; i <= 24; i++) { const t = i / 24, x = (1 - t) ** 2 * q.A[0] + 2 * (1 - t) * t * q.C[0] + t * t * q.B[0], y = (1 - t) ** 2 * q.A[1] + 2 * (1 - t) * t * q.C[1] + t * t * q.B[1]; best = Math.min(best, Math.hypot(x - p[0], y - p[1])); }
+  return best;
+}
+c.addEventListener('pointerdown', ev => {
+  const [x, y] = bildKoord(ev), s = seite(), P = s.punkte, m = zuPx([x, y]);
+  let best = -1, bd = 1e9;
+  P.forEach(([px, py], i) => { const d = Math.hypot((px - x) * W(), (py - y) * H()); if (d < bd) { bd = d; best = i; } });
+  if (bd < W() / 25) { gewaehlt = best; gewKante = null; ziehe = 'punkt'; c.setPointerCapture(ev.pointerId); zieh(ev); return; }
+  let bk = null, bkd = 1e9;
+  for (const k of kanten(s)) { const q = kantePx(s, k), dk = Math.min(Math.hypot(q.G[0] - m[0], q.G[1] - m[1]), abstandKurve(q, m)); if (dk < bkd) { bkd = dk; bk = k; } }
+  if (bkd < W() / 40) { gewKante = bk.key; gewaehlt = -1; ziehe = 'kante'; c.setPointerCapture(ev.pointerId); ziehKante(ev); return; }
+  gewaehlt = -1; gewKante = null; render();
+});
+c.addEventListener('pointermove', ev => { if (ziehe === 'punkt') zieh(ev); else if (ziehe === 'kante') ziehKante(ev); });
+c.addEventListener('pointerup', () => { ziehe = false; lupe.style.display = 'none'; zeigeVorschau(); });
+c.addEventListener('dblclick', () => { if (gewKante) { setzeDev(seite(), gewKante, [0, 0]); render(); zeigeVorschau(); } });
+function zieh(ev) {
+  const [x, y] = bildKoord(ev);
+  seite().punkte[gewaehlt] = [Math.min(1 + RAND, Math.max(-RAND, x)), Math.min(1 + RAND, Math.max(-RAND, y))];
+  render(); zeigeLupe(ev.clientX, ev.clientY, x, y);
+}
+function normale(s, k) { // Einheitsnormale der Sehne in Bildpixeln
+  const A = s.punkte[k.a], B = s.punkte[k.b], ax = (B[0] - A[0]) * W(), ay = (B[1] - A[1]) * H(), len = Math.hypot(ax, ay) || 1;
+  return [-ay / len, ax / len];
+}
+function aussenNormale(s, k) { // zeigt vom Paneelzentrum weg
+  let [nx, ny] = normale(s, k); const A = s.punkte[k.a], B = s.punkte[k.b], M = lerp(A, B, 0.5);
+  const Z = [0, 1, 2, 3].map(j => s.punkte[2 * k.paneel + j]).reduce((acc, p) => [acc[0] + p[0] / 4, acc[1] + p[1] / 4], [0, 0]);
+  if ((M[0] - Z[0]) * W() * nx + (M[1] - Z[1]) * H() * ny < 0) { nx = -nx; ny = -ny; }
+  return [nx, ny];
+}
+function ziehKante(ev) { // Griff nur senkrecht zur Sehne bewegen
+  const s = seite(), k = kanten(s).find(k => k.key === gewKante), [x, y] = bildKoord(ev);
+  const M = lerp(s.punkte[k.a], s.punkte[k.b], 0.5), [nx, ny] = normale(s, k);
+  const sk = (x - M[0]) * W() * nx + (y - M[1]) * H() * ny;            // Skalar entlang der Normalen (px)
+  setzeDev(s, gewKante, [sk * nx / W(), sk * ny / H()]);
+  render(); zeigeLupe(ev.clientX, ev.clientY, x, y);
+}
+function setzeDev(s, key, d) {
+  s.rundung[key] = d;
+  if (s.koppeln && (key[0] === 'L' || key[0] === 'R')) { // Partnerkante: gleicher Betrag entlang der jeweiligen Außennormalen
+    const ks = kanten(s), k = ks.find(k => k.key === key), partnerKey = (key[0] === 'L' ? 'R' : 'L') + key.slice(1), pk = ks.find(k => k.key === partnerKey);
+    const n1 = aussenNormale(s, k), n2 = aussenNormale(s, pk), sk = d[0] * W() * n1[0] + d[1] * H() * n1[1];
+    s.rundung[partnerKey] = [sk * n2[0] / W(), sk * n2[1] / H()];
+  }
+}
+function zeigeLupe(cx, cy, nx, ny) {
+  const R = 180, z = 3; lupe.width = lupe.height = R; lupe.style.display = 'block';
+  const m = document.querySelector('main').getBoundingClientRect();
+  lupe.style.left = Math.min(m.width - R - 10, Math.max(10, cx - m.left - R / 2)) + 'px';
+  lupe.style.top = (cy - m.top - R - 30 > 0 ? cy - m.top - R - 30 : cy - m.top + 30) + 'px';
+  lctx.setTransform(1, 0, 0, 1, 0, 0); lctx.fillStyle = '#2a2c33'; lctx.fillRect(0, 0, R, R);
+  lctx.setTransform(z, 0, 0, z, R / 2 - nx * W() * z, R / 2 - ny * H() * z);
+  lctx.drawImage(bild, 0, 0); lctx.strokeStyle = '#888'; lctx.lineWidth = 1 / z; lctx.strokeRect(0, 0, W(), H());
+  lctx.setTransform(1, 0, 0, 1, 0, 0);
+  lctx.strokeStyle = '#ffb347'; lctx.lineWidth = 1;
+  lctx.beginPath(); lctx.moveTo(R / 2, 0); lctx.lineTo(R / 2, R); lctx.moveTo(0, R / 2); lctx.lineTo(R, R / 2); lctx.stroke();
+}
+document.addEventListener('keydown', ev => {
+  if (ev.target.tagName === 'INPUT') return;
+  if ((ev.key === 'Backspace' || ev.key === 'Delete') && gewKante) { ev.preventDefault(); setzeDev(seite(), gewKante, [0, 0]); render(); zeigeVorschau(); return; }
+  if (gewaehlt < 0) return;
+  const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[ev.key];
+  if (!d) return; ev.preventDefault();
+  const f = ev.shiftKey ? 10 : 1, p = seite().punkte[gewaehlt];
+  p[0] += d[0] * f / W(); p[1] += d[1] * f / H(); render(); zeigeVorschau();
+});
+
+// ------------------------------------------------------------------ Bedienelemente
+document.querySelectorAll('#knicke input').forEach(r => r.onchange = () => {
+  const s = seite(), n = +r.value, alt = s.punkte;
+  const TL = alt[0], TR = alt[1], BL = alt[alt.length - 2], BR = alt[alt.length - 1];
+  s.knicke = n; s.punkte = []; s.rundung = {}; gewKante = null;
+  for (let i = 0; i <= n + 1; i++) { const t = i / (n + 1); s.punkte.push(lerp(TL, BL, t), lerp(TR, BR, t)); }
+  aktualisiereFalzFelder(); fuelleListe(); render(); zeigeVorschau();
+});
+function aktualisiereFalzFelder() {
+  const s = seite(), fmt = FORMATE[s.format];
+  document.getElementById('falz').style.display = s.knicke ? '' : 'none';
+  document.getElementById('f2wrap').style.display = s.knicke === 2 ? '' : 'none';
+  document.getElementById('f1').disabled = document.getElementById('f2').disabled = !fmt;
+}
+['f1', 'f2'].forEach((id, i) => document.getElementById(id).onchange = e => { seite().falz_mm[i] = +e.target.value; zeigeVorschau(); });
+document.getElementById('falzDrittel').onclick = () => {
+  const s = seite(), h = (FORMATE[s.format] || [210, 297])[1];
+  s.falz_mm = s.knicke === 2 ? [Math.round(h / 3), Math.round(2 * h / 3)] : [Math.round(h / 2 * 10) / 10, Math.round(2 * h / 3)];
+  document.getElementById('f1').value = s.falz_mm[0]; document.getElementById('f2').value = s.falz_mm[1]; zeigeVorschau();
+};
+document.getElementById('format').onchange = e => { seite().format = e.target.value; aktualisiereFalzFelder(); zeigeVorschau(); };
+document.getElementById('koppeln').onchange = e => { seite().koppeln = e.target.checked; };
+document.querySelectorAll('#look input').forEach(r => r.onchange = () => { seite().look = r.value; });
+document.getElementById('magic').onclick = async () => {
+  status('suche Blatt (Apple Vision) …');
+  const s = seite();
+  const r = await (await fetch('/ecken', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seiten: daten.seiten, id: s.id }) })).json();
+  if (!r.ok) { status(r.meldung || 'kein Blatt erkannt', 'err'); return; }
+  const n = s.knicke; s.punkte = r.punkte.map(([x, y]) => [Math.min(1 + RAND, Math.max(-RAND, x)), Math.min(1 + RAND, Math.max(-RAND, y))]);
+  s.rundung = r.rundung || {}; s.maske = r.maske || null;
+  gewaehlt = -1; gewKante = null; render(); zeigeVorschau();
+  const draussen = r.corners.filter(([x, y]) => x < 0 || y < 0 || x > 1 || y > 1).length;
+  const fb = (r.info && r.info.fallback) || [], kf = r.info ? r.info.knicke_gefunden : 0;
+  let m = `Blatt erkannt (Vision ${(r.confidence * 100).toFixed(0)} %), Kanten nachgemessen, Wölbung auf ${Object.keys(r.rundung || {}).length} Kante(n) gesetzt` + (draussen ? `, ${draussen} Ecke(n) außerhalb des Fotos extrapoliert` : '') + '.';
+  m += n ? (kf === n ? ` Alle ${n} Knicke gefunden.` : ` ${kf}/${n} Knicke gefunden — Rest gleichmäßig verteilt, bitte nachziehen.`) : '';
+  if (r.inhalt && r.inhalt.neigung_start != null) m += ` Textzeilen: ${r.inhalt.zeilen} erkannt, Restneigung ${r.inhalt.neigung_start.toFixed(2)}° → ${r.inhalt.neigung_ende.toFixed(2)}°.`;
+  if (fb.length) m += ` ⚠️ Keine Kante messbar bei: ${fb.join(', ')} (Vision-Schätzung übernommen).`;
+  status(m, fb.length ? '' : 'ok');
+};
+document.getElementById('reset').onclick = () => { seite().punkte = IDENT(seite().knicke); seite().maske = null; render(); zeigeVorschau(); };
+document.getElementById('rundReset').onclick = () => { seite().rundung = {}; gewKante = null; render(); zeigeVorschau(); };
+document.getElementById('verteilen').onclick = () => {
+  const s = seite(), P = s.punkte, n = s.knicke;
+  for (let i = 1; i <= n; i++) { const t = i / (n + 1); P[2 * i] = lerp(P[0], P[P.length - 2], t); P[2 * i + 1] = lerp(P[1], P[P.length - 1], t); }
+  render(); zeigeVorschau();
+};
+document.getElementById('dreh-l').onclick = () => drehen(-90);
+document.getElementById('dreh-r').onclick = () => drehen(90);
+async function drehen(grad) {
+  status('drehe …');
+  const r = await (await fetch('/drehen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seiten: daten.seiten, id: seite().id, grad }) })).json();
+  Object.assign(seite(), r.seite); seite().punkte = IDENT(seite().knicke); seite().rundung = {}; await zeige(idx); status('gedreht — Punkte zurückgesetzt');
+}
+document.getElementById('speichern').onclick = async () => {
+  const r = await (await fetch('/speichern', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seiten: daten.seiten }) })).json();
+  status(r.meldung, 'ok');
+};
+document.getElementById('voll').onclick = async () => {
+  status('rendere volle Vorschau …');
+  const r = await (await fetch('/vorschau_voll', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seiten: daten.seiten, id: seite().id }) })).json();
+  if (!r.ok) { status(r.meldung, 'err'); return; }
+  document.getElementById('modalbild').src = r.url; document.getElementById('modal').style.display = 'block'; status('Vorschau gerendert', 'ok');
+};
+document.getElementById('modal').onclick = () => { document.getElementById('modal').style.display = 'none'; };
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') document.getElementById('modal').style.display = 'none'; });
+document.getElementById('fertig').onclick = async () => {
+  status('baue PDF und beende …');
+  document.getElementById('fertig').disabled = true;
+  try {
+    const r = await (await fetch('/fertig', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seiten: daten.seiten }) })).json();
+    status(r.meldung, r.ok ? 'ok' : 'err');
+    if (r.ok) { document.body.innerHTML = '<div style="padding:40px;font:18px -apple-system,sans-serif;color:#e8e8ec;background:#1e1f24;height:100vh"><h2>✅ Fertig</h2><p>' + r.meldung + '</p><p>Dieser Tab kann geschlossen werden — Claude macht weiter.</p></div>'; setTimeout(() => window.close(), 800); }
+    else document.getElementById('fertig').disabled = false;
+  } catch (e) { status('Fehler: ' + e, 'err'); document.getElementById('fertig').disabled = false; }
+};
+document.getElementById('bauen').onclick = async () => {
+  status('baue PDF … (einige Sekunden pro Seite)');
+  document.getElementById('bauen').disabled = true;
+  try {
+    const r = await (await fetch('/bauen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seiten: daten.seiten }) })).json();
+    status(r.meldung, r.ok ? 'ok' : 'err');
+  } catch (e) { status('Fehler: ' + e, 'err'); }
+  document.getElementById('bauen').disabled = false;
+};
+
+// ------------------------------------------------------------------ Geometrie (identisch zum Server): Gitter je Paneel
+function loese(A, b) { // Gauß mit Pivot
+  const n = b.length;
+  for (let i = 0; i < n; i++) {
+    let p = i; for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r;
+    [A[i], A[p]] = [A[p], A[i]]; [b[i], b[p]] = [b[p], b[i]];
+    for (let r = i + 1; r < n; r++) { const f = A[r][i] / A[i][i]; for (let k = i; k < n; k++) A[r][k] -= f * A[i][k]; b[r] -= f * b[i]; }
+  }
+  const x = new Array(n);
+  for (let i = n - 1; i >= 0; i--) { let s = b[i]; for (let k = i + 1; k < n; k++) s -= A[i][k] * x[k]; x[i] = s / A[i][i]; }
+  return x;
+}
+function homographie(src, dst) { // 4 Paare → h[0..7] (h33 = 1)
+  const A = [], b = [];
+  for (let i = 0; i < 4; i++) { const [x, y] = src[i], [u, v] = dst[i]; A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u); A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v); }
+  return loese(A, b);
+}
+const anw = (h, x, y) => { const w = h[6] * x + h[7] * y + 1; return [(h[0] * x + h[1] * y + h[2]) / w, (h[3] * x + h[4] * y + h[5]) / w]; };
+function knicklagen(s, P, VH, qw, qh) {
+  const n = s.knicke, fmt = FORMATE[s.format] || [210, 297]; let ys = [0];
+  if (n) {
+    if (FORMATE[s.format]) for (let i = 0; i < n; i++) ys.push(Math.round(s.falz_mm[i] / fmt[1] * VH));
+    else { const L = []; for (let k = 0; k <= n; k++) L.push(Math.max(Math.hypot((P[2 * k][0] - P[2 * k + 2][0]) * qw, (P[2 * k][1] - P[2 * k + 2][1]) * qh), Math.hypot((P[2 * k + 1][0] - P[2 * k + 3][0]) * qw, (P[2 * k + 1][1] - P[2 * k + 3][1]) * qh)));
+      const sum = L.reduce((a, b) => a + b, 0); let akk = 0; for (let k = 0; k < n; k++) { akk += L[k]; ys.push(Math.round(akk / sum * VH)); } }
+  }
+  ys.push(VH); return ys;
+}
+// Gitterpunkt (u,v) in Paneel k → Quellpixel: exakte Homographie + Coons-Überlagerung der vier Randwölbungen
+function gitterPunkt(s, k, hk, u, v, x, y, qw, qh) {
+  const base = anw(hk, x, y), bl = 4 * v * (1 - v), bu = 4 * u * (1 - u);
+  const dL = dev(s, 'L' + k), dR = dev(s, 'R' + k), dT = dev(s, 'H' + k), dB = dev(s, 'H' + (k + 1));
+  const dx = ((1 - u) * dL[0] + u * dR[0]) * bl + ((1 - v) * dT[0] + v * dB[0]) * bu;
+  const dy = ((1 - u) * dL[1] + u * dR[1]) * bl + ((1 - v) * dT[1] + v * dB[1]) * bu;
+  return [base[0] + dx * qw, base[1] + dy * qh];
+}
+let vorTimer = null;
+function zeigeVorschau() { clearTimeout(vorTimer); vorTimer = setTimeout(zeichneVorschau, 30); }
+function zeichneVorschau() {
+  const s = seite(), P = s.punkte, n = s.knicke, fmt = FORMATE[s.format] || [210, 297];
+  const VW = 300, VH = Math.round(VW * fmt[1] / fmt[0]); vor.width = VW; vor.height = VH;
+  const Q = document.createElement('canvas'), QW = 900, QH = Math.round(900 * H() / W());
+  Q.width = QW; Q.height = QH; Q.getContext('2d').drawImage(bild, 0, 0, QW, QH);
+  const qd = Q.getContext('2d').getImageData(0, 0, QW, QH).data;
+  const out = vctx.createImageData(VW, VH), od = out.data;
+  const ys = knicklagen(s, P, VH, QW, QH);
+  for (let k = 0; k <= n; k++) {
+    const src = [[P[2 * k][0] * QW, P[2 * k][1] * QH], [P[2 * k + 1][0] * QW, P[2 * k + 1][1] * QH], [P[2 * k + 3][0] * QW, P[2 * k + 3][1] * QH], [P[2 * k + 2][0] * QW, P[2 * k + 2][1] * QH]];
+    const y0 = ys[k], y1 = ys[k + 1], hk = homographie([[0, y0], [VW, y0], [VW, y1], [0, y1]], src);
+    for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+      const xa = Math.round(i * VW / NX), xb = Math.round((i + 1) * VW / NX), ya = y0 + Math.round(j * (y1 - y0) / NY), yb = y0 + Math.round((j + 1) * (y1 - y0) / NY);
+      const ecken = [[xa, ya], [xb, ya], [xb, yb], [xa, yb]].map(([x, y]) => gitterPunkt(s, k, hk, x / VW, (y - y0) / (y1 - y0), x, y, QW, QH));
+      const h = homographie([[xa, ya], [xb, ya], [xb, yb], [xa, yb]], ecken);
+      for (let y = ya; y < yb; y++) for (let x = xa; x < xb; x++) {
+        const [sxf, syf] = anw(h, x, y), sx = Math.round(sxf), sy = Math.round(syf), o = (y * VW + x) * 4;
+        if (sx < 0 || sy < 0 || sx >= QW || sy >= QH) { od[o] = od[o + 1] = od[o + 2] = 255; od[o + 3] = 255; continue; }
+        const q = (sy * QW + sx) * 4; od[o] = qd[q]; od[o + 1] = qd[q + 1]; od[o + 2] = qd[q + 2]; od[o + 3] = 255;
+      }
+    }
+  }
+  vctx.putImageData(out, 0, 0);
+  vctx.strokeStyle = 'rgba(111,211,138,0.8)'; vctx.setLineDash([4, 4]);
+  for (let k = 1; k <= n; k++) { vctx.beginPath(); vctx.moveTo(0, ys[k]); vctx.lineTo(VW, ys[k]); vctx.stroke(); }
+}
+lade();
+</script>
+</body></html>
