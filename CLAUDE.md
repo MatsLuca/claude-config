@@ -4,9 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A personal **Claude Code plugin marketplace** — not an app. There is no build step. The
-"source" is a set of structured Markdown + JSON manifests that Claude Code loads as
-slash-commands and subagents. There **is** a check: `tools/validate.sh` verifies manifests,
+**A toolbox for working with Claude that sharpens itself through the work done with it**
+(purpose fixed by `/neudenken`, 2026-08-24). Technically a personal **Claude Code plugin
+marketplace** — not an app, no build step: structured Markdown + JSON manifests that Claude
+Code loads as slash-commands, subagents and skills. The private sibling `claude-werkstatt`
+holds everything with code, accounts or private notes (aliases `kasten` / `werkstatt`;
+placement rule and recipes in `~/.claude/reference/werkzeugkasten.md`). There **is** a check: `tools/validate.sh` verifies manifests,
 frontmatter, listing sync, plugin-internal references, and portability — run it after any
 change to commands/agents/manifests (CI runs it on every push via
 `.github/workflows/validate.yml`). Behavior is verified against the outcome-level scenarios
@@ -116,32 +119,24 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
 
-## Aktueller Stand (2026-08-24)
+## Aktueller Stand (2026-08-24, abends)
 
-Nach dem Audit-Pass (Privacy, Validator-Härtung, Evals — Details `HISTORIE.md`) hat ein
-`/neudenken` den Zweck neu gefasst: **ein Werkzeugkasten für die Arbeit mit Claude, der sich durch
-die Arbeit mit ihm selbst schärft.** Freunde sind Empfänger von Geschenken, kein Vertrag. Plan mit
-vier Wellen — **alle umgesetzt am 24.08.** — Protokoll in `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
+`/neudenken` → Zweck-Satz (oben) → Plan mit vier Wellen, **alle am 24.08. umgesetzt** (Protokoll:
+`../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`; Welle-Details in `HISTORIE.md`):
 
-- **Welle 1 (Trennen) — erledigt:** Werkstatt (`skills/`, `plans/`, `_lokal`-Inhalte) ins private
-  Repo `claude-werkstatt` gezogen, Symlinks umgebogen, `_lokal/` dort aufgelöst. Hier entfernt:
-  `skills/`, `plans/`, `--skills-only`/`-SkillsOnly`, Validator-Checks 7 + 8, Werkstatt-Evals.
-  Sperrliste `~/.config/claude-config/privat-lint.txt` bleibt als Rezept (`~/.claude/reference/privacy.md`).
-- **Welle 4 (Kontext-Gerüst) — erledigt:** `~/.claude/CLAUDE.md` hat die Werkzeugkasten-Regel,
-  `~/.claude/reference/werkzeugkasten.md` trägt Orte, Skill-Weg, Loop, Ritus, Neuer-Mac-Rezept;
-  `privacy.md` auf „Struktur statt Lint" umgestellt; Memory, zsh-Alias `claude-werkstatt`,
-  Wiedervorlage 2026-09-24 (Legacy-Pfad in `start.sh`).
-- **Welle 3 (Loop scharf) — erledigt:** `tools/eval.sh` (Szenarien `finish-lite:sync`,
-  `finish-lite:synchron`, `xcode:leer` + freier Lauf; erster Lauf 6/6 grün), `/optimieren` kennt
-  Werkstatt-Ziele + `<werkstatt>/evals.md` + Runner, Guide trägt Zweck-Satz und Werkstatt→Plugin,
-  Ritus in den Conventions oben.
-- **Welle 2 (Schneiden) — erledigt:** News-Kanal reine Info (kein `<!-- aktion -->`, kein
-  Auto-Prompt, kein Nachrüst-Modus; `<!-- claude: -->` = Hinweis, nicht Auftrag; Eintrag 22.08.
-  durch Info-Eintrag ersetzt). `machine-setup` = `shell/setup.sh` (deterministisch, Marker,
-  Sandbox-getestet im Validator-Check 7) + dünner Agent (Urteil: Konflikte, Diffs, Rendering).
-  Dreifach-Listung aufgelöst (README einzige Liste, Manifeste statisch). README-Story = Zweck-Satz
-  + „Der Loop". `start.sh`-Legacy-Pfad am Abend entfernt (ein Vertrag für alle Wrapper; alte
-  Wrapper sehen die Fetch-Zeile ggf. doppelt, bis sie einmal `machine-setup` laufen lassen).
+- **Getrennt:** Werkstatt (`skills/` mit Code, `plans/`) → privates `claude-werkstatt`; hier nichts
+  Privates mehr per Konstruktion (Checks 7/8, Sperrlisten-Lint weg). −3400 Zeilen insgesamt.
+- **Geschnitten:** News reine Info (kein Auto-Prompt/Nachrüst-Modus); `machine-setup` =
+  `shell/setup.sh` (Marker, Sandbox-Test = Validator-Check 7) + dünner Agent; README einzige Liste;
+  `start.sh` hat nur noch einen Wrapper-Vertrag (`MATS_TOOLS_SYNCED`).
+- **Loop scharf:** `tools/eval.sh` (headless, Fixtures, 6/6 grün), `/optimieren` kennt Werkstatt-Ziele,
+  Ritus in den Conventions.
+- **Kontext-Gerüst:** Router-Regel + `~/.claude/reference/werkzeugkasten.md` (Ortsfrage statt Pflichtweg,
+  „mach das global"-Rezept), Memory, Aliase `kasten`/`werkstatt`, eigener Wrapper = dünner Vertrag +
+  Werkstatt-Pull beim Start.
+- Live geprüft: Plugin-Cache `e6f2a91`, Startzeilen `🔄 mats-tools` / `🔧 Werkstatt`, Setup-Kette aus dem
+  Cache im Sandbox-HOME, auf diesem Mac meldet der Agent korrekt `WRAPPER_CONFLICT`/`STATUSLINE_DIFFERS`
+  (Kickbacks-Block)/`SETTINGS_DIFFERS` und fasst nichts an.
 
 ## HIER WEITERMACHEN
 
@@ -151,5 +146,7 @@ vier Wellen — **alle umgesetzt am 24.08.** — Protokoll in `../claude-werksta
       danach Anfragetext + beide Bundles in `9_Temp/` löschen.
 - [ ] PowerShell-Block (`setup.sh`, `PWSH_BLOCK`) bewährt sich erst beim ersten echten Windows-Lauf —
       der Agent bittet den Nutzer dann um den Testlauf; nichts vorab zu tun.
+- [ ] Erster echter Neu-Rechner (oder Wegwerf-Container): den `machine-setup`-Agenten einmal ganz
+      durchlaufen sehen (Recon → Skript → Marker deuten → Bericht) — der Prosa-Teil ist noch nie live gelaufen.
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents` → `/optimieren claude-md`; `inventar.sh`
       GNU-Zweig einmal im Container laufen lassen.

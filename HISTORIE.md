@@ -2,6 +2,33 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## Stand bis 2026-08-24 (Umbau-Wellen 1–4, Detail)
+
+Nach dem Audit-Pass (Privacy, Validator-Härtung, Evals — Details `HISTORIE.md`) hat ein
+`/neudenken` den Zweck neu gefasst: **ein Werkzeugkasten für die Arbeit mit Claude, der sich durch
+die Arbeit mit ihm selbst schärft.** Freunde sind Empfänger von Geschenken, kein Vertrag. Plan mit
+vier Wellen — **alle umgesetzt am 24.08.** — Protokoll in `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
+
+- **Welle 1 (Trennen) — erledigt:** Werkstatt (`skills/`, `plans/`, `_lokal`-Inhalte) ins private
+  Repo `claude-werkstatt` gezogen, Symlinks umgebogen, `_lokal/` dort aufgelöst. Hier entfernt:
+  `skills/`, `plans/`, `--skills-only`/`-SkillsOnly`, Validator-Checks 7 + 8, Werkstatt-Evals.
+  Sperrliste `~/.config/claude-config/privat-lint.txt` bleibt als Rezept (`~/.claude/reference/privacy.md`).
+- **Welle 4 (Kontext-Gerüst) — erledigt:** `~/.claude/CLAUDE.md` hat die Werkzeugkasten-Regel,
+  `~/.claude/reference/werkzeugkasten.md` trägt Orte, Skill-Weg, Loop, Ritus, Neuer-Mac-Rezept;
+  `privacy.md` auf „Struktur statt Lint" umgestellt; Memory, zsh-Alias `claude-werkstatt`,
+  Wiedervorlage 2026-09-24 (Legacy-Pfad in `start.sh`).
+- **Welle 3 (Loop scharf) — erledigt:** `tools/eval.sh` (Szenarien `finish-lite:sync`,
+  `finish-lite:synchron`, `xcode:leer` + freier Lauf; erster Lauf 6/6 grün), `/optimieren` kennt
+  Werkstatt-Ziele + `<werkstatt>/evals.md` + Runner, Guide trägt Zweck-Satz und Werkstatt→Plugin,
+  Ritus in den Conventions oben.
+- **Welle 2 (Schneiden) — erledigt:** News-Kanal reine Info (kein `<!-- aktion -->`, kein
+  Auto-Prompt, kein Nachrüst-Modus; `<!-- claude: -->` = Hinweis, nicht Auftrag; Eintrag 22.08.
+  durch Info-Eintrag ersetzt). `machine-setup` = `shell/setup.sh` (deterministisch, Marker,
+  Sandbox-getestet im Validator-Check 7) + dünner Agent (Urteil: Konflikte, Diffs, Rendering).
+  Dreifach-Listung aufgelöst (README einzige Liste, Manifeste statisch). README-Story = Zweck-Satz
+  + „Der Loop". `start.sh`-Legacy-Pfad am Abend entfernt (ein Vertrag für alle Wrapper; alte
+  Wrapper sehen die Fetch-Zeile ggf. doppelt, bis sie einmal `machine-setup` laufen lassen).
+
 ## Stand bis 2026-08-24 (Audit-Pass, vor der Trennung)
 
 Der `/neudenken`-Pass (News-Kanal generisch, dünner Wrapper-Vertrag in `shell/start.sh`,
