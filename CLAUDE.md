@@ -151,10 +151,10 @@ Infrastruktur/Shell, Privacy/Doku) + Umsetzung der Befunde:
   setzen, Fetch/Autoprompt-Teil entfernen) — Kickbacks-Blöcke bleiben.
 - [ ] Erstes echtes Exemplar des autonomen Nachrüstens kommt von einem der Jungs — deren
   Zwei-Sätze-Zusammenfassung einholen; Windows-Zweig (Step 1W) danach korrigieren, falls nötig.
-- [ ] **Mats:** GitHub-Support-Anfrage abschicken — fertiger Text mit allen SHAs liegt in
-  `~/Documents/9_Temp/github-support-anfrage_claude-config_2026-08-24.md` (Historie wurde am
-  24.08. per `filter-repo --replace-text` bereinigt und force-gepusht: Adresse + Kita-Beispiel
-  raus, alle SHAs ab 23.08. neu; Backup-Bundle in `9_Temp`, nach Erledigung löschen).
+- [ ] GitHub-Support-Ticket „purge cached sensitive data" ist **eingereicht** (24.08., Kategorie
+  Repositories/Branches, alle 9 SHAs aus beiden Rewrites) — auf Antwort warten, danach
+  stichprobenartig alte SHAs auf github.com prüfen; dann Anfragetext + Backup-Bundle in
+  `~/Documents/9_Temp/` löschen (Bundle enthält die Adresse noch).
 - [ ] Optional: Nachrüst-Modus auf einer Test-Maschine/Container live durchspielen (auf diesem
   Mac bewusst nicht — eigener `claude()`-Wrapper).
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents`, Budgets/Kopfzeilen prüfen →
