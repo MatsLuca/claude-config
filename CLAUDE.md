@@ -140,14 +140,16 @@ vier Wellen — **alle umgesetzt am 24.08.** — Protokoll in `../claude-werksta
   durch Info-Eintrag ersetzt). `machine-setup` = `shell/setup.sh` (deterministisch, Marker,
   Sandbox-getestet im Validator-Check 7) + dünner Agent (Urteil: Konflikte, Diffs, Rendering).
   Dreifach-Listung aufgelöst (README einzige Liste, Manifeste statisch). README-Story = Zweck-Satz
-  + „Der Loop". `start.sh`-Legacy-Pfad (alter Wrapper ohne `MATS_TOOLS_SYNCED`) bleibt, bis
-  beide Freunde bestätigt haben.
+  + „Der Loop". `start.sh`-Legacy-Pfad am Abend entfernt (ein Vertrag für alle Wrapper; alte
+  Wrapper sehen die Fetch-Zeile ggf. doppelt, bis sie einmal `machine-setup` laufen lassen).
 
 ## HIER WEITERMACHEN
 
-- [ ] Bei den Jungs nachfragen, ob die Aktions-Nachricht vom 22.08. schon angekommen ist
-      (Zwei-Sätze-Zusammenfassung); Windows-Zweig danach ggf. korrigieren.
-- [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.) — auf Antwort warten,
-      dann alte SHAs stichprobenartig prüfen, danach Anfragetext + Backup-Bundles in `9_Temp/` löschen.
+- [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.; Kontrolle 24.08. abends:
+      alle 9 alten SHAs noch 200) — auf Antwort warten, dann erneut prüfen
+      (`curl -o /dev/null -w '%{http_code}' https://github.com/MatsLuca/claude-config/commit/<sha>`),
+      danach Anfragetext + beide Bundles in `9_Temp/` löschen.
+- [ ] PowerShell-Block (`setup.sh`, `PWSH_BLOCK`) bewährt sich erst beim ersten echten Windows-Lauf —
+      der Agent bittet den Nutzer dann um den Testlauf; nichts vorab zu tun.
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents` → `/optimieren claude-md`; `inventar.sh`
       GNU-Zweig einmal im Container laufen lassen.

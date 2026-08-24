@@ -4,17 +4,12 @@
 # auf alle Maschinen. Muss POSIX-sh-kompatibel bleiben und darf nicht hängen (Netz nur mit
 # Zeitlimit).
 #
-# Vertrag mit dem Wrapper:
+# Vertrag mit dem Wrapper (der dünne Block aus shell/setup.sh):
 #   rein  MATS_TOOLS_DIR     aktiver Plugin-Ordner (optional, sonst selbst ermittelt)
-#         MATS_TOOLS_SYNCED  0 = Plugin-Sync ok, 1 = fehlgeschlagen/Timeout. Nur der dünne
-#                            Wrapper (ab 2026-08-23) setzt sie; ist sie unverändert leer, ist
-#                            es ein älterer Wrapper, der Update-Check, Repo-Fetch und
-#                            Auto-Prompt noch selbst macht — dann hier nur Startzeile + Datei.
-#         "$@"               die claude-Argumente (beim Sourcen in der Funktion sichtbar)
-#   raus  MATS_TOOLS_PROMPT  immer leer. (Bis 24.08.2026 trug sie einen Auto-Prompt aus einer
-#                            NEWS-Aktion; der Kanal ist seitdem reine Information. Wrapper, die
-#                            die Variable oder ~/.claude/mats-tools-autoprompt noch lesen, finden
-#                            nichts und starten normal.)
+#         MATS_TOOLS_SYNCED  0 = Plugin-Sync ok (Default), 1 = fehlgeschlagen/Timeout
+#   raus  MATS_TOOLS_PROMPT  immer leer (Altlast; ältere Wrapper lesen sie noch und starten normal)
+# Ältere Wrapper (vor setup.sh), die Update-Check und Repo-Fetch selbst machen, sehen die
+# Fetch-Zeile ggf. doppelt — behoben durch einmal „Führe das machine-setup durch.".
 
 # Aktiver mats-tools-Ordner im Plugin-Cache: laut installed_plugins.json (user-scope);
 # Fallback: jüngster Versionsordner. (Ein Update berührt auch den alten Ordner — mtime allein
@@ -53,36 +48,28 @@ _mats_tools_alter() {
   fi
 }
 
-_mt="${MATS_TOOLS_DIR:-$(_mats_tools_dir)}"
-_thin="${MATS_TOOLS_SYNCED+x}"   # gesetzt = dünner Wrapper, Start-Logik liegt hier
-
-# ── Täglicher Selbst-Update-Check von Claude Code (nur dünner Wrapper) ─────────────────
-if [ -n "$_thin" ]; then
-  _luf="$HOME/.claude_last_update"; _today=$(date +%Y-%m-%d)
-  if [ "$_today" != "$(cat "$_luf" 2>/dev/null)" ]; then
-    echo "⏳ Täglicher Update-Check für Claude Code…"
-    _mats_tools_timeout 60 claude update >/dev/null 2>&1
-    echo "$_today" > "$_luf"
-  fi
-  unset _luf _today
+# ── Täglicher Selbst-Update-Check von Claude Code ──────────────────────────────────────
+_luf="$HOME/.claude_last_update"; _today=$(date +%Y-%m-%d)
+if [ "$_today" != "$(cat "$_luf" 2>/dev/null)" ]; then
+  echo "⏳ Täglicher Update-Check für Claude Code…"
+  _mats_tools_timeout 60 claude update >/dev/null 2>&1
+  echo "$_today" > "$_luf"
 fi
+unset _luf _today
 
 # ── Startzeile ─────────────────────────────────────────────────────────────────────────
-if [ -z "$_thin" ] || [ "${MATS_TOOLS_SYNCED:-0}" = 0 ]; then
+if [ "${MATS_TOOLS_SYNCED:-0}" = 0 ]; then
   echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
 else
   echo "⚠️  mats-tools-Sync übersprungen (offline/Timeout) — Stand: Update $(_mats_tools_alter || echo unbekannt)"
 fi
 
-# ── Repo-Frische: hängt der lokale Klon hinter origin? (nur dünner Wrapper) ───────────
-if [ -n "$_thin" ] && git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+# ── Repo-Frische: hängt der lokale Klon hinter origin? ─────────────────────────────────
+if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
   GIT_TERMINAL_PROMPT=0 _mats_tools_timeout 5 git fetch --quiet 2>/dev/null
   _behind=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null)
   [ "${_behind:-0}" -gt 0 ] && echo "⬇️  Repo hängt $_behind Commit(s) hinter $(git rev-parse --abbrev-ref '@{u}') — ggf. git pull."
   unset _behind
 fi
 
-# ── Kein Auto-Prompt mehr (Vertrag oben); Altlast-Datei wegräumen, falls vorhanden ─────
 MATS_TOOLS_PROMPT=""
-rm -f "$HOME/.claude/mats-tools-autoprompt"
-unset _mt _thin
