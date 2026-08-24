@@ -121,12 +121,16 @@ Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verif
 Nach dem Audit-Pass (Privacy, Validator-Härtung, Evals — Details `HISTORIE.md`) hat ein
 `/neudenken` den Zweck neu gefasst: **ein Werkzeugkasten für die Arbeit mit Claude, der sich durch
 die Arbeit mit ihm selbst schärft.** Freunde sind Empfänger von Geschenken, kein Vertrag. Plan mit
-vier Wellen: `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
+vier Wellen — **alle umgesetzt am 24.08.** — Protokoll in `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
 
 - **Welle 1 (Trennen) — erledigt:** Werkstatt (`skills/`, `plans/`, `_lokal`-Inhalte) ins private
   Repo `claude-werkstatt` gezogen, Symlinks umgebogen, `_lokal/` dort aufgelöst. Hier entfernt:
   `skills/`, `plans/`, `--skills-only`/`-SkillsOnly`, Validator-Checks 7 + 8, Werkstatt-Evals.
   Sperrliste `~/.config/claude-config/privat-lint.txt` bleibt als Rezept (`~/.claude/reference/privacy.md`).
+- **Welle 4 (Kontext-Gerüst) — erledigt:** `~/.claude/CLAUDE.md` hat die Werkzeugkasten-Regel,
+  `~/.claude/reference/werkzeugkasten.md` trägt Orte, Skill-Weg, Loop, Ritus, Neuer-Mac-Rezept;
+  `privacy.md` auf „Struktur statt Lint" umgestellt; Memory, zsh-Alias `claude-werkstatt`,
+  Wiedervorlage 2026-09-24 (Legacy-Pfad in `start.sh`).
 - **Welle 3 (Loop scharf) — erledigt:** `tools/eval.sh` (Szenarien `finish-lite:sync`,
   `finish-lite:synchron`, `xcode:leer` + freier Lauf; erster Lauf 6/6 grün), `/optimieren` kennt
   Werkstatt-Ziele + `<werkstatt>/evals.md` + Runner, Guide trägt Zweck-Satz und Werkstatt→Plugin,
@@ -141,8 +145,6 @@ vier Wellen: `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
 
 ## HIER WEITERMACHEN
 
-- [ ] **Welle 4 (Kontext-Gerüst):** `~/.claude/CLAUDE.md`-Regel + `reference/werkzeugkasten.md`,
-      `privacy.md` anpassen, Memory, zsh-Alias `claude-werkstatt`, Wiedervorlage Legacy-Pfad.
 - [ ] Bei den Jungs nachfragen, ob die Aktions-Nachricht vom 22.08. schon angekommen ist
       (Zwei-Sätze-Zusammenfassung); Windows-Zweig danach ggf. korrigieren.
 - [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.) — auf Antwort warten,
