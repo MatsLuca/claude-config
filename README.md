@@ -1,16 +1,17 @@
 # claude-config
 
-> **Mein Claude Code — auf jedem Rechner identisch.**
+> **Ein Werkzeugkasten für die Arbeit mit Claude, der sich durch die Arbeit mit ihm selbst schärft.**
 
 ![Platform](https://img.shields.io/badge/platform-macOS%20·%20Linux%20·%20Windows-blue)
 ![Plugin](https://img.shields.io/badge/plugin-mats--tools-8A2BE2)
 ![Updates](https://img.shields.io/badge/updates-automatisch%20per%20git%20SHA-success)
 [![validate](https://github.com/MatsLuca/claude-config/actions/workflows/validate.yml/badge.svg)](https://github.com/MatsLuca/claude-config/actions/workflows/validate.yml)
 
-Ein persönlicher **Claude-Code-Marketplace** mit einem Plugin (`mats-tools`): meine
-Slash-Commands und Subagents, geräteübergreifend versioniert und synchronisiert.
-Neuer Laptop, Codespace oder Container? Ein Befehl — und die komplette Werkbank ist da:
-vom Git-Workflow über PDF→Markdown bis zum fertig eingerichteten Terminal.
+Ein persönlicher **Claude-Code-Marketplace** mit einem Plugin, `mats-tools`: die Werkzeuge
+(Commands, Agents, Skills) *und* der Loop, der sie besser macht — `/optimieren` schärft jeden
+Baustein gegen einen Authoring-Standard und Outcome-Evals, `/neudenken` stellt bei jedem neuen
+Modell die Prämissen infrage. Per git-SHA versioniert, auf jedem Rechner identisch: neuer Laptop,
+Codespace oder Container — ein Befehl, und die Werkbank ist da.
 
 ---
 
@@ -82,7 +83,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | Agent | Zweck |
 |---|---|
 | `pdf-to-markdown` | Beliebige PDFs in LLM-optimiertes Markdown konvertieren — erkennt Klausur / Folien / generisch und wählt die passende Struktur |
-| `machine-setup` | Frische Claude-Code-Installation einrichten wie zuhause: `yolo`-Alias, Status Line, Plugin-Auto-Update + Repo-Frische-Check beim Start (Startzeile kommt aus dem Plugin, `shell/start.sh`), settings.json-Defaults; in Codespaces/Remote zusätzlich VS Code (Dark Mode, Copilot-Chat aus); auf Windows PowerShell-Profil statt rc-Datei. Portabel (macOS + Linux + Windows), idempotent |
+| `machine-setup` | Frische Claude-Code-Installation einrichten wie zuhause — führt `shell/setup.sh` aus (`yolo`-Alias, Auto-Update-Wrapper, Status Line, settings.json-Defaults; VS Code in Codespaces; PowerShell-Profil auf Windows) und kümmert sich nur um das, was Urteil braucht: fremde Wrapper, angepasste Dateien, Terminal-Rendering. Idempotent, portabel |
 
 ### 🧩 Skills
 
@@ -97,17 +98,20 @@ liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 
 ---
 
-## ✅ Verifikation
+## 🔁 Der Loop
 
-Zwei Ebenen halten das Repo gesund — auch wenn Claude selbst daran weiterbaut:
+Der Kasten verbessert sich durch die Arbeit mit sich selbst:
 
-- **Strukturell (automatisch):** `tools/validate.sh` prüft Manifeste, Frontmatter,
-  Listing-Sync, Eval-Abdeckung, Plugin-Referenzen und Portabilität (BSD↔GNU). Läuft lokal und
-  bei jedem Push als GitHub Action.
-- **Verhalten (Szenarien):** `mats-tools/reference/evals.md` beschreibt pro
-  Command/Agent/Skill die erwarteten **Outcomes** — bewusst implementierungs-agnostisch,
-  damit bessere Umsetzungen nie an alten Details scheitern. Ausführbar interaktiv
-  oder headless (`claude -p "/command"` im Wegwerf-Fixture).
+- **Bauen:** Skills mit Code entstehen in der privaten Werkstatt (Symlink nach `~/.claude/skills`)
+  und graduieren hierher, sobald sie markdown-rein und auch für andere nützlich sind.
+- **Schärfen:** `/optimieren <baustein>` prüft gegen den Authoring-Standard
+  (`mats-tools/reference/authoring-guide.md`) und die Outcome-Evals (`reference/evals.md`) —
+  die beschreiben *beobachtbares Verhalten*, nie Implementierung, damit eine bessere
+  Umsetzung nie an alten Details scheitert.
+- **Neu denken:** Neues Modell, neue Claude-Code-Fähigkeit → `/neudenken` über den Kasten.
+- **Absichern:** `tools/validate.sh` (lokal + GitHub Action bei jedem Push) prüft Manifeste,
+  Frontmatter, README-Listing, Eval-Abdeckung, Plugin-Referenzen, Portabilität (BSD↔GNU) und
+  lässt `shell/setup.sh` real in einem Sandbox-HOME laufen.
 
 ---
 
@@ -132,11 +136,10 @@ Manuell braucht es nur, falls der Wrapper (noch) nicht eingerichtet ist:
 Wer das Plugin installiert hat, zieht es bei jedem Start. Das ist auch ein Nachrichtenkanal:
 ein neuer Eintrag oben in `mats-tools/NEWS.md` (`## <Datum> · <Titel>` + kurzer Text) wird
 beim nächsten Session-Start **einmal** im Terminal angezeigt und Claude als Kontext mitgegeben.
-Soll Claude dabei etwas *tun*, steht die Anweisung im Eintrag selbst (Block `<!-- claude: … -->`,
-unsichtbar im Terminal); `<!-- aktion -->` lässt Claude von selbst loslegen, ohne dass jemand tippt.
-Der Hook kennt keine einzelne Nachricht — jede bringt ihre Anweisung mit. Gelesenes merkt sich
-`~/.claude/mats-tools-news-seen`; `hooks/news.sh --reset` zeigt alles erneut, `--peek` zeigt
-ohne zu markieren, `--context` zeigt, was Claude bekommt.
+Ein Block `<!-- claude: … -->` (unsichtbar im Terminal) ist ein Hinweis an Claude — etwa wie man
+einen neuen Skill benutzt —, nie ein Auftrag: nichts wird von selbst umgebaut. Gelesenes merkt
+sich `~/.claude/mats-tools-news-seen`; `hooks/news.sh --reset` zeigt alles erneut, `--peek`
+zeigt ohne zu markieren, `--context` zeigt, was Claude bekommt.
 
 ## 🗂️ Struktur
 
@@ -157,7 +160,8 @@ claude-config/
     ├── agents/                   # Subagents (*.md)
     ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
     ├── hooks/                    # SessionStart-Hook: zeigt NEWS.md-Einträge einmal + gibt sie Claude als Kontext
-    ├── shell/start.sh            # Start-Logik des claude()-Wrappers: Update-Check, Startzeile, Repo-Frische, Auto-Prompt (per Plugin-Update fernsteuerbar; der Wrapper selbst bleibt dünn)
+    ├── shell/start.sh            # Start-Logik des claude()-Wrappers: Update-Check, Startzeile, Repo-Frische (ändert sich per Plugin-Update; der Wrapper bleibt dünn)
+    ├── shell/setup.sh            # der Installer hinter machine-setup: Wrapper-Block, Status Line, settings.json, VS Code — idempotent, im Validator sandbox-getestet
     ├── NEWS.md                   # Nachrichten an alle Abonnenten (neuester Eintrag oben)
     ├── statusline/               # vendored Status-Line-Skript (vom machine-setup Agent installiert)
     └── reference/                # Authoring-Standard + Eval-Szenarien

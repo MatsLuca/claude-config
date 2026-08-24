@@ -5,9 +5,8 @@
 # Prüft alles, was sich mechanisch prüfen lässt:
 #   1. Manifeste sind valides JSON; plugin.json hat keinen version-Key (SHA = Version).
 #   2. Jeder Command/Agent/Skill hat vollständiges Frontmatter.
-#   3. Listing-Sync: jeder Command/Agent/Skill ist in README, plugin.json und
-#      marketplace.json erwähnt (die Dreifach-Listung driftet sonst) — und hat einen
-#      Abschnitt in reference/evals.md (sonst ist er vom Optimier-Loop abgekoppelt).
+#   3. Listing-Sync: jeder Command/Agent/Skill steht in README.md (einzige Liste) — und hat
+#      einen Abschnitt in reference/evals.md (sonst ist er vom Optimier-Loop abgekoppelt).
 #   4. Plugin-interne ${CLAUDE_PLUGIN_ROOT}-Referenzen (*.md und *.json, also auch
 #      hooks.json) zeigen auf existierende Dateien.
 #   5. Portabilitäts-Lint: BSD-only Aufrufe (date -v / stat -f) nur mit GNU-Fallback
@@ -15,6 +14,8 @@
 #      statusline und bootstrap.sh.
 #   6. Shell-Syntax (bash -n) aller Skripte; bootstrap.ps1 per pwsh-Parse, wo pwsh da ist.
 #      Dazu: NEWS.md hat höchstens einen <!-- claude: -->-Block pro Eintrag.
+#   7. shell/setup.sh läuft in einem Sandbox-HOME zweimal durch: Block genau einmal, rc parst
+#      in bash, settings.json valide — der Installer ist damit real getestet, nicht nur gelesen.
 #
 # Verhaltens-Evals (reference/evals.md) prüft das hier NICHT — die laufen headless
 # bzw. manuell, siehe den Loop-Abschnitt in evals.md.
@@ -69,8 +70,6 @@ for f in mats-tools/commands/*.md; do
     fail "$f: kein YAML-Frontmatter"
   fi
   grep -q "/$name" "$README"      || fail "Command /$name fehlt in README.md"
-  grep -q "$name" "$PLUGIN_JSON"  || fail "Command $name fehlt in der plugin.json-description"
-  grep -q "$name" "$MARKET_JSON"  || fail "Command $name fehlt in der marketplace.json-description"
   grep -Eq "^## /$name( |$)" "$EVALS" || fail "Command /$name hat keinen Abschnitt in $EVALS (Outcome-Evals)"
 done
 ok "Commands: Frontmatter + Listing-Sync + Eval-Abdeckung geprüft"
@@ -90,8 +89,6 @@ for f in mats-tools/agents/*.md; do
     fail "$f: kein YAML-Frontmatter"
   fi
   grep -q "$base" "$README"      || fail "Agent $base fehlt in README.md"
-  grep -q "$base" "$PLUGIN_JSON" || fail "Agent $base fehlt in der plugin.json-description"
-  grep -q "$base" "$MARKET_JSON" || fail "Agent $base fehlt in der marketplace.json-description"
   grep -q "^## $base (Agent)" "$EVALS" || fail "Agent $base hat keinen Abschnitt in $EVALS (Outcome-Evals)"
 done
 ok "Agents: Frontmatter + Listing-Sync + Eval-Abdeckung geprüft"
@@ -110,8 +107,6 @@ for f in mats-tools/skills/*/SKILL.md; do
     fail "$f: kein YAML-Frontmatter"
   fi
   grep -q "$dir" "$README"      || fail "Skill $dir fehlt in README.md"
-  grep -q "$dir" "$PLUGIN_JSON" || fail "Skill $dir fehlt in der plugin.json-description"
-  grep -q "$dir" "$MARKET_JSON" || fail "Skill $dir fehlt in der marketplace.json-description"
   grep -q "^## $dir (Skill)" "$EVALS" || fail "Skill $dir hat keinen Abschnitt in $EVALS (Outcome-Evals)"
 done
 ok "Skills: Frontmatter + Listing-Sync + Eval-Abdeckung geprüft"
@@ -159,6 +154,25 @@ doppel=$(awk '/^## / { if (n > 1) print head; head=$0; n=0 } /<!-- claude:/ { n+
               END { if (n > 1) print head }' mats-tools/NEWS.md)
 [ -z "$doppel" ] && ok "NEWS.md: max. ein claude-Block pro Eintrag" \
   || fail "NEWS.md: mehrere <!-- claude: -->-Blöcke in Eintrag: $doppel"
+
+# ── 7. shell/setup.sh im Sandbox-HOME (Idempotenz) ────────────────────────────
+SB=$(mktemp -d)
+if CLAUDE_PLUGIN_ROOT="$PWD/mats-tools" HOME="$SB" bash mats-tools/shell/setup.sh --rc "$SB/.bashrc" >"$SB/run1.log" 2>&1 \
+   && CLAUDE_PLUGIN_ROOT="$PWD/mats-tools" HOME="$SB" bash mats-tools/shell/setup.sh --rc "$SB/.bashrc" >"$SB/run2.log" 2>&1; then
+  n=$(grep -c '>>> mats-tools machine-setup >>>' "$SB/.bashrc" 2>/dev/null || echo 0)
+  [ "$n" = 1 ] || fail "setup.sh: Managed Block $n-mal in der rc-Datei (erwartet 1)"
+  bash -n "$SB/.bashrc" 2>/dev/null || fail "setup.sh: erzeugte rc-Datei parst nicht in bash"
+  [ -x "$SB/.claude/statusline-command.sh" ] || fail "setup.sh: Status Line nicht installiert"
+  if command -v jq >/dev/null 2>&1; then
+    jq -e '.model == "opus" and .enabledPlugins["mats-tools@claude-config"] == true' "$SB/.claude/settings.json" >/dev/null 2>&1 \
+      || fail "setup.sh: settings.json nicht wie erwartet gemerged"
+  fi
+  grep -q '^WRAPPER_CONFLICT' "$SB/run2.log" && fail "setup.sh: eigener Block wird im 2. Lauf als fremder Wrapper erkannt"
+  ok "shell/setup.sh: Sandbox-Lauf idempotent (Block 1×, rc parst, settings gemerged)"
+else
+  fail "setup.sh: Sandbox-Lauf fehlgeschlagen — siehe $SB/run*.log"
+fi
+[ "$FAILS" -gt 0 ] || rm -rf "$SB"
 
 # ── Ergebnis ──────────────────────────────────────────────────────────────────
 echo

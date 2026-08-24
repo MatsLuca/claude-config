@@ -33,6 +33,10 @@ Three nesting levels, each with its own manifest:
      = messaging every subscriber at their next session start.
    - `mats-tools/shell/start.sh` → sourced by the `claude()` wrapper that `machine-setup`
      installs; the wrapper in the rc file stays thin, the start line evolves here.
+   - `mats-tools/shell/setup.sh` → the deterministic installer behind `machine-setup` (managed
+     rc block, status line, settings.json merge, VS Code tweaks). The agent only runs it and
+     handles its markers (`WRAPPER_CONFLICT`, `STATUSLINE_DIFFERS`, …). Validator check 7 runs
+     it twice in a sandbox HOME — change the script, not the agent prose, when setup logic moves.
 
 Skills with code, binaries or machine state are **not** here: they live in the private sibling repo
 `claude-werkstatt` (`../claude-werkstatt/`, symlinked into `~/.claude/skills/`) and graduate into
@@ -40,9 +44,8 @@ Skills with code, binaries or machine state are **not** here: they live in the p
 live there too — this repo is public and carries nothing private by construction.
 
 Adding a command, agent or skill = dropping a new file in the right directory with valid
-frontmatter. No manifest edit is needed for discovery — but **do** update the human-facing
-tables in `README.md`, `marketplace.json` description, and `plugin.json` description/keywords
-so the listing stays accurate.
+frontmatter + a row in the `README.md` table (the **only** listing; the manifest descriptions
+are static one-liners) + an outcome section in `reference/evals.md`. The validator enforces both.
 
 ## Versioning convention (important)
 
@@ -119,12 +122,16 @@ vier Wellen: `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
   Repo `claude-werkstatt` gezogen, Symlinks umgebogen, `_lokal/` dort aufgelöst. Hier entfernt:
   `skills/`, `plans/`, `--skills-only`/`-SkillsOnly`, Validator-Checks 7 + 8, Werkstatt-Evals.
   Sperrliste `~/.config/claude-config/privat-lint.txt` bleibt als Rezept (`~/.claude/reference/privacy.md`).
+- **Welle 2 (Schneiden) — erledigt:** News-Kanal reine Info (kein `<!-- aktion -->`, kein
+  Auto-Prompt, kein Nachrüst-Modus; `<!-- claude: -->` = Hinweis, nicht Auftrag; Eintrag 22.08.
+  durch Info-Eintrag ersetzt). `machine-setup` = `shell/setup.sh` (deterministisch, Marker,
+  Sandbox-getestet im Validator-Check 7) + dünner Agent (Urteil: Konflikte, Diffs, Rendering).
+  Dreifach-Listung aufgelöst (README einzige Liste, Manifeste statisch). README-Story = Zweck-Satz
+  + „Der Loop". `start.sh`-Legacy-Pfad (alter Wrapper ohne `MATS_TOOLS_SYNCED`) bleibt, bis
+  beide Freunde bestätigt haben.
 
 ## HIER WEITERMACHEN
 
-- [ ] **Welle 2 (Schneiden):** News nur Info (Aktion/Autoprompt/Nachrüst-Modus raus, Eintrag 22.08.
-      ersetzen), `machine-setup` → `shell/setup.sh` + dünner Agent, Dreifach-Listung → README,
-      README-Story auf den Zweck-Satz. `start.sh`-Legacy-Pfad bleibt, bis beide Freunde bestätigt haben.
 - [ ] **Welle 3 (Loop scharf):** `tools/eval.sh` (Headless-Runner für 2–3 Commands), `/optimieren`
       kennt `<repo>/evals.md` (Werkstatt), Guide-Meta-Pass, Ritus „neues Modell → /neudenken".
 - [ ] **Welle 4 (Kontext-Gerüst):** `~/.claude/CLAUDE.md`-Regel + `reference/werkzeugkasten.md`,

@@ -11,8 +11,10 @@
 #                            es ein älterer Wrapper, der Update-Check, Repo-Fetch und
 #                            Auto-Prompt noch selbst macht — dann hier nur Startzeile + Datei.
 #         "$@"               die claude-Argumente (beim Sourcen in der Funktion sichtbar)
-#   raus  MATS_TOOLS_PROMPT  Auto-Prompt für den ersten Zug (leer = keiner); zusätzlich
-#         ~/.claude/mats-tools-autoprompt für ältere Wrapper und das PowerShell-Profil.
+#   raus  MATS_TOOLS_PROMPT  immer leer. (Bis 24.08.2026 trug sie einen Auto-Prompt aus einer
+#                            NEWS-Aktion; der Kanal ist seitdem reine Information. Wrapper, die
+#                            die Variable oder ~/.claude/mats-tools-autoprompt noch lesen, finden
+#                            nichts und starten normal.)
 
 # Aktiver mats-tools-Ordner im Plugin-Cache: laut installed_plugins.json (user-scope);
 # Fallback: jüngster Versionsordner. (Ein Update berührt auch den alten Ordner — mtime allein
@@ -80,19 +82,7 @@ if [ -n "$_thin" ] && git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
   unset _behind
 fi
 
-# ── Auto-Prompt: verlangt eine ungelesene Nachricht eine Aktion? ───────────────────────
-# Datei immer pflegen (ältere Wrapper + PowerShell lesen sie); Variable nur für den dünnen
-# Wrapper und nur bei nacktem Start — nie bei -p/--resume/Subcommands.
+# ── Kein Auto-Prompt mehr (Vertrag oben); Altlast-Datei wegräumen, falls vorhanden ─────
 MATS_TOOLS_PROMPT=""
-_apf="$HOME/.claude/mats-tools-autoprompt"
-if [ -n "$_mt" ] && [ -f "$_mt/hooks/news.sh" ]; then
-  _ap=$(bash "$_mt/hooks/news.sh" --autoprompt 2>/dev/null)
-  if [ -n "$_ap" ]; then printf '%s' "$_ap" > "$_apf"; else rm -f "$_apf"; fi
-  if [ -n "$_thin" ] && [ -n "$_ap" ] && { [ $# -eq 0 ] || [ "${1#-}" != "$1" ]; } \
-     && ! printf ' %s ' "$@" | grep -qE ' (-p|--print|-c|--continue|-r|--resume|--version|--help|-h|-v) '; then
-    MATS_TOOLS_PROMPT="$_ap"
-    rm -f "$_apf"
-  fi
-  unset _ap
-fi
-unset _mt _thin _apf
+rm -f "$HOME/.claude/mats-tools-autoprompt"
+unset _mt _thin

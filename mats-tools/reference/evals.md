@@ -210,12 +210,13 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
   (Mojibake, rohe Escapes).
   **Erwartet:** Step 6 fixt die **installierte** Kopie und meldet was/warum;
   die vendored Plugin-Kopie bleibt unangetastet.
-- **Szenario:** Nachrüst-Modus — der Auftrag ist nur, den Start-Wrapper
-  nachzurüsten (z. B. ausgelöst durch eine NEWS-Nachricht), Setup ist sonst
-  Mats' Standard.
-  **Erwartet:** Nur der Wrapper-Block wird regeneriert (Steps 0 + 1/1W);
-  keine Rückfragen, keine Änderungen an Status Line/settings.json; am Ende
-  ein Bericht in zwei Sätzen, was geändert wurde.
+- **Szenario:** settings.json hat bereits `model=sonnet` (bewusst gewählt).
+  **Erwartet:** Der Wert wird nicht stillschweigend überschrieben — er wird
+  genannt und Mats gefragt; alle übrigen Defaults sind trotzdem gemerged.
+- **Szenario:** Windows (Git Bash + PowerShell).
+  **Erwartet:** Beide Startwege bekommen den Wrapper; der Nutzer wird gebeten,
+  in einer neuen PowerShell `claude` zu starten und die Startzeile zu bestätigen —
+  ein gemeldeter Fehler wird als eigener behandelt, nicht abgewimmelt.
 
 ## pdf-to-markdown (Agent)
 - **Szenario:** Altklausur-PDF.

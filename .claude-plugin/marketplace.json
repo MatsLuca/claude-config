@@ -1,14 +1,14 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "claude-config",
-  "description": "Persönliche Claude-Code-Tools von Mats — Commands und Agents, geräteübergreifend synchronisiert.",
+  "description": "Mats' Claude-Code-Werkzeugkasten — ein Plugin (mats-tools), das sich durch die Arbeit mit ihm selbst schärft.",
   "owner": {
     "name": "Mats Dagott"
   },
   "plugins": [
     {
       "name": "mats-tools",
-      "description": "Persönliche Slash-Commands (finish, finish-lite, github-pushes, merken, xcode, optimieren, einarbeiten, destillieren, neudenken), Subagents: pdf-to-markdown (Klausuren, Folien, generische PDFs) und machine-setup (frische Claude-Code-Installation einrichten: yolo-Alias, Status Line, Plugin-Auto-Update, settings.json) sowie die Skills latexterm (LatexTerm-Terminal von innen steuern) und claude-md (CLAUDE.md-Dateien nach Verfassung auf Höhe halten).",
+      "description": "Commands, Agents und Skills für Git-Workflow, Wissensarbeit, PDF→Markdown und Maschinen-Setup; Liste und Zweck je Baustein in der README des Repos.",
       "author": {
         "name": "Mats Dagott"
       },
