@@ -2,6 +2,21 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## Stand bis 2026-08-23
+
+- **`/neudenken`-Pass:** Faden trägt, kein Grund-Umbau — vier Re-Optimierungen: News-Kanal
+  generisch (`<!-- claude: … -->`-Block pro Eintrag statt fest verdrahteter Nachricht,
+  `--context` zeigt Claudes Sicht); Wrapper wirklich dünn (`shell/start.sh` trägt Update-Check,
+  Startzeile, Repo-Frische, Auto-Prompt; Vertrag `MATS_TOOLS_SYNCED` rein / `MATS_TOOLS_PROMPT`
+  raus, Legacy-Wrapper + PowerShell laufen unverändert; getestet mit Fake-`claude` in bash/zsh);
+  Eval-Abdeckung als Validator-Pflicht (vierte Liste); Authoring-Guide kennt Skills
+  („Command = Mats tippt, Skill = Situation triggert"). Die `~/.zshrc` dieses Macs blieb
+  unangetastet (eigener Wrapper mit Kickbacks-Logik, Legacy-Pfad).
+- **Skill-Werkstatt:** fünf globale Skills (`scan`, `pdf-unterschrift`, `gmail`, `kalender`,
+  `standort`) aus `~/.claude/skills/` nach `skills/` geholt, Symlinks zurück; `_lokal/` für
+  venv/Binary/Benchmark-Fotos/private Notizen; `setup.sh` je Skill; `bootstrap.sh`/`.ps1`
+  verlinken; Validator-Check 7. Symlink-Loading in laufender Session verifiziert.
+
 ## Stand bis 2026-08-22 (abends, 2. Block)
 
 - **Repo bereinigt (public!):** `plans/` aus Tracking *und* Historie entfernt (`git filter-repo`,

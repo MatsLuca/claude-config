@@ -210,6 +210,12 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
   (Mojibake, rohe Escapes).
   **Erwartet:** Step 6 fixt die **installierte** Kopie und meldet was/warum;
   die vendored Plugin-Kopie bleibt unangetastet.
+- **Szenario:** Nachrüst-Modus — der Auftrag ist nur, den Start-Wrapper
+  nachzurüsten (z. B. ausgelöst durch eine NEWS-Nachricht), Setup ist sonst
+  Mats' Standard.
+  **Erwartet:** Nur der Wrapper-Block wird regeneriert (Steps 0 + 1/1W);
+  keine Rückfragen, keine Änderungen an Status Line/settings.json; am Ende
+  ein Bericht in zwei Sätzen, was geändert wurde.
 
 ## pdf-to-markdown (Agent)
 - **Szenario:** Altklausur-PDF.
@@ -263,3 +269,61 @@ sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
 - **Szenario:** „Frag die andere Claude-Session, ob sie fertig ist."
   **Erwartet:** Der Prompt landet in der anderen Kachel und wird dort abgeschickt
   (nicht nur eingetippt); Mats' eigene Kachel wird nicht überschrieben.
+
+## gmail (Werkstatt-Skill)
+- **Szenario:** „Antworte auf die Mail von der Hochschule und häng das PDF an."
+  **Erwartet:** Ein Entwurf entsteht im richtigen Thread (als Antwort, mit
+  Anhang) und öffnet sich in der Gmail-App; die Meldung an Mats nennt
+  Empfänger, Betreff und Anhang. Gesendet wird nichts — senden macht Mats.
+- **Szenario:** Mats bittet mitten in anderer Arbeit „schick das kurz an X".
+  **Erwartet:** Der Skill wird genutzt (kein AppleScript an Mail.app, kein
+  Gmail-MCP-Versand); danach geht die eigentliche Arbeit weiter.
+- **Szenario:** Nach dem Senden durch Mats soll der Versand bestätigt werden.
+  **Erwartet:** Sendekontrolle über die Gesendet-Ablage (Betreff/Anhang
+  verifiziert), keine bloße Vermutung „müsste raus sein".
+
+## kalender (Werkstatt-Skill)
+- **Szenario:** „Trag mir Donnerstag 15 Uhr Zahnarzt ein."
+  **Erwartet:** Der Termin landet im Unterkalender „Claude" (nicht im
+  Hauptkalender), mit korrekter Zeit; kurze Bestätigung mit Datum/Uhrzeit.
+- **Szenario:** „Was steht nächste Woche an?"
+  **Erwartet:** Antwort aus dem Kalender, ohne dass Mats nach Details gefragt
+  wird; keine Termine, die Claude nur erfunden hat.
+- **Szenario:** Eine Wiedervorlage für Claude-Arbeit („erinnere mich am … an …").
+  **Erwartet:** Landet **nicht** im Kalender, sondern als Wiedervorlage-Datei
+  (Regel aus dem Router-CLAUDE.md).
+
+## pdf-unterschrift (Werkstatt-Skill)
+- **Szenario:** „Unterschreib mir dieses Formular" mit vorhandener
+  freigestellter Unterschrift.
+  **Erwartet:** Unterschrift sitzt an der richtigen Stelle, transparenter
+  Hintergrund (kein weißer Kasten), eingebrannt im Ausgabe-PDF; Original bleibt
+  unangetastet.
+- **Szenario:** Erste Nutzung auf einer Maschine ohne eingerichtetes venv.
+  **Erwartet:** `setup.sh` wird ausgeführt (venv in `_lokal/`), danach läuft
+  der Ablauf — kein Gefrickel mit System-pip.
+- **Szenario:** Ein Dritter soll unterschrieben werden, dessen Unterschrift
+  in der Master-Liste steht.
+  **Erwartet:** Namen/Zuordnungen kommen aus `_lokal/NOTIZEN.md` und landen in
+  keiner getrackten Datei.
+
+## scan (Werkstatt-Skill)
+- **Szenario:** „Mach aus diesen drei Fotos einen Scan als PDF."
+  **Erwartet:** Tool startet mit `--auto` im Hintergrund, der Editor öffnet
+  sich mit fertigen Vorschlägen; nach Mats' „✅ Fertig" liegt das PDF am
+  Zielpfad und Claude macht ohne Nachfragen weiter (kein Polling).
+- **Szenario:** Mats schließt den Tab, ohne „Fertig" zu drücken.
+  **Erwartet:** Der Serverprozess wird sauber beendet; die Werkstatt bleibt
+  erhalten und ein erneuter Aufruf setzt auf dem Stand auf.
+- **Szenario:** Nutzung auf einer Nicht-macOS-Maschine.
+  **Erwartet:** „Ecken finden" meldet ehrlich, dass die Auto-Erkennung macOS
+  braucht; der Editor mit manuellen Punkten funktioniert trotzdem.
+
+## standort (Werkstatt-Skill)
+- **Szenario:** „Wo kann ich hier in der Nähe drucken?"
+  **Erwartet:** Standort kommt von CoreLocationCLI (nicht IP-Geolocation),
+  wird einmal knapp genannt, dann folgt die eigentliche Antwort mit
+  Umkreis-Ergebnissen — ohne Mats nach seiner Adresse zu fragen.
+- **Szenario:** Ortungsdienste-Freigabe fehlt (z. B. nach Homebrew-Update).
+  **Erwartet:** Der Fehler wird erkannt, das Ortungsdienste-Pane geöffnet und
+  Mats um den Haken gebeten — kein stiller Fallback auf IP-Geolocation.

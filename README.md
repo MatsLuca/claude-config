@@ -119,7 +119,7 @@ Zwei Ebenen halten das Repo gesund — auch wenn Claude selbst daran weiterbaut:
   Listing-Sync, Eval-Abdeckung, Plugin-Referenzen und Portabilität (BSD↔GNU). Läuft lokal und
   bei jedem Push als GitHub Action.
 - **Verhalten (Szenarien):** `mats-tools/reference/evals.md` beschreibt pro
-  Command/Agent die erwarteten **Outcomes** — bewusst implementierungs-agnostisch,
+  Command/Agent/Skill (inkl. Skill-Werkstatt) die erwarteten **Outcomes** — bewusst implementierungs-agnostisch,
   damit bessere Umsetzungen nie an alten Details scheitern. Ausführbar interaktiv
   oder headless (`claude -p "/command"` im Wegwerf-Fixture).
 

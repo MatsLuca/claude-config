@@ -111,40 +111,39 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
 
-## Aktueller Stand (2026-08-23)
+## Aktueller Stand (2026-08-24)
 
-`/neudenken`-Pass über das Repo: Faden trägt, kein Grund-Umbau — vier Re-Optimierungen umgesetzt,
-die die eigenen Prämissen zu Ende anwenden (alles lokal, **noch nicht committet/gepusht**):
+Der `/neudenken`-Pass (News-Kanal generisch, dünner Wrapper-Vertrag in `shell/start.sh`,
+Eval-Abdeckung im Validator, Guide kennt Skills) und die Skill-Werkstatt (fünf globale Skills
+`scan`/`pdf-unterschrift`/`gmail`/`kalender`/`standort` unter `skills/`, `_lokal/` für Privates,
+Validator-Check 7) sind **committet und gepusht** — Details in `HISTORIE.md`.
 
-- **News-Kanal generisch:** `hooks/news.sh` kennt keine einzelne Nachricht mehr. Die Anweisung an
-  Claude steht pro Eintrag im Block `<!-- claude: … -->` (nur Kontext, unsichtbar im Terminal);
-  ohne Block = „reine Information, nichts zu tun". `--context` zeigt, was Claude bekommt.
-  Die Nachrüst-Anweisung vom 22.08. ist in ihren Eintrag gewandert. Getestet (peek/context/hook/
-  autoprompt/seen, Info-Eintrag).
-- **Wrapper wirklich dünn:** `shell/start.sh` trägt jetzt Update-Check, Startzeile, Repo-Frische
-  und Auto-Prompt; der rc-Block (machine-setup Step 1) macht nur Sync → Ordner → sourcen →
-  `claude "$@" [$MATS_TOOLS_PROMPT]`. Vertrag oben in `start.sh` (`MATS_TOOLS_SYNCED` rein,
-  `MATS_TOOLS_PROMPT` raus); **ältere Wrapper + PowerShell laufen unverändert** (Datei-Weg bleibt,
-  `SYNCED` leer = Legacy). `_mats_tools_dir`-Fallback glob-frei (zsh brach bei leerem Muster).
-  Getestet mit Fake-`claude` in bash/zsh: bare, `-p`, `yolo`, ohne `installed_plugins.json`.
-- **Eval-Abdeckung im Validator:** jeder Command/Agent/Skill braucht einen Abschnitt in `evals.md`
-  (vierte Liste neben README/plugin.json/marketplace.json). `/finish-lite` und `latexterm` nachgetragen.
-- **Guide kennt Skills:** eigener Abschnitt + Entscheidung „Command = Mats tippt, Skill = Situation
-  triggert; bestehende Commands bleiben"; Checkliste erweitert; `/optimieren` nennt Skills.
-- Die `~/.zshrc` dieses Macs ist **nicht** angefasst (eigener Wrapper mit Kickbacks-Logik; läuft
-  als Legacy-Pfad weiter, siehe `reference/kickbacks.md`).
+Heute: **Mehrdimensionaler Audit** (4 Subagenten: Commands/Agents, Skill-Werkstatt,
+Infrastruktur/Shell, Privacy/Doku) + Umsetzung der Befunde:
 
-## Skill-Werkstatt (2026-08-23)
-
-Fünf globale Skills (`scan`, `pdf-unterschrift`, `gmail`, `kalender`, `standort`) aus `~/.claude/skills/`
-nach `skills/` geholt, Symlinks zurück; `_lokal/` für venv/Binary/Benchmark-Fotos/private Notizen;
-`setup.sh` je Skill (scan: Werkzeuge + Swift-Binary; pdf-unterschrift: venv aus `requirements.txt`);
-`bootstrap.sh`/`.ps1` verlinken; Validator-Check 7. Symlink-Loading in der laufenden Session verifiziert.
+- **Privacy:** echte Adresse aus `skills/standort/SKILL.md` und Kita/BuT-Beispiel aus
+  `skills/gmail/SKILL.md` durch generische Platzhalter ersetzt (Repo ist public!).
+- **Validator gehärtet:** `${CLAUDE_PLUGIN_ROOT}`-Check liest jetzt auch `*.json`
+  (hooks.json-Referenz auf `news.sh` war ungeprüft — live reproduziert); Portabilitäts-Lint
+  deckt `statusline/` + `bootstrap.sh` ab; `bootstrap.ps1` wird per pwsh geparst (in CI;
+  lokal übersprungen, wenn kein pwsh); NEWS.md-Lint gegen doppelte `<!-- claude: -->`-Blöcke.
+- **`bootstrap.ps1`:** `-SkillsOnly`-Switch als Pendant zu `--skills-only` (Funktion nach
+  vorn gezogen; ungetestet auf echtem Windows, aber Parser-gedeckt).
+- **Modellpolitik Plugin-Agents:** `machine-setup` + `pdf-to-markdown` auf `model: inherit` —
+  kein Pinning; jeder Subscriber nutzt sein bestes Modell (Mats' Entscheidung 24.08.).
+- **scan-Diät:** Magic-Fit-Details + Benchmark-Historie aus der SKILL.md (16,5 KB) nach
+  `skills/scan/ALGORITHMUS.md` ausgelagert; SKILL.md wieder operativer Kern.
+- **Evals:** fünf Werkstatt-Skills als `## <name> (Werkstatt-Skill)` in `evals.md` +
+  Validator-Pflicht; Nachrüst-Modus-Szenario für `machine-setup` ergänzt.
+- Kleinkram: `optimieren.md` Schritt 2 als ein Bash-Block; README nennt Skills bei der
+  Verifikation.
 
 ## HIER WEITERMACHEN
 
-- [ ] Stand vom 23.08. ist lokal committet (`fc12bd3`), **noch nicht gepusht**; danach `/plugin update` + neue Session:
-  Startzeile und `news.sh --context` am echten Cache prüfen.
+- [ ] Audit-Stand committen/pushen; danach `/plugin update` + neue Session: Startzeile und
+  `news.sh --context` am echten Cache prüfen.
+- [ ] `bootstrap.ps1 -SkillsOnly` bei Gelegenheit auf einem echten Windows-Rechner verifizieren
+  (nur Parser-geprüft).
 - [ ] `bootstrap.sh`/`.ps1` könnten Claude direkt mit „Führe das machine-setup durch." starten
   (Auto-Prompt-Mechanik existiert) — vorher auf Wegwerf-Maschine prüfen, ob der Login-Flow das
   verträgt. Bewusst nicht blind umgesetzt.
@@ -152,7 +151,9 @@ nach `skills/` geholt, Symlinks zurück; `_lokal/` für venv/Binary/Benchmark-Fo
   setzen, Fetch/Autoprompt-Teil entfernen) — Kickbacks-Blöcke bleiben.
 - [ ] Erstes echtes Exemplar des autonomen Nachrüstens kommt von einem der Jungs — deren
   Zwei-Sätze-Zusammenfassung einholen; Windows-Zweig (Step 1W) danach korrigieren, falls nötig.
-- [ ] Entscheidung Mats: GitHub-Support anfragen, um die dangling Commits mit `plans/` zu purgen.
+- [ ] Entscheidung Mats: GitHub-Support anfragen, um die dangling Commits mit `plans/` zu purgen —
+  dabei auch die alten Commits mit der echten Adresse in `skills/standort/SKILL.md` nennen
+  (forward gefixt am 24.08., Historie enthält sie noch).
 - [ ] Optional: Nachrüst-Modus auf einer Test-Maschine/Container live durchspielen (auf diesem
   Mac bewusst nicht — eigener `claude()`-Wrapper).
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents`, Budgets/Kopfzeilen prüfen →

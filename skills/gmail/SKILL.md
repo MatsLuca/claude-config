@@ -28,7 +28,7 @@ Mats mailt mit **Gmail** (Mac: Safari-Web-App „Gmail" im Dock; iPhone: Gmail-A
 - `--reply-to`: setzt `In-Reply-To`/`References`/threadId und hängt ein deutsches Zitat des Originals an („Am 14. August 2026 um 14:03 schrieb …:"). Ohne `--subject` → „Re: <Original>". `--no-quote` unterdrückt das Zitat.
 - `--open`: öffnet den Entwurf in der Gmail-Dock-App. Vorhandenen Entwurf später öffnen: `open --id <messageId>`.
 
-4. **Mats Bescheid geben** — fertig ist der Schritt, wenn die Meldung Empfänger, Betreff und Anhänge nennt, z. B.: „Entwurf offen in der Gmail-App: an empfaenger@beispiel.de, Betreff ‚Re: Anmeldung …', Anhang unterlagen.pdf — bitte prüfen und senden." Die Web-App ist für Screenshots unsichtbar; die Sichtprüfung macht Mats.
+4. **Mats Bescheid geben** — fertig ist der Schritt, wenn die Meldung Empfänger, Betreff und Anhänge nennt, z. B.: „Entwurf offen in der Gmail-App: an empfaenger@beispiel.de, Betreff ‚Re: … ', Anhang unterlagen.pdf — bitte prüfen und senden." Die Web-App ist für Screenshots unsichtbar; die Sichtprüfung macht Mats.
 5. **Sendekontrolle** nach dem Versand per Gmail-MCP: `search_threads in:sent subject:…` → Snippet darf nicht mit `> ` beginnen; bei Anhängen `get_message FULL_CONTENT` (Dateinamen, `application/pdf`), sonst `RAW` (kein `blockquote type="cite"`). Wo das Projekt es verlangt, Wortlaut + Sendezeit als Protokoll ablegen.
 
 ## Schlussformel — letzte Zeile nie der Name

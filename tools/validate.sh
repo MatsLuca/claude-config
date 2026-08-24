@@ -8,11 +8,16 @@
 #   3. Listing-Sync: jeder Command/Agent/Skill ist in README, plugin.json und
 #      marketplace.json erwähnt (die Dreifach-Listung driftet sonst) — und hat einen
 #      Abschnitt in reference/evals.md (sonst ist er vom Optimier-Loop abgekoppelt).
-#   4. Plugin-interne ${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien.
+#   4. Plugin-interne ${CLAUDE_PLUGIN_ROOT}-Referenzen (*.md und *.json, also auch
+#      hooks.json) zeigen auf existierende Dateien.
 #   5. Portabilitäts-Lint: BSD-only Aufrufe (date -v / stat -f) nur mit GNU-Fallback
-#      in derselben Datei (Regressionsschutz, siehe authoring-guide.md).
-#   7. Skill-Werkstatt (skills/): Frontmatter, README-Listing, HISTORIE, und dass nichts
-#      Lokales/Privates (_lokal/, venv, Bilder, PDFs) getrackt ist — das Repo ist public.
+#      in derselben Datei (Regressionsschutz, siehe authoring-guide.md) — inkl.
+#      statusline und bootstrap.sh.
+#   6. Shell-Syntax (bash -n) aller Skripte; bootstrap.ps1 per pwsh-Parse, wo pwsh da ist.
+#      Dazu: NEWS.md hat höchstens einen <!-- claude: -->-Block pro Eintrag.
+#   7. Skill-Werkstatt (skills/): Frontmatter, README-Listing, HISTORIE, Eval-Abschnitt,
+#      und dass nichts Lokales/Privates (_lokal/, venv, Bilder, PDFs) getrackt ist —
+#      das Repo ist public.
 #
 # Verhaltens-Evals (reference/evals.md) prüft das hier NICHT — die laufen headless
 # bzw. manuell, siehe den Loop-Abschnitt in evals.md.
@@ -115,7 +120,7 @@ done
 ok "Skills: Frontmatter + Listing-Sync + Eval-Abdeckung geprüft"
 
 # ── 4. Plugin-interne Referenzen ──────────────────────────────────────────────
-refs=$(grep -rhoE '\$\{CLAUDE_PLUGIN_ROOT(:-)?\}[A-Za-z0-9_./-]*' mats-tools --include='*.md' \
+refs=$(grep -rhoE '\$\{CLAUDE_PLUGIN_ROOT(:-)?\}[A-Za-z0-9_./-]*' mats-tools --include='*.md' --include='*.json' \
        | sed 's/^[^}]*}//' | sort -u)
 for p in $refs; do
   [ -n "$p" ] || continue
@@ -126,7 +131,7 @@ ok "\${CLAUDE_PLUGIN_ROOT}-Referenzen zeigen auf existierende Dateien"
 # ── 5. Portabilitäts-Lint (Commands + Agents + Skills) ─────────────────────────────────
 # BSD-only Muster brauchen einen GNU-Gegenpart in derselben Datei (oder umgekehrt) —
 # sonst bricht der Command auf Linux (Container/Codespaces) bzw. macOS.
-for f in mats-tools/commands/*.md mats-tools/agents/*.md mats-tools/skills/*/SKILL.md mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh skills/*/SKILL.md skills/*/setup.sh; do
+for f in mats-tools/commands/*.md mats-tools/agents/*.md mats-tools/skills/*/SKILL.md mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh mats-tools/statusline/*.sh bootstrap.sh skills/*/SKILL.md skills/*/setup.sh; do
   [ -f "$f" ] || continue
   if grep -Eq -- '-v-[0-9]' "$f" && ! grep -q 'date -u -d\|date -d' "$f"; then
     fail "$f: BSD-date-Offset (-v-N) ohne GNU-Fallback (date -u -d \"… ago\")"
@@ -141,6 +146,22 @@ ok "Portabilitäts-Lint (date/stat GNU↔BSD) durchlaufen"
 for s in bootstrap.sh tools/validate.sh mats-tools/statusline/statusline-command.sh mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh; do
   bash -n "$s" 2>/dev/null && ok "Syntax ok: $s" || fail "Shell-Syntaxfehler: $s"
 done
+# bootstrap.ps1: PowerShell-Parse, wo pwsh vorhanden ist (CI: ubuntu-latest bringt es mit).
+if command -v pwsh >/dev/null 2>&1; then
+  if pwsh -NoProfile -Command '$e=$null; [void][System.Management.Automation.Language.Parser]::ParseFile("bootstrap.ps1",[ref]$null,[ref]$e); if ($e) { $e | ForEach-Object { Write-Output $_.Message }; exit 1 }' >/dev/null 2>&1; then
+    ok "Syntax ok: bootstrap.ps1 (pwsh-Parse)"
+  else
+    fail "PowerShell-Syntaxfehler: bootstrap.ps1"
+  fi
+else
+  ok "bootstrap.ps1: pwsh nicht vorhanden — Parse-Check übersprungen (läuft in CI)"
+fi
+
+# NEWS.md: höchstens ein <!-- claude: -->-Block pro Eintrag (news.sh verkettet mehrere stumm).
+doppel=$(awk '/^## / { if (n > 1) print head; head=$0; n=0 } /<!-- claude:/ { n++ }
+              END { if (n > 1) print head }' mats-tools/NEWS.md)
+[ -z "$doppel" ] && ok "NEWS.md: max. ein claude-Block pro Eintrag" \
+  || fail "NEWS.md: mehrere <!-- claude: -->-Blöcke in Eintrag: $doppel"
 
 # ── 7. Skill-Werkstatt (skills/) ──────────────────────────────────────────────
 # Globale Skills, per Symlink in ~/.claude/skills eingehängt (siehe skills/README.md). Kein Listing in
@@ -161,6 +182,7 @@ for f in skills/*/SKILL.md; do
   grep -q "\`$dir\`" skills/README.md || fail "Werkstatt-Skill $dir fehlt in skills/README.md"
   grep -q "$dir" "$README" || fail "Werkstatt-Skill $dir fehlt in README.md"
   [ -f "skills/$dir/HISTORIE.md" ] || fail "skills/$dir/HISTORIE.md fehlt (Werkstatt-Chronik)"
+  grep -q "^## $dir (Werkstatt-Skill)" "$EVALS" || fail "Werkstatt-Skill $dir hat keinen Abschnitt in $EVALS (Outcome-Evals)"
 done
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   privat=$(git ls-files skills | grep -E '/_lokal/|/venv/|__pycache__|\.(png|jpe?g|JPG|heic|pdf|json)$' || true)

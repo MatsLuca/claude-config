@@ -23,3 +23,5 @@
     Claude, „🔍 Volle Vorschau".
 - **2026-08-23** In die Skill-Werkstatt umgezogen (`claude-config/skills/scan/`), Symlink aus `~/.claude/skills/`;
   Binary + Benchmark-Fotos (private Briefe) → `_lokal/`.
+- **2026-08-24** Audit-Folge: Algorithmus-Details + Benchmark-Historie aus der SKILL.md nach `ALGORITHMUS.md`
+  ausgelagert (SKILL.md wieder auf den operativen Kern reduziert); Instituts-Namen in Beispielen generalisiert.

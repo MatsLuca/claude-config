@@ -19,12 +19,20 @@ Falls die Variable nicht aufgelöst wird (Datei nicht gefunden), suche sie per `
 ## Schritt 2 — Ziel bestimmen
 
 `$ARGUMENTS` ist ein Name oder Pfad. Löse ihn zur Datei auf:
-- Billige Übersicht in *einer* Bash-Runde: `ls mats-tools/commands mats-tools/agents mats-tools/reference mats-tools/skills` — listet alle Kandidaten auf einmal. Den Namen (ohne `/` und `.md`) dagegen matchen; ein Skill-Name trifft dessen `SKILL.md`. Greift `ls` nicht (anderes Arbeitsverzeichnis), per `Glob` `**/commands/*.md`, `**/agents/*.md`, `**/reference/*.md` und `**/skills/*/SKILL.md` nachladen.
+- Billige Übersicht + Frische-Check in *einer* Bash-Runde:
+
+```bash
+ls mats-tools/commands mats-tools/agents mats-tools/reference mats-tools/skills && \
+git status --porcelain && \
+diff -rq --exclude=.in_use mats-tools "${CLAUDE_PLUGIN_ROOT}"
+```
+
+  Den Namen (ohne `/` und `.md`) gegen die Liste matchen; ein Skill-Name trifft dessen `SKILL.md`. Greift `ls` nicht (anderes Arbeitsverzeichnis), per `Glob` `**/commands/*.md`, `**/agents/*.md`, `**/reference/*.md` und `**/skills/*/SKILL.md` nachladen.
 - **Genau ein Treffer** → diese Datei. **Mehrere/keine** → per `AskUserQuestion` kurz rückfragen statt zu raten.
 - Ist `$ARGUMENTS` leer → frage, welches Ziel (Command, Agent oder Referenzdatei) optimiert werden soll.
 - **Meta-Pass:** Liegt der Treffer in `reference/` (z.B. `authoring-guide`, `evals`), ist die Referenzdatei *selbst* das Ziel. Prüfgrundlage ist dann **nicht** der Standard selbst (Zirkelschluss), sondern der Abschnitt „Meta-Pflege des Standards" im Guide: Zweck-Erfüllung + Abgleich gegen die dort verlinkten Upstream-Best-Practices (per `WebFetch`) und die aktuellen Plattform-Fähigkeiten. Gleiches gilt für `skills/claude-md/verfassung.md` (Ziel `claude-md` = SKILL.md **und** Verfassung): Prüfgrundlage ist deren Abschnitt „Meta-Pflege" — bleiben Router/Bereiche unter Budget, stimmt die Lademechanik noch?
 - Immer die **Repo-Quelle** auflösen und bearbeiten — nie die installierte Kopie unter `${CLAUDE_PLUGIN_ROOT}` (Plugin-Cache, wird beim nächsten Update überschrieben).
-- **Frische-Check (an die `ls`-Runde anhängen):** `git status --porcelain` und `diff -rq --exclude=.in_use mats-tools "${CLAUDE_PLUGIN_ROOT}"` (nur *inhaltliche* Abweichungen zählen — Cache-Marker wie `.in_use`, die nur im Cache liegen, sind kein Divergenz-Signal und werden ausgeblendet). Cleaner Baum, aber Abweichung → das Repo hängt vermutlich hinter dem Remote (Push von anderer Maschine): `git pull --ff-only`, danach Geändertes neu lesen. Meldet der Pull „up to date", ist das Repo schlicht voraus — dann gilt die Repo-Fassung auch für Standard + Evals (statt der Cache-Fassung aus Schritt 1/3). Schlägt er fehl: melden und stoppen. Nie eine veraltete Fassung schärfen.
+- **Frische-Check (die `git status`/`diff`-Teile der Runde oben):** (nur *inhaltliche* Abweichungen zählen — Cache-Marker wie `.in_use`, die nur im Cache liegen, sind kein Divergenz-Signal und werden ausgeblendet). Cleaner Baum, aber Abweichung → das Repo hängt vermutlich hinter dem Remote (Push von anderer Maschine): `git pull --ff-only`, danach Geändertes neu lesen. Meldet der Pull „up to date", ist das Repo schlicht voraus — dann gilt die Repo-Fassung auch für Standard + Evals (statt der Cache-Fassung aus Schritt 1/3). Schlägt er fehl: melden und stoppen. Nie eine veraltete Fassung schärfen.
 
 Merke dir, ob es ein **Command**, **Agent** oder eine **Referenzdatei** ist — die Prüfregeln unterscheiden sich.
 
