@@ -135,7 +135,7 @@ done
 ok "Portabilitäts-Lint (date/stat GNU↔BSD) durchlaufen"
 
 # ── 6. Shell-Syntax der Skripte ───────────────────────────────────────────────
-for s in bootstrap.sh tools/validate.sh mats-tools/statusline/statusline-command.sh mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh; do
+for s in bootstrap.sh tools/*.sh mats-tools/statusline/statusline-command.sh mats-tools/skills/*/scripts/*.sh mats-tools/hooks/*.sh mats-tools/shell/*.sh; do
   bash -n "$s" 2>/dev/null && ok "Syntax ok: $s" || fail "Shell-Syntaxfehler: $s"
 done
 # bootstrap.ps1: PowerShell-Parse, wo pwsh vorhanden ist (CI: ubuntu-latest bringt es mit).

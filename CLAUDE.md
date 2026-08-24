@@ -84,6 +84,11 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   eval's wording, update the eval explicitly, never silently.
 - The authoring standard (`mats-tools/reference/authoring-guide.md`) is itself an optimizable
   target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
+- **The loop is the point.** Behaviour evals run for real via `tools/eval.sh` (headless from the
+  repo source, throwaway fixture, on-disk checks; costs tokens, so not in CI). **Ritual:** a new
+  model or a new Claude Code capability → `/neudenken` over this repo, then `/optimieren` per
+  building block, with an `eval.sh` run before and after. A change that touches an eval's wording
+  updates `evals.md` explicitly.
 - **Public repo, real subscribers.** Two friends pull this plugin automatically at every
   launch; they are not programmers, trust Mats' setup, and one has rebuilt his Windows terminal
   (own status panel, start output suppressed). Consequences: nothing private or third-party in
@@ -122,6 +127,10 @@ vier Wellen: `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
   Repo `claude-werkstatt` gezogen, Symlinks umgebogen, `_lokal/` dort aufgelöst. Hier entfernt:
   `skills/`, `plans/`, `--skills-only`/`-SkillsOnly`, Validator-Checks 7 + 8, Werkstatt-Evals.
   Sperrliste `~/.config/claude-config/privat-lint.txt` bleibt als Rezept (`~/.claude/reference/privacy.md`).
+- **Welle 3 (Loop scharf) — erledigt:** `tools/eval.sh` (Szenarien `finish-lite:sync`,
+  `finish-lite:synchron`, `xcode:leer` + freier Lauf; erster Lauf 6/6 grün), `/optimieren` kennt
+  Werkstatt-Ziele + `<werkstatt>/evals.md` + Runner, Guide trägt Zweck-Satz und Werkstatt→Plugin,
+  Ritus in den Conventions oben.
 - **Welle 2 (Schneiden) — erledigt:** News-Kanal reine Info (kein `<!-- aktion -->`, kein
   Auto-Prompt, kein Nachrüst-Modus; `<!-- claude: -->` = Hinweis, nicht Auftrag; Eintrag 22.08.
   durch Info-Eintrag ersetzt). `machine-setup` = `shell/setup.sh` (deterministisch, Marker,
@@ -132,8 +141,6 @@ vier Wellen: `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
 
 ## HIER WEITERMACHEN
 
-- [ ] **Welle 3 (Loop scharf):** `tools/eval.sh` (Headless-Runner für 2–3 Commands), `/optimieren`
-      kennt `<repo>/evals.md` (Werkstatt), Guide-Meta-Pass, Ritus „neues Modell → /neudenken".
 - [ ] **Welle 4 (Kontext-Gerüst):** `~/.claude/CLAUDE.md`-Regel + `reference/werkzeugkasten.md`,
       `privacy.md` anpassen, Memory, zsh-Alias `claude-werkstatt`, Wiedervorlage Legacy-Pfad.
 - [ ] Bei den Jungs nachfragen, ob die Aktions-Nachricht vom 22.08. schon angekommen ist

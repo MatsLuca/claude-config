@@ -5,8 +5,11 @@ und Skills (`skills/<name>/SKILL.md`) in diesem Plugin. Destilliert aus Anthropi
 [Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
 und den Repo-Konventionen aus `CLAUDE.md`.
 
-Genutzt vom `/optimieren`-Command als Prüfgrundlage. Wer hier etwas ändert,
-ändert den Standard für alle Commands, Agents und Skills.
+Genutzt vom `/optimieren`-Command als Prüfgrundlage — für das Plugin *und* für die
+Skill-Werkstatt (privates Repo `claude-werkstatt`, aus der reife Skills hierher
+graduieren). Wer hier etwas ändert, ändert den Standard für alle Commands, Agents und
+Skills. Der Zweck, dem alles dient: *ein Werkzeugkasten für die Arbeit mit Claude, der
+sich durch die Arbeit mit ihm selbst schärft.*
 
 ## Inhalt
 - Geteilte Prinzipien
@@ -185,18 +188,23 @@ Die Trennung im Repo ist historisch gewachsen (Commands zuerst, Skills seit
 - **Keine `version` in `plugin.json`** — der Git-SHA ist die Version. Nicht
   hinzufügen, außer der User will gepinnte Releases.
 - **Auto-Discovery:** Commands/Agents/Skills werden über die Verzeichnisse
-  gefunden, nicht im Manifest gelistet. Trotzdem bei neuem/geändertem Ziel die
-  menschenlesbaren Listen synchron halten: `README.md`, `marketplace.json`,
-  `plugin.json` (description/keywords) — **und** einen Abschnitt in `evals.md`
-  (der Validator verlangt alle vier; ohne Evals ist ein Ziel vom
-  Optimier-Loop abgekoppelt).
+  gefunden, nicht im Manifest gelistet. Bei neuem/geändertem Ziel: Zeile in
+  `README.md` (die einzige Liste; Manifest-Descriptions sind statisch) **und**
+  einen Abschnitt in `evals.md` (der Validator verlangt beides; ohne Evals ist
+  ein Ziel vom Optimier-Loop abgekoppelt).
+- **Werkstatt → Plugin:** Skills mit Code, Konten oder Maschinenzustand leben im
+  Werkstatt-Repo; hierher graduiert nur, was markdown-rein ist und auch anderen
+  nützt. Ein Werkstatt-Skill folgt demselben Standard und hat seine Evals in
+  `<werkstatt>/evals.md`.
 - **Plugin-interne Datei-Referenzen:** über `${CLAUDE_PLUGIN_ROOT}/…`. Keine
   Pfade aus dem Plugin heraus (`../…`) — die werden im installierten Zustand
   nicht mitkopiert.
 - **Mechanische Verifikation:** `tools/validate.sh` (läuft auch in CI) prüft
-  Manifeste, Frontmatter, Listing-Sync, Plugin-Referenzen und den
-  Portabilitäts-Lint. Nach jeder Änderung an Commands/Agents/Manifesten
-  ausführen — grün ist die Mindestbedingung, sie ersetzt keine Verhaltens-Evals.
+  Manifeste, Frontmatter, Listing-Sync, Plugin-Referenzen, Portabilitäts-Lint
+  und lässt `shell/setup.sh` im Sandbox-HOME laufen. Nach jeder Änderung
+  ausführen — grün ist die Mindestbedingung. **Verhaltens-Evals** laufen mit
+  `tools/eval.sh` (headless, echte Tokens, nicht in CI): benannte Szenarien mit
+  Fixture + Prüfung, oder freier Lauf mit Transkript neben dem Eval-Abschnitt.
 
 ---
 

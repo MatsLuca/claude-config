@@ -14,16 +14,19 @@ gültig; ändert sich das *Was*, wird der Eval bewusst mitgeändert — nie stil
 diese Datei und muss die hier beschriebenen Outcomes erhalten.
 
 **Ausführen:** Strukturelles prüft `tools/validate.sh` automatisch (lokal + CI).
-Verhaltens-Szenarien laufen am echten Command/Agent — interaktiv oder headless
-in einem Wegwerf-Fixture, z.B.:
+Verhaltens-Szenarien laufen am echten Command — `tools/eval.sh` startet ihn headless
+aus der Repo-Quelle in einem Wegwerf-Fixture:
 
 ```bash
-cd "$(mktemp -d)" && git init -q .   # Fixture passend zum Szenario aufbauen
-claude -p "/finish" --permission-mode acceptEdits   # Transkript gegen das Szenario lesen
+tools/eval.sh --list             # benannte Szenarien mit Fixture + automatischer Prüfung
+tools/eval.sh finish-lite:sync   # ein Szenario; `alle` für alle
+tools/eval.sh merken             # freier Lauf: Transkript neben dem Eval-Abschnitt, Urteil von Hand
 ```
 
-Kein automatischer Assertion-Runner (noch) — die Outcome-Formulierungen unten
-sind bewusst so geschrieben, dass ein späterer Runner sie direkt prüfen kann.
+Ein Szenario wird zum benannten Runner-Szenario, sobald sich sein Outcome auf der
+Platte prüfen lässt (Commit da, Datei so, Meldung enthält …). Agents und Skills
+laufen interaktiv — die Outcome-Formulierungen unten sind so geschrieben, dass sie
+beim Lesen des Transkripts direkt abhakbar sind.
 
 ---
 

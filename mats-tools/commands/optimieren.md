@@ -1,10 +1,10 @@
 ---
 description: Optimiert einen Command, Agent oder Skill nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition. Meta-Pass über Standard/Evals selbst möglich.
-argument-hint: <command-, agent- oder referenz-name, z.B. "finish", "pdf-to-markdown" oder "authoring-guide">
+argument-hint: <command-, agent-, skill- oder referenz-name, z.B. "finish", "pdf-to-markdown", "authoring-guide" — oder Pfad eines Werkstatt-Skills, z.B. "skills/scan">
 allowed-tools: Read, Edit, Glob, Bash(ls:*), Bash(git status:*), Bash(diff:*), Bash(git pull --ff-only:*), Bash(./tools/validate.sh:*), WebFetch(domain:platform.claude.com), AskUserQuestion
 ---
 
-Du optimierst einen Command, Agent oder eine Referenzdatei dieses Plugins gegen den Authoring-Standard, damit das Ziel seinen **Zweck besser erfüllt** — klarer, eindeutiger, token-effizienter. Optimieren ist nicht gleich Kürzen: oft heißt das verdichten, genauso aber **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht — ein zu knappes oder unklares Ziel wird durch Addition besser, nicht durch weiteres Streichen.
+Du optimierst einen Command, Agent, Skill oder eine Referenzdatei — aus diesem Plugin oder aus der Skill-Werkstatt (privates Repo `claude-werkstatt`) — gegen den Authoring-Standard, damit das Ziel seinen **Zweck besser erfüllt** — klarer, eindeutiger, token-effizienter. Optimieren ist nicht gleich Kürzen: oft heißt das verdichten, genauso aber **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht — ein zu knappes oder unklares Ziel wird durch Addition besser, nicht durch weiteres Streichen.
 
 Zu optimierendes Ziel: **$ARGUMENTS**
 
@@ -28,6 +28,7 @@ diff -rq --exclude=.in_use mats-tools "${CLAUDE_PLUGIN_ROOT}"
 ```
 
   Den Namen (ohne `/` und `.md`) gegen die Liste matchen; ein Skill-Name trifft dessen `SKILL.md`. Greift `ls` nicht (anderes Arbeitsverzeichnis), per `Glob` `**/commands/*.md`, `**/agents/*.md`, `**/reference/*.md` und `**/skills/*/SKILL.md` nachladen.
+- **Werkstatt-Skill** (Pfad wie `skills/scan` oder cwd ist das Werkstatt-Repo): Ziel ist dessen `SKILL.md`; Prüfgrundlage bleibt der Standard aus dem Plugin, die Evals kommen aus `<repo-root>/evals.md` des Werkstatt-Repos (Abschnitt `## <name>`). Frische-Check dann nur `git status` (kein Plugin-Cache-Diff). Companion-Dateien (Code, `setup.sh`) werden nicht optimiert — nur die Prosa, die Claude lädt.
 - **Genau ein Treffer** → diese Datei. **Mehrere/keine** → per `AskUserQuestion` kurz rückfragen statt zu raten.
 - Ist `$ARGUMENTS` leer → frage, welches Ziel (Command, Agent oder Referenzdatei) optimiert werden soll.
 - **Meta-Pass:** Liegt der Treffer in `reference/` (z.B. `authoring-guide`, `evals`), ist die Referenzdatei *selbst* das Ziel. Prüfgrundlage ist dann **nicht** der Standard selbst (Zirkelschluss), sondern der Abschnitt „Meta-Pflege des Standards" im Guide: Zweck-Erfüllung + Abgleich gegen die dort verlinkten Upstream-Best-Practices (per `WebFetch`) und die aktuellen Plattform-Fähigkeiten. Gleiches gilt für `skills/claude-md/verfassung.md` (Ziel `claude-md` = SKILL.md **und** Verfassung): Prüfgrundlage ist deren Abschnitt „Meta-Pflege" — bleiben Router/Bereiche unter Budget, stimmt die Lademechanik noch?
@@ -39,7 +40,8 @@ Merke dir, ob es ein **Command**, **Agent** oder eine **Referenzdatei** ist — 
 ## Schritt 3 — Ziel + Evals lesen
 
 - Ziel-Datei lesen.
-- Falls vorhanden, die zugehörigen Szenarien aus `${CLAUDE_PLUGIN_ROOT}/reference/evals.md` (bzw. per Glob `**/reference/evals.md`) lesen — sie sagen, welches Verhalten erhalten bleiben muss.
+- Falls vorhanden, die zugehörigen Szenarien lesen — sie sagen, welches Verhalten erhalten bleiben muss: Plugin-Ziele aus `${CLAUDE_PLUGIN_ROOT}/reference/evals.md` (bzw. per Glob `**/reference/evals.md`), Werkstatt-Ziele aus `<repo-root>/evals.md`. Fehlt der Abschnitt, ist das selbst ein Befund (Schritt 4): erst Szenarien schreiben, dann schärfen.
+- Gibt es für das Ziel ein Szenario in `tools/eval.sh` (`tools/eval.sh --list`), ist ein Lauf **vor** dem Schärfen der billigste echte Befund — und **nach** dem Schärfen der Beweis, dass die Outcomes stehen.
 
 ## Schritt 4 — Zweck klären, dann gegen den Standard prüfen
 
@@ -68,7 +70,7 @@ Existiert `tools/validate.sh` im Repo-Root, führe es aus (`./tools/validate.sh`
 
 ## Schritt 7 — Housekeeping prüfen
 
-Wenn sich `description`, Name oder das nach außen sichtbare Verhalten geändert haben, weise darauf hin, dass `README.md`, `marketplace.json` und `plugin.json` synchronisiert werden müssen — und biete an, das via `/finish` mitzunehmen. Diese Dateien hier **nicht** ungefragt ändern.
+Wenn sich `description`, Name oder das nach außen sichtbare Verhalten geändert haben, weise darauf hin, dass die README-Zeile (Plugin: `README.md`; Werkstatt: dessen `README.md`) nachgezogen werden muss — und biete an, das via `/finish` mitzunehmen. Diese Datei hier **nicht** ungefragt ändern.
 
 ## Abschluss
 

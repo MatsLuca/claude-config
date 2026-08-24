@@ -107,7 +107,8 @@ Der Kasten verbessert sich durch die Arbeit mit sich selbst:
 - **Schärfen:** `/optimieren <baustein>` prüft gegen den Authoring-Standard
   (`mats-tools/reference/authoring-guide.md`) und die Outcome-Evals (`reference/evals.md`) —
   die beschreiben *beobachtbares Verhalten*, nie Implementierung, damit eine bessere
-  Umsetzung nie an alten Details scheitert.
+  Umsetzung nie an alten Details scheitert. `tools/eval.sh` lässt Szenarien headless im
+  Wegwerf-Fixture laufen und prüft das Ergebnis auf der Platte.
 - **Neu denken:** Neues Modell, neue Claude-Code-Fähigkeit → `/neudenken` über den Kasten.
 - **Absichern:** `tools/validate.sh` (lokal + GitHub Action bei jedem Push) prüft Manifeste,
   Frontmatter, README-Listing, Eval-Abdeckung, Plugin-Referenzen, Portabilität (BSD↔GNU) und
@@ -148,7 +149,8 @@ claude-config/
 ├── bootstrap.sh                  # Einzeiler-Setup für neue Rechner (macOS/Linux)
 ├── bootstrap.ps1                 # Einzeiler-Setup für neue Rechner (Windows)
 ├── tools/
-│   └── validate.sh               # strukturelle Verifikation (lokal + CI)
+│   ├── validate.sh               # strukturelle Verifikation (lokal + CI)
+│   └── eval.sh                   # Verhaltens-Evals headless im Fixture (echte Tokens, nicht in CI)
 ├── .github/workflows/
 │   └── validate.yml              # führt validate.sh bei jedem Push/PR aus
 ├── .claude-plugin/
