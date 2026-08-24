@@ -4,8 +4,6 @@
 #   1. Claude Code installieren (falls noch nicht da)
 #   2. Marketplace `claude-config` registrieren
 #   3. Plugin `mats-tools` installieren (user-scope)
-#   4. Skill-Werkstatt (skills/) nach ~/.claude/skills verlinken — nur aus einem Clone
-#      (`bash bootstrap.sh --skills-only` auf Rechnern, die sonst schon eingerichtet sind)
 #
 # Danach beim nächsten `claude`-Start: einloggen und den
 # `machine-setup`-Agent triggern (yolo-Alias, Status Line, Auto-Update, settings.json).
@@ -17,11 +15,6 @@
 
 set -euo pipefail
 
-# --skills-only: nur die Skill-Werkstatt einhängen (Symlinks + setup.sh), Rest überspringen —
-# für Rechner, auf denen Plugin und Claude schon laufen. Braucht einen lokalen Clone dieses Repos.
-SKILLS_ONLY=0
-[ "${1:-}" = "--skills-only" ] && SKILLS_ONLY=1
-
 MARKETPLACE="MatsLuca/claude-config"
 PLUGIN="mats-tools@claude-config"
 INSTALL_URL="https://claude.ai/install.sh"
@@ -31,32 +24,6 @@ log()  { printf '\033[1;34m▶  %s\033[0m\n' "$*"; }
 ok()   { printf '\033[1;32m✓  %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33m!  %s\033[0m\n' "$*"; }
 die()  { printf '\033[1;31m✗  %s\033[0m\n' "$*" >&2; exit 1; }
-
-# ── 0. Skill-Werkstatt einhängen (skills/ → ~/.claude/skills/<name>) ──────────
-# Läuft nur, wenn das Script aus einem Clone heraus gestartet wird (per curl | bash gibt es keinen).
-link_skills() {
-  local repo skills_src n src dst
-  repo="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
-  skills_src="$repo/skills"
-  [ -d "$skills_src" ] || { warn "Kein skills/-Ordner neben dem Script — Werkstatt übersprungen (Repo klonen, dann: bash bootstrap.sh --skills-only)."; return 0; }
-  mkdir -p "$HOME/.claude/skills"
-  for src in "$skills_src"/*/; do
-    n="$(basename "$src")"; dst="$HOME/.claude/skills/$n"
-    [ -f "$src/SKILL.md" ] || continue
-    if [ -L "$dst" ]; then
-      ln -sfn "${src%/}" "$dst"; ok "Skill $n verlinkt"
-    elif [ -e "$dst" ]; then
-      warn "~/.claude/skills/$n existiert als echter Ordner — nicht angefasst (sichern, entfernen, erneut ausführen)"
-      continue
-    else
-      ln -s "${src%/}" "$dst"; ok "Skill $n verlinkt"
-    fi
-    [ -x "$src/setup.sh" ] && { log "setup $n"; bash "$src/setup.sh" | sed 's/^/   /' || warn "setup.sh von $n meldete Probleme"; }
-  done
-}
-if [ "$SKILLS_ONLY" = 1 ]; then
-  link_skills; ok "Skill-Werkstatt eingehängt."; exit 0
-fi
 
 # ── 1. OS-Guard ───────────────────────────────────────────────────────────────
 case "$(uname -s)" in
@@ -102,9 +69,6 @@ log "Registriere Marketplace: $MARKETPLACE"
 log "Installiere Plugin: $PLUGIN"
 "$CLAUDE" plugin install "$PLUGIN" --scope user 2>&1 | sed 's/^/   /' \
   || warn "Plugin evtl. bereits installiert — fahre fort."
-
-# ── 4b. Skill-Werkstatt (nur aus einem Clone) ────────────────────────────────
-link_skills
 
 # ── 5. Fertig ─────────────────────────────────────────────────────────────────
 ok "Bootstrap abgeschlossen. Beim nächsten Start ist $PLUGIN aktiv."

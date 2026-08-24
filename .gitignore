@@ -1,12 +1,2 @@
 .DS_Store
 GEMINI.md
-plans/
-# Skill-Werkstatt: Lokales (venv, Binaries, Benchmark-Fotos, Caches, private Notizen) bleibt draußen — Repo ist public
-skills/*/_lokal/
-skills/**/__pycache__/
-skills/**/*.png
-skills/**/*.jpg
-skills/**/*.jpeg
-skills/**/*.JPG
-skills/**/*.heic
-skills/**/*.pdf

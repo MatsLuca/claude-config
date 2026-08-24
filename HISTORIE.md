@@ -2,6 +2,57 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## Stand bis 2026-08-24 (Audit-Pass, vor der Trennung)
+
+Der `/neudenken`-Pass (News-Kanal generisch, dünner Wrapper-Vertrag in `shell/start.sh`,
+Eval-Abdeckung im Validator, Guide kennt Skills) und die Skill-Werkstatt (fünf globale Skills
+`scan`/`pdf-unterschrift`/`gmail`/`kalender`/`standort` unter `skills/`, `_lokal/` für Privates,
+Validator-Check 7) sind **committet und gepusht** — Details in `HISTORIE.md`.
+
+Heute: **Mehrdimensionaler Audit** (4 Subagenten: Commands/Agents, Skill-Werkstatt,
+Infrastruktur/Shell, Privacy/Doku) + Umsetzung der Befunde:
+
+- **Privacy:** echte Adresse aus `skills/standort/SKILL.md` und Kita/BuT-Beispiel aus
+  `skills/gmail/SKILL.md` durch generische Platzhalter ersetzt (Repo ist public!).
+- **Validator gehärtet:** `${CLAUDE_PLUGIN_ROOT}`-Check liest jetzt auch `*.json`
+  (hooks.json-Referenz auf `news.sh` war ungeprüft — live reproduziert); Portabilitäts-Lint
+  deckt `statusline/` + `bootstrap.sh` ab; `bootstrap.ps1` wird per pwsh geparst (in CI;
+  lokal übersprungen, wenn kein pwsh); NEWS.md-Lint gegen doppelte `<!-- claude: -->`-Blöcke.
+- **`bootstrap.ps1`:** `-SkillsOnly`-Switch als Pendant zu `--skills-only` (Funktion nach
+  vorn gezogen; ungetestet auf echtem Windows, aber Parser-gedeckt).
+- **Modellpolitik Plugin-Agents:** `machine-setup` + `pdf-to-markdown` auf `model: inherit` —
+  kein Pinning; jeder Subscriber nutzt sein bestes Modell (Mats' Entscheidung 24.08.).
+- **scan-Diät:** Magic-Fit-Details + Benchmark-Historie aus der SKILL.md (16,5 KB) nach
+  `skills/scan/ALGORITHMUS.md` ausgelagert; SKILL.md wieder operativer Kern.
+- **Evals:** fünf Werkstatt-Skills als `## <name> (Werkstatt-Skill)` in `evals.md` +
+  Validator-Pflicht; Nachrüst-Modus-Szenario für `machine-setup` ergänzt.
+- Kleinkram: `optimieren.md` Schritt 2 als ein Bash-Block; README nennt Skills bei der
+  Verifikation.
+
+### HIER WEITERMACHEN (damals)
+
+- [ ] Audit-Stand committen/pushen; danach `/plugin update` + neue Session: Startzeile und
+  `news.sh --context` am echten Cache prüfen.
+- [ ] `bootstrap.ps1 -SkillsOnly` bei Gelegenheit auf einem echten Windows-Rechner verifizieren
+  (nur Parser-geprüft).
+- [ ] `bootstrap.sh`/`.ps1` könnten Claude direkt mit „Führe das machine-setup durch." starten
+  (Auto-Prompt-Mechanik existiert) — vorher auf Wegwerf-Maschine prüfen, ob der Login-Flow das
+  verträgt. Bewusst nicht blind umgesetzt.
+- [ ] Eigenen Wrapper in `~/.zshrc` optional auf den dünnen Vertrag umstellen (`MATS_TOOLS_SYNCED`
+  setzen, Fetch/Autoprompt-Teil entfernen) — Kickbacks-Blöcke bleiben.
+- [ ] Erstes echtes Exemplar des autonomen Nachrüstens kommt von einem der Jungs — deren
+  Zwei-Sätze-Zusammenfassung einholen; Windows-Zweig (Step 1W) danach korrigieren, falls nötig.
+- [ ] GitHub-Support-Ticket „purge cached sensitive data" ist **eingereicht** (24.08., Kategorie
+  Repositories/Branches, alle 9 SHAs aus beiden Rewrites) — auf Antwort warten, danach
+  stichprobenartig alte SHAs auf github.com prüfen; dann Anfragetext + Backup-Bundle in
+  `~/Documents/9_Temp/` löschen (Bundle enthält die Adresse noch).
+- [ ] Optional: Nachrüst-Modus auf einer Test-Maschine/Container live durchspielen (auf diesem
+  Mac bewusst nicht — eigener `claude()`-Wrapper).
+- [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents`, Budgets/Kopfzeilen prüfen →
+  `/optimieren claude-md`.
+- [ ] `inventar.sh` GNU-Zweig einmal im Container laufen lassen.
+- [ ] `~/Documents/9_Temp/welle*-bak/` (≈200 KB) löschen, wenn nichts vermisst wird.
+
 ## Stand bis 2026-08-23
 
 - **`/neudenken`-Pass:** Faden trägt, kein Grund-Umbau — vier Re-Optimierungen: News-Kanal

@@ -34,15 +34,10 @@ Three nesting levels, each with its own manifest:
    - `mats-tools/shell/start.sh` → sourced by the `claude()` wrapper that `machine-setup`
      installs; the wrapper in the rc file stays thin, the start line evolves here.
 
-4. **Skill-Werkstatt** — `skills/<name>/` (top-level, *not* plugin content): global skills with code,
-   binaries or machine state, linked into `~/.claude/skills/<name>` via symlink (`bootstrap.sh
-   --skills-only`). Edits take effect immediately; each skill carries `HISTORIE.md`; everything local or
-   private (venv, binaries, benchmark photos, notes naming third parties) lives in `_lokal/` (gitignored —
-   the repo is public; validator check 7 enforces it). Mature, markdown-only skills graduate into
-   `mats-tools/skills/`. Conventions: `skills/README.md`.
-
-`plans/` holds multi-session work plans (waves with checkboxes + protocol) — not plugin content and
-**gitignored** (local only): the protocols name private folders/people, and the repo is public.
+Skills with code, binaries or machine state are **not** here: they live in the private sibling repo
+`claude-werkstatt` (`../claude-werkstatt/`, symlinked into `~/.claude/skills/`) and graduate into
+`mats-tools/skills/` once they are markdown-only and useful to others. Multi-session plans (`plans/`)
+live there too — this repo is public and carries nothing private by construction.
 
 Adding a command, agent or skill = dropping a new file in the right directory with valid
 frontmatter. No manifest edit is needed for discovery — but **do** update the human-facing
@@ -89,13 +84,10 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 - **Public repo, real subscribers.** Two friends pull this plugin automatically at every
   launch; they are not programmers, trust Mats' setup, and one has rebuilt his Windows terminal
   (own status panel, start output suppressed). Consequences: nothing private or third-party in
-  tracked files (`plans/` stays gitignored; protocols live in `HISTORIE.md` only if harmless);
-  **examples never use real data** — no real addresses, institutions, domains, or names of
-  third parties, not even "just as an illustration" (use Musterstraße/beispiel.de; lesson from
-  the 2026-08-24 history rewrite). Validator check 8 greps tracked files against a
-  machine-local blocklist (`~/.config/claude-config/privat-lint.txt`, kept outside the repo
-  so the list itself leaks nothing; skipped in CI) — add new sensitive terms there;
-  `NEWS.md` entries are written for non-coders and make Claude *act*, never ask; `machine-setup`
+  tracked files — **examples never use real data** (no real addresses, institutions, domains, or
+  names of third parties, not even "just as an illustration"; use Musterstraße/beispiel.de; lesson
+  from the 2026-08-24 history rewrite). Anything private belongs in `claude-werkstatt`, not here.
+  `NEWS.md` entries are written for non-coders; `machine-setup`
   never overwrites customised pieces without being in its own managed block.
 - **Precedence over plugin-dev:** Anthropic's `plugin-dev` plugin (if installed) serves as a
   *technical reference only* (hook definitions, MCP bundling, plugin.json/marketplace schemas).
@@ -118,51 +110,28 @@ Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verif
 
 ## Aktueller Stand (2026-08-24)
 
-Der `/neudenken`-Pass (News-Kanal generisch, dünner Wrapper-Vertrag in `shell/start.sh`,
-Eval-Abdeckung im Validator, Guide kennt Skills) und die Skill-Werkstatt (fünf globale Skills
-`scan`/`pdf-unterschrift`/`gmail`/`kalender`/`standort` unter `skills/`, `_lokal/` für Privates,
-Validator-Check 7) sind **committet und gepusht** — Details in `HISTORIE.md`.
+Nach dem Audit-Pass (Privacy, Validator-Härtung, Evals — Details `HISTORIE.md`) hat ein
+`/neudenken` den Zweck neu gefasst: **ein Werkzeugkasten für die Arbeit mit Claude, der sich durch
+die Arbeit mit ihm selbst schärft.** Freunde sind Empfänger von Geschenken, kein Vertrag. Plan mit
+vier Wellen: `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`.
 
-Heute: **Mehrdimensionaler Audit** (4 Subagenten: Commands/Agents, Skill-Werkstatt,
-Infrastruktur/Shell, Privacy/Doku) + Umsetzung der Befunde:
-
-- **Privacy:** echte Adresse aus `skills/standort/SKILL.md` und Kita/BuT-Beispiel aus
-  `skills/gmail/SKILL.md` durch generische Platzhalter ersetzt (Repo ist public!).
-- **Validator gehärtet:** `${CLAUDE_PLUGIN_ROOT}`-Check liest jetzt auch `*.json`
-  (hooks.json-Referenz auf `news.sh` war ungeprüft — live reproduziert); Portabilitäts-Lint
-  deckt `statusline/` + `bootstrap.sh` ab; `bootstrap.ps1` wird per pwsh geparst (in CI;
-  lokal übersprungen, wenn kein pwsh); NEWS.md-Lint gegen doppelte `<!-- claude: -->`-Blöcke.
-- **`bootstrap.ps1`:** `-SkillsOnly`-Switch als Pendant zu `--skills-only` (Funktion nach
-  vorn gezogen; ungetestet auf echtem Windows, aber Parser-gedeckt).
-- **Modellpolitik Plugin-Agents:** `machine-setup` + `pdf-to-markdown` auf `model: inherit` —
-  kein Pinning; jeder Subscriber nutzt sein bestes Modell (Mats' Entscheidung 24.08.).
-- **scan-Diät:** Magic-Fit-Details + Benchmark-Historie aus der SKILL.md (16,5 KB) nach
-  `skills/scan/ALGORITHMUS.md` ausgelagert; SKILL.md wieder operativer Kern.
-- **Evals:** fünf Werkstatt-Skills als `## <name> (Werkstatt-Skill)` in `evals.md` +
-  Validator-Pflicht; Nachrüst-Modus-Szenario für `machine-setup` ergänzt.
-- Kleinkram: `optimieren.md` Schritt 2 als ein Bash-Block; README nennt Skills bei der
-  Verifikation.
+- **Welle 1 (Trennen) — erledigt:** Werkstatt (`skills/`, `plans/`, `_lokal`-Inhalte) ins private
+  Repo `claude-werkstatt` gezogen, Symlinks umgebogen, `_lokal/` dort aufgelöst. Hier entfernt:
+  `skills/`, `plans/`, `--skills-only`/`-SkillsOnly`, Validator-Checks 7 + 8, Werkstatt-Evals.
+  Sperrliste `~/.config/claude-config/privat-lint.txt` bleibt als Rezept (`~/.claude/reference/privacy.md`).
 
 ## HIER WEITERMACHEN
 
-- [ ] Audit-Stand committen/pushen; danach `/plugin update` + neue Session: Startzeile und
-  `news.sh --context` am echten Cache prüfen.
-- [ ] `bootstrap.ps1 -SkillsOnly` bei Gelegenheit auf einem echten Windows-Rechner verifizieren
-  (nur Parser-geprüft).
-- [ ] `bootstrap.sh`/`.ps1` könnten Claude direkt mit „Führe das machine-setup durch." starten
-  (Auto-Prompt-Mechanik existiert) — vorher auf Wegwerf-Maschine prüfen, ob der Login-Flow das
-  verträgt. Bewusst nicht blind umgesetzt.
-- [ ] Eigenen Wrapper in `~/.zshrc` optional auf den dünnen Vertrag umstellen (`MATS_TOOLS_SYNCED`
-  setzen, Fetch/Autoprompt-Teil entfernen) — Kickbacks-Blöcke bleiben.
-- [ ] Erstes echtes Exemplar des autonomen Nachrüstens kommt von einem der Jungs — deren
-  Zwei-Sätze-Zusammenfassung einholen; Windows-Zweig (Step 1W) danach korrigieren, falls nötig.
-- [ ] GitHub-Support-Ticket „purge cached sensitive data" ist **eingereicht** (24.08., Kategorie
-  Repositories/Branches, alle 9 SHAs aus beiden Rewrites) — auf Antwort warten, danach
-  stichprobenartig alte SHAs auf github.com prüfen; dann Anfragetext + Backup-Bundle in
-  `~/Documents/9_Temp/` löschen (Bundle enthält die Adresse noch).
-- [ ] Optional: Nachrüst-Modus auf einer Test-Maschine/Container live durchspielen (auf diesem
-  Mac bewusst nicht — eigener `claude()`-Wrapper).
-- [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents`, Budgets/Kopfzeilen prüfen →
-  `/optimieren claude-md`.
-- [ ] `inventar.sh` GNU-Zweig einmal im Container laufen lassen.
-- [ ] `~/Documents/9_Temp/welle*-bak/` (≈200 KB) löschen, wenn nichts vermisst wird.
+- [ ] **Welle 2 (Schneiden):** News nur Info (Aktion/Autoprompt/Nachrüst-Modus raus, Eintrag 22.08.
+      ersetzen), `machine-setup` → `shell/setup.sh` + dünner Agent, Dreifach-Listung → README,
+      README-Story auf den Zweck-Satz. `start.sh`-Legacy-Pfad bleibt, bis beide Freunde bestätigt haben.
+- [ ] **Welle 3 (Loop scharf):** `tools/eval.sh` (Headless-Runner für 2–3 Commands), `/optimieren`
+      kennt `<repo>/evals.md` (Werkstatt), Guide-Meta-Pass, Ritus „neues Modell → /neudenken".
+- [ ] **Welle 4 (Kontext-Gerüst):** `~/.claude/CLAUDE.md`-Regel + `reference/werkzeugkasten.md`,
+      `privacy.md` anpassen, Memory, zsh-Alias `claude-werkstatt`, Wiedervorlage Legacy-Pfad.
+- [ ] Bei den Jungs nachfragen, ob die Aktions-Nachricht vom 22.08. schon angekommen ist
+      (Zwei-Sätze-Zusammenfassung); Windows-Zweig danach ggf. korrigieren.
+- [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.) — auf Antwort warten,
+      dann alte SHAs stichprobenartig prüfen, danach Anfragetext + Backup-Bundles in `9_Temp/` löschen.
+- [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents` → `/optimieren claude-md`; `inventar.sh`
+      GNU-Zweig einmal im Container laufen lassen.
