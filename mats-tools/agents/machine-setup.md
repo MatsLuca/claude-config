@@ -16,17 +16,20 @@ choice.
 ## 1. Recon (before changing anything)
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/shell/setup.sh" --dry-run
+MT="${CLAUDE_PLUGIN_ROOT:-}"; [ -f "$MT/shell/setup.sh" ] || MT=$(awk '/"mats-tools@claude-config"/{b=1} b&&/"installPath"/{sub(/.*"installPath": *"/,""); sub(/",?[[:space:]]*$/,""); print; exit}' ~/.claude/plugins/installed_plugins.json)
+bash "$MT/shell/setup.sh" --dry-run
 ```
 
+(The first line resolves the plugin dir even if `${CLAUDE_PLUGIN_ROOT}` is not expanded for
+you; reuse `$MT` below. If `setup.sh` is still not found, stop and report — never improvise.)
+
 Summarise in one German line what it found (OS, Shell + rc-Datei, Container ja/nein, jq
-vorhanden?) and what it *would* do. If the output says `FATAL`, stop and report — do not
-improvise the setup from memory.
+vorhanden?) and what it *would* do. `FATAL` → stop and report.
 
 ## 2. Run
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/shell/setup.sh"
+bash "$MT/shell/setup.sh"
 ```
 
 The script is idempotent and never overwrites anything outside its managed block. React to
