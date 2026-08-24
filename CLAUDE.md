@@ -90,6 +90,11 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   launch; they are not programmers, trust Mats' setup, and one has rebuilt his Windows terminal
   (own status panel, start output suppressed). Consequences: nothing private or third-party in
   tracked files (`plans/` stays gitignored; protocols live in `HISTORIE.md` only if harmless);
+  **examples never use real data** — no real addresses, institutions, domains, or names of
+  third parties, not even "just as an illustration" (use Musterstraße/beispiel.de; lesson from
+  the 2026-08-24 history rewrite). Validator check 8 greps tracked files against a
+  machine-local blocklist (`~/.config/claude-config/privat-lint.txt`, kept outside the repo
+  so the list itself leaks nothing; skipped in CI) — add new sensitive terms there;
   `NEWS.md` entries are written for non-coders and make Claude *act*, never ask; `machine-setup`
   never overwrites customised pieces without being in its own managed block.
 - **Precedence over plugin-dev:** Anthropic's `plugin-dev` plugin (if installed) serves as a

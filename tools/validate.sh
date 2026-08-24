@@ -18,6 +18,9 @@
 #   7. Skill-Werkstatt (skills/): Frontmatter, README-Listing, HISTORIE, Eval-Abschnitt,
 #      und dass nichts Lokales/Privates (_lokal/, venv, Bilder, PDFs) getrackt ist —
 #      das Repo ist public.
+#   8. Privat-Lint: getrackte Dateien gegen eine maschinen-lokale Sperrliste privater
+#      Begriffe (~/.config/claude-config/privat-lint.txt, NICHT im Repo); ohne Liste
+#      (z. B. CI) übersprungen.
 #
 # Verhaltens-Evals (reference/evals.md) prüft das hier NICHT — die laufen headless
 # bzw. manuell, siehe den Loop-Abschnitt in evals.md.
@@ -195,6 +198,20 @@ for s in skills/*/setup.sh; do
   bash -n "$s" 2>/dev/null && ok "Syntax ok: $s" || fail "Shell-Syntaxfehler: $s"
 done
 ok "Skill-Werkstatt (skills/): Frontmatter, README-Listing, HISTORIE, Privates geprüft"
+
+# ── 8. Privat-Lint (nur lokal) ────────────────────────────────────────────────
+# Maschinen-lokale Sperrliste privater Begriffe (Adressen, Namen, Einrichtungen) —
+# liegt bewusst AUSSERHALB des Repos, damit sie selbst nichts verrät. Fehlt sie
+# (z. B. in CI), wird der Check übersprungen. Eine Zeile = ein Begriff.
+PRIVAT_LINT="${PRIVAT_LINT:-$HOME/.config/claude-config/privat-lint.txt}"
+if [ -s "$PRIVAT_LINT" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  treffer=$(git ls-files -z | xargs -0 grep -liF -f "$PRIVAT_LINT" 2>/dev/null || true)
+  [ -z "$treffer" ] && ok "Privat-Lint: keine gesperrten Begriffe in getrackten Dateien" \
+    || fail "Privat-Lint: gesperrte Begriffe in getrackten Dateien:
+$treffer"
+else
+  ok "Privat-Lint: keine Sperrliste ($PRIVAT_LINT) — übersprungen"
+fi
 
 # ── Ergebnis ──────────────────────────────────────────────────────────────────
 echo
