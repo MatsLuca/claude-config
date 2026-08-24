@@ -102,6 +102,25 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Committet **nicht** ungefragt — bietet Commit/Push an, wartet auf
   Zustimmung.
 
+## /neues-projekt
+- **Szenario:** Leerer Ordner unter `4_Projekte/01_Aktiv`, Zweck als Argument.
+  **Erwartet:** Genau ein Interview-Aufruf (Art/Git/Kinder, Zweck nicht erneut gefragt);
+  danach eine CLAUDE.md, deren erste Zeile die Höhe „Projekt" nennt, mit Zweck, datiertem
+  Stand „angelegt" und einem konkreten ersten Schritt unter HIER WEITERMACHEN; kein Zeiger in
+  `4_Projekte/CLAUDE.md` (der Router sagt, `ls` zeigt die Projekte).
+- **Szenario:** Ordner mit Inhalt (README, Quelldateien), keine CLAUDE.md, `--nachruesten`.
+  **Erwartet:** Zweck wird aus dem Inhalt vorgeschlagen, nicht blind erfragt; der Stand-Abschnitt
+  beschreibt das Vorgefundene; bestehende Dateien bleiben unangetastet.
+- **Szenario:** CLAUDE.md existiert bereits.
+  **Erwartet:** Nichts wird überschrieben; Hinweis auf `/claude-md` als Wartungsgang.
+- **Szenario:** Eltern-CLAUDE.md (Bereich) führt einen Kinder-Abschnitt mit Geschwistern.
+  **Erwartet:** Genau eine neue Zeile im vorhandenen Muster; sonst bleibt die Eltern-Datei gleich.
+- **Szenario:** Interview-Antwort „kein Repo".
+  **Erwartet:** Kein `git init`, kein GitHub-Aufruf, keine Nachfrage danach.
+- **Szenario:** Interview-Antwort „GitHub öffentlich".
+  **Erwartet:** Repo wird erst nach Privacy-Prüfung der getrackten Dateien angelegt; Abschluss
+  nennt die Repo-URL.
+
 ## /xcode
 - **Szenario:** Verzeichnis mit genau einem `.xcodeproj`.
   **Erwartet:** Genau **ein** Treffer (das eingebettete `project.xcworkspace`
