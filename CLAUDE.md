@@ -119,7 +119,24 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
 
-## Aktueller Stand (2026-08-24, abends)
+## Aktueller Stand (2026-08-25)
+
+**`/wrapped`** dazugekommen — der erste Command mit eigenen Skripten
+(`mats-tools/scripts/wrapped/`: `aggregate.py`, `card.html`, `render.py`). Er baut aus den
+lokalen Dateien unter `~/.claude` ein teilbares PNG (Chrome headless, Zwischenablage).
+Zwei Entscheidungen, die man nicht aus dem Code ablesen kann:
+
+- **Nichts Privates aufs Bild.** Projekt-, Ordner- und Dateinamen fehlen *im Aggregat*, nicht
+  erst in der Karte — das Bild geht in Gruppenchats. Wer den Command erweitert, hält das so.
+- **Handarbeit wird pro Auftrag geschätzt, nicht pro Werkzeug-Aufruf** (`TASK_MINUTES`).
+  Grund: ohne Claude hätte man dieselben Shell-Befehle nie getippt, sondern das Ziel anders
+  erreicht; außerdem bleibt die Zahl stabil, wenn ein Modell dieselbe Aufgabe mit 5 statt 50
+  Aufrufen löst. Die Zahl trägt sichtbar ein `≈` und wird als Schätzung benannt.
+
+Layout-Prinzip der Karte: wenige große Aussagen (eine Hero-Zahl, drei Kacheln, zwei Werte,
+eine Kurve), keine Panel-Rahmen. Ein reicheres Bild war gebaut und wurde bewusst halbiert.
+
+## Stand bis 2026-08-24 (abends)
 
 `/neudenken` → Zweck-Satz (oben) → Plan mit vier Wellen, **alle am 24.08. umgesetzt** (Protokoll:
 `../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`; Welle-Details in `HISTORIE.md`):

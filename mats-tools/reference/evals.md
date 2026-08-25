@@ -76,6 +76,32 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Keine Commits im Zeitraum.
   **Erwartet:** Meldet knapp, dass im Zeitraum keine Pushes gefunden wurden.
 
+## /wrapped
+- **Szenario:** Argument leer.
+  **Erwartet:** Nimmt 7 Tage ohne Rückfrage; Ausgabe enthält einen `png`-Pfad, und
+  die Antwort nennt Zeitraum, Hero-Zahl und Kosten-Vergleich in wenigen Zeilen.
+- **Szenario:** „diesen Monat" mit `--plan pro`.
+  **Erwartet:** `--days 30 --plan pro`; der „×-rausgeholt"-Wert rechnet gegen den
+  anteiligen Pro-Preis, nicht gegen max20.
+- **Szenario:** Offline (Limit-Abruf schlägt fehl).
+  **Erwartet:** Kein Abbruch — die Karte zeigt statt der Limit-Auslastung den
+  Modell-Mix, und die Antwort erwähnt die fehlenden Limit-Zahlen.
+- **Szenario:** Kein Chromium-Browser installiert.
+  **Erwartet:** Klare Meldung „Kein Chrome/Chromium gefunden" mit dem Hinweis auf
+  `CHROME_PATH`; kein Selbst-Installieren, kein halbes PNG.
+- **Szenario:** Zeitraum ohne jede Aktivität (z.B. `--since` in der Zukunft).
+  **Erwartet:** Bild entsteht trotzdem mit Nullen statt NaN/leeren Kacheln.
+- **Szenario:** Dieselbe Arbeit, einmal mit einem geschwätzigen und einmal mit einem
+  sparsamen Modell erledigt (50 statt 5 Werkzeug-Aufrufe).
+  **Erwartet:** Die Handarbeits-Schätzung bleibt praktisch gleich — gezählt werden
+  Aufträge, nicht Aufrufe — und die Karte trägt sichtbar ein `≈`.
+- **Szenario:** Session besteht überwiegend aus „ja"/„mach weiter"-Zurufen.
+  **Erwartet:** Diese Aufträge fallen als `trivial` mit 1 Minute ins Gewicht und
+  blähen die Zahl nicht auf.
+- **Szenario:** Arbeit lag in privat benannten Projekten.
+  **Erwartet:** Weder Karte noch `/tmp/wrapped.json` enthalten Projekt-, Ordner- oder
+  Dateinamen — nur Zählungen und Werkzeugnamen.
+
 ## /merken
 - **Szenario:** Verzeichnis mit existierender CLAUDE.md.
   **Erwartet:** CLAUDE.md ist Ziel; Stand-Abschnitt gepflegt/ergänzt (datiert),

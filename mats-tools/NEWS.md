@@ -11,6 +11,22 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-08-25 · Neu: /wrapped — deine Claude-Woche als Bild
+
+<!-- claude:
+Der Command liegt unter commands/wrapped.md, die Skripte unter scripts/wrapped/.
+Er liest nur lokale Dateien (~/.claude) und rendert mit Chrome headless ein PNG,
+das direkt in der Zwischenablage landet. Kein Setup nötig, nichts wird hochgeladen.
+Falls jemand fragt: Zeitraum als Argument ("/wrapped diesen Monat"), Farbwelten
+aurora/ember/deep/moss/vhs, Abo für den Kostenvergleich per --plan.
+-->
+
+Tippt mal `/wrapped` — ihr bekommt eure letzten 7 Tage mit Claude Code als Bild:
+wie viele Tokens durchgelaufen sind, was das an der API gekostet hätte, wie weit euer
+Limit ausgereizt ist und wann ihr nachts noch wach wart. Landet direkt in der
+Zwischenablage, also einfach in den Chat pasten. Alles wird lokal berechnet, es geht
+nichts raus — und Projekt- oder Dateinamen stehen absichtlich nicht drauf.
+
 ## 2026-08-24 · Kurz von Mats: Nachrichten bleiben Nachrichten
 <!-- claude:
 Reine Information. Falls dieser Nutzer noch einen Rest der früheren Aktions-Nachricht vom

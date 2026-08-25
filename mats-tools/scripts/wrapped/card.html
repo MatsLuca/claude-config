@@ -1,0 +1,205 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Claude Code Wrapped</title>
+<!--
+  Karte fuer /wrapped. Daten von aggregate.py, von render.py anstelle von
+  __DATA__ / __THEME__ eingesetzt; Layout und Design stehen komplett hier.
+  Gerendert mit Chrome headless bei 1080x1350 @2x.
+
+  Leitlinie: wenige grosse Aussagen. Eine Hero-Zahl, drei Kacheln, zwei Panels,
+  eine Kurve. Kein Projekt- und kein Dateiname - das Bild geht in Gruppenchats.
+-->
+<style>
+  :root {
+    --bg0: #07070f; --bg1: #140b2e; --ink: #ffffff; --dim: rgba(255,255,255,.52);
+    --a1: #ff2d95; --a2: #ffd166; --a3: #22e5c8; --card: rgba(255,255,255,.055);
+  }
+  /* __THEME__ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1250px; }
+  body {
+    background: var(--bg0);
+    color: var(--ink);
+    font-family: "SF Pro Display", "Helvetica Neue", Inter, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .bg { position: fixed; inset: 0; z-index: 0; background:
+      radial-gradient(1000px 720px at 90% -14%, var(--a1) 0%, transparent 62%),
+      radial-gradient(820px 640px at -10% 22%, var(--a3) 0%, transparent 58%),
+      radial-gradient(900px 820px at 55% 120%, var(--a2) 0%, transparent 58%),
+      linear-gradient(168deg, var(--bg1) 0%, var(--bg0) 58%); }
+  .grain { position: fixed; inset: 0; z-index: 1; opacity: .14; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.5'/></svg>"); }
+  .wrap { position: relative; z-index: 2; height: 100%; padding: 72px 70px 56px;
+    display: flex; flex-direction: column; justify-content: space-between; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .kicker { font-size: 25px; font-weight: 800; letter-spacing: .30em; text-transform: uppercase; }
+  .who { font-size: 25px; font-weight: 700; letter-spacing: .02em; }
+  .period { font-size: 23px; color: var(--dim); margin-top: 13px; letter-spacing: .04em; }
+
+  .hero { margin-top: 0; }
+  .hero .num { font-size: 190px; font-weight: 800; line-height: .88; letter-spacing: -.05em;
+    text-shadow: 0 14px 70px rgba(0,0,0,.4); }
+  .hero .num.long { font-size: 148px; }
+  .hero .label { font-size: 29px; font-weight: 700; letter-spacing: .20em;
+    text-transform: uppercase; color: var(--a2); margin-top: 26px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .tile .v { font-size: 62px; font-weight: 800; letter-spacing: -.035em; line-height: 1; }
+  .tile .k { font-size: 22px; color: var(--dim); margin-top: 12px; letter-spacing: .04em; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
+  .money .v { font-size: 76px; font-weight: 800; letter-spacing: -.035em; color: var(--a3);
+    line-height: 1; }
+  .money .k { font-size: 23px; color: var(--dim); margin-top: 13px; }
+  .limit { display: flex; align-items: center; gap: 24px; justify-content: flex-end; }
+  .limit .pct { font-size: 76px; font-weight: 800; letter-spacing: -.035em; line-height: 1; }
+  .limit .k { font-size: 23px; color: var(--dim); margin-top: 13px; }
+
+  .hours { display: flex; align-items: flex-end; gap: 6px; height: 128px; }
+  .hours .h { flex: 1; border-radius: 6px 6px 2px 2px; background: rgba(255,255,255,.20);
+    min-height: 3px; }
+  .hours .h.peak { background: linear-gradient(180deg, var(--a2), var(--a1)); }
+  .facts { display: flex; gap: 58px; margin-top: 24px; }
+  .facts div { font-size: 22px; color: var(--dim); }
+  .facts b { color: var(--ink); font-weight: 700; }
+
+  footer { font-size: 20px; color: var(--dim);
+    letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
+</style>
+
+<div class="bg"></div><div class="grain"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker">Claude Code Wrapped</div>
+      <div class="period" id="period"></div>
+    </div>
+    <span class="who" id="who"></span>
+  </header>
+
+  <div class="hero">
+    <div class="num" id="hero-num"></div>
+    <div class="label" id="hero-label"></div>
+  </div>
+
+  <div class="grid" id="tiles"></div>
+
+  <div class="row">
+    <div class="money">
+      <div class="v" id="money-v"></div>
+      <div class="k" id="money-k"></div>
+    </div>
+    <div class="limit" id="limit">
+      <svg width="104" height="104" viewBox="0 0 104 104">
+        <circle cx="52" cy="52" r="44" fill="none" stroke="rgba(255,255,255,.13)" stroke-width="13"/>
+        <circle id="ring-arc" cx="52" cy="52" r="44" fill="none" stroke="url(#g)" stroke-width="13"
+                stroke-linecap="round" transform="rotate(-90 52 52)"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="var(--a2)"/><stop offset="1" stop-color="var(--a1)"/>
+        </linearGradient></defs>
+      </svg>
+      <div>
+        <div class="pct" id="limit-v"></div>
+        <div class="k" id="limit-k"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="hours" id="hours"></div>
+    <div class="facts" id="facts"></div>
+  </div>
+  <footer>/wrapped</footer>
+</div>
+
+<script>
+const D = __DATA__;
+
+const de = new Intl.NumberFormat("de-DE");
+const nf = n => de.format(Math.round(n));
+// Grosse Zahlen lesbar: 850000000 -> "850,0 Mio."
+function human(n) {
+  if (n >= 1e9) return (n / 1e9).toFixed(1).replace(".", ",") + " Mrd.";
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(".", ",") + " Mio.";
+  if (n >= 1e4) return nf(n / 1e3) + " Tsd.";
+  return nf(n);
+}
+const usd = n => n > 0 && n < 10 ? "$" + n.toFixed(1).replace(".", ",") : "$" + de.format(Math.round(n));
+const dmy = iso => new Date(iso).toLocaleDateString("de-DE", { day: "numeric", month: "short" });
+const TOOL_NAME = t => t.replace(/^mcp__[^_]*__/, "").replace(/^mcp__/, "");
+
+// Welche Zahl steht gross oben? Deine Entscheidung, Mats - siehe TODO.
+function pickHero(d) {
+  return { value: human(d.tokens.total), label: "Tokens durch Claude geschickt" };
+}
+
+const p = D.period, v = D.volume, m = D.money, r = D.rhythm;
+
+document.getElementById("who").textContent = D.user || "";
+document.getElementById("period").textContent =
+  `${dmy(p.since)} – ${dmy(p.until)} ${new Date(p.until).getFullYear()}`;
+
+const hero = pickHero(D);
+const numEl = document.getElementById("hero-num");
+numEl.textContent = hero.value;
+if (hero.value.length > 10) numEl.classList.add("long");
+document.getElementById("hero-label").textContent = hero.label;
+
+// Dritte Kachel: die geschaetzte Handarbeit. Ab zwei Arbeitstagen in Tagen a 8 h -
+// "5 Tage" versteht auch jemand, der nie ein Terminal gesehen hat; "40 h" nicht sofort.
+// Das Naeherungszeichen ist Absicht: die Zahl ist eine Schaetzung, keine Messung.
+function handwork(h) {
+  if (!h) return null;
+  if (h >= 16) return ["≈ " + Math.round(h / 8) + " Tage", "Handarbeit ersetzt"];
+  if (h >= 1) return ["≈ " + Math.round(h) + " h", "Handarbeit ersetzt"];
+  return ["≈ " + Math.round(h * 60) + " min", "Handarbeit ersetzt"];
+}
+document.getElementById("tiles").innerHTML = [
+  [nf(v.sessions), "Sessions"],
+  [nf(v.prompts), "Prompts getippt"],
+  handwork(v.handwork_hours) || [nf(v.tool_calls), "Tool-Aufrufe"],
+].map(([a, b]) => `<div class="tile"><div class="v">${a}</div><div class="k">${b}</div></div>`).join("");
+
+document.getElementById("money-v").textContent = usd(m.api_usd);
+document.getElementById("money-k").textContent = m.leverage
+  ? `API-Wert · ${String(m.leverage).replace(".", ",")}× dein Abo`
+  : "API-Wert";
+
+// Ohne Live-Limit tritt der Anteil des meistgenutzten Modells an die Stelle
+const L = D.limits || {};
+const main = L.scoped || L.seven_day || L.weekly || L.five_hour;
+const turns = D.models.reduce((s, x) => s + x.turns, 0);
+let pct = null, cap = "";
+if (main) {
+  pct = Math.round(main.percent);
+  cap = main.label + " verbraucht";
+} else if (turns && D.models[0]) {
+  pct = Math.round(D.models[0].turns / turns * 100);
+  cap = "der Antworten von " + D.models[0].name;
+}
+if (pct === null) {
+  document.getElementById("limit").style.visibility = "hidden";
+} else {
+  const circ = 2 * Math.PI * 44;
+  document.getElementById("ring-arc")
+    .setAttribute("stroke-dasharray", `${circ * Math.min(pct, 100) / 100} ${circ}`);
+  document.getElementById("limit-v").textContent = pct + "%";
+  document.getElementById("limit-k").textContent = cap;
+}
+
+const hours = r.by_hour, hmax = Math.max(...hours, 1);
+document.getElementById("hours").innerHTML = hours.map((n, h) =>
+  `<div class="h ${h === r.peak_hour ? "peak" : ""}" style="height:${Math.max(3, n / hmax * 132)}px"></div>`
+).join("");
+
+const facts = [];
+if (r.peak_hour !== null) facts.push([`${String(r.peak_hour).padStart(2, "0")} Uhr`, "am aktivsten"]);
+if (r.latest_night) facts.push([r.latest_night, "spätester Turn"]);
+facts.push([`${r.streak_current} Tage`, "am Stück"]);
+document.getElementById("facts").innerHTML = facts
+  .map(([b, k]) => `<div><b>${b}</b> ${k}</div>`).join("");
+</script>
