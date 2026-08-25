@@ -83,6 +83,11 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** „diesen Monat" mit `--plan pro`.
   **Erwartet:** `--days 30 --plan pro`; der „×-rausgeholt"-Wert rechnet gegen den
   anteiligen Pro-Preis, nicht gegen max20.
+- **Szenario:** Zwei Läufe am selben Tag, ohne `--theme`.
+  **Erwartet:** Dieselbe Farbwelt — die Wahl hängt am Datum, nicht an der Uhrzeit.
+- **Szenario:** Kein Netz und kein Wechselkurs-Cache.
+  **Erwartet:** Die Karte zeigt trotzdem Euro (letzter bekannter oder Näherungskurs),
+  statt abzubrechen oder auf Dollar zurückzufallen.
 - **Szenario:** Offline (Limit-Abruf schlägt fehl).
   **Erwartet:** Kein Abbruch — die Karte zeigt statt der Limit-Auslastung den
   Modell-Mix, und die Antwort erwähnt die fehlenden Limit-Zahlen.

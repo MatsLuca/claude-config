@@ -30,7 +30,8 @@ aus. Wird der Command erweitert, bleibt das so.
 
 Zahl + Einheit verallgemeinern (Wochen ×7, Monate ×30). Nennt Mats ein Abo
 (`pro`, `max5`, `max20`, `team`), hänge `--plan <name>` an — Default ist `max20`,
-er bestimmt nur den „×-rausgeholt"-Vergleich. Nennt er eine Farbwelt
+er bestimmt nur den „×-rausgeholt"-Vergleich. Beträge stehen in **Euro** (Kurs aus
+derselben Quelle wie die Status Line, höchstens einmal täglich geholt). Nennt er eine Farbwelt
 (`aurora`, `ember`, `deep`, `moss`, `vhs`), reiche sie als `--theme` an Schritt 2 durch;
 sonst wählt das Skript sie stabil aus dem Zeitraum.
 

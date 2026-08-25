@@ -61,7 +61,9 @@ def pick_theme(data: dict, wanted: str | None) -> str:
     if wanted:
         sys.exit(f"Unbekanntes Theme '{wanted}'. Verfuegbar: {', '.join(THEMES)}")
     names = list(THEMES)
-    seed = sum(ord(c) for c in data.get("period", {}).get("since", ""))
+    # Nur das Datum als Grundlage, nicht die Uhrzeit: sonst kaeme bei jedem Aufruf
+    # eine andere Farbwelt heraus, weil "die letzten 7 Tage" minutengenau beginnen.
+    seed = sum(ord(c) for c in data.get("period", {}).get("since", "")[:10])
     return names[seed % len(names)]
 
 

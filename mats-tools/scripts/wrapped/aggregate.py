@@ -19,6 +19,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 
 HOME = os.path.expanduser("~")
 CLAUDE = os.environ.get("CLAUDE_CONFIG_DIR", os.path.join(HOME, ".claude"))
@@ -321,6 +322,44 @@ def scan_history() -> dict:
     return {"streak_current": current, "streak_best": best, "days_total": len(days)}
 
 
+# -------------------------------------------------------------------- Kurs
+
+FALLBACK_EUR = 0.92                # nur wenn Cache leer und Netz weg
+
+
+def usd_eur_rate(timeout: int = 4) -> tuple[float, bool]:
+    """USD->EUR. Teilt sich Datei und Quelle mit der Status Line, damit beide
+    Zahlen zusammenpassen; hoechstens ein Abruf pro Tag. Zweiter Rueckgabewert
+    sagt, ob der Kurs echt ist - sonst steht ein Naeherungszeichen auf der Karte."""
+    cache = os.path.join(CLAUDE, ".usd_eur_rate")
+    try:
+        if os.path.exists(cache) and time.time() - os.path.getmtime(cache) < 86400:
+            value = float(open(cache).read().strip())
+            if value > 0:
+                return value, True
+    except (OSError, ValueError):
+        pass
+    try:
+        raw = subprocess.run(
+            ["curl", "-s", "--max-time", str(timeout),
+             "https://open.er-api.com/v6/latest/USD"],
+            capture_output=True, text=True, timeout=timeout + 2).stdout
+        value = float((json.loads(raw).get("rates") or {})["EUR"])
+        if value > 0:
+            with open(cache, "w") as handle:
+                handle.write(str(value))
+            return value, True
+    except (subprocess.SubprocessError, ValueError, KeyError, OSError):
+        pass
+    try:                                # abgelaufener Cache ist besser als geraten
+        value = float(open(cache).read().strip())
+        if value > 0:
+            return value, False
+    except (OSError, ValueError):
+        pass
+    return FALLBACK_EUR, False
+
+
 # ------------------------------------------------------------------- Limits
 
 def fetch_limits(timeout: int = 6) -> dict:
@@ -389,6 +428,7 @@ def build(args) -> dict:
     logged_cost = scan_cost_log(since, until, tx["sessions"])
     history = scan_history()
 
+    rate, rate_live = usd_eur_rate()
     span_days = max(1, (until - since).days)
     plan_share = PLANS.get(args.plan, PLANS["max20"]) / 30.0 * span_days
 
@@ -431,14 +471,18 @@ def build(args) -> dict:
             "total": tok["input"] + tok["output"] + tok["cache_write"] + tok["cache_read"],
         },
         "money": {
-            "api_usd": round(api_cost, 2),
-            "logged_usd": round(logged_cost, 2),
+            "api_eur": round(api_cost * rate, 2),
+            "logged_eur": round(logged_cost * rate, 2),
             "plan": args.plan,
-            "plan_share_usd": round(plan_share, 2),
+            "plan_share_eur": round(plan_share * rate, 2),
             "leverage": round(api_cost / plan_share, 1) if plan_share else None,
+            "usd_eur": round(rate, 4),
+            "rate_live": rate_live,
+            # Listenpreise sind in USD - fuer den Nachvollzug bleiben sie stehen
+            "api_usd": round(api_cost, 2),
         },
         "models": [{"name": pretty_model(m), "turns": c,
-                    "usd": round(tx["cost_by_model"][m], 2)}
+                    "eur": round(tx["cost_by_model"][m] * rate, 2)}
                    for m, c in tx["turns_by_model"].most_common()
                    if not m.startswith("<")],
         # Bewusst ohne Namen: Projekt- und Dateinamen sind privat und haben auf

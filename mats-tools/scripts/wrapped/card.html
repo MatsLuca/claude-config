@@ -63,7 +63,9 @@
   .hours .h { flex: 1; border-radius: 6px 6px 2px 2px; background: rgba(255,255,255,.20);
     min-height: 3px; }
   .hours .h.peak { background: linear-gradient(180deg, var(--a2), var(--a1)); }
-  .facts { display: flex; gap: 58px; margin-top: 24px; }
+  .axis { display: flex; justify-content: space-between; font-size: 18px;
+    color: var(--dim); margin-top: 12px; letter-spacing: .06em; }
+  .facts { display: flex; gap: 58px; margin-top: 22px; }
   .facts div { font-size: 22px; color: var(--dim); }
   .facts b { color: var(--ink); font-weight: 700; }
 
@@ -111,6 +113,7 @@
 
   <div>
     <div class="hours" id="hours"></div>
+    <div class="axis"><span>00</span><span>06</span><span>12 Uhr</span><span>18</span><span>23</span></div>
     <div class="facts" id="facts"></div>
   </div>
   <footer>/wrapped</footer>
@@ -128,7 +131,7 @@ function human(n) {
   if (n >= 1e4) return nf(n / 1e3) + " Tsd.";
   return nf(n);
 }
-const usd = n => n > 0 && n < 10 ? "$" + n.toFixed(1).replace(".", ",") : "$" + de.format(Math.round(n));
+const eur = n => (n > 0 && n < 10 ? n.toFixed(1).replace(".", ",") : de.format(Math.round(n))) + " €";
 const dmy = iso => new Date(iso).toLocaleDateString("de-DE", { day: "numeric", month: "short" });
 const TOOL_NAME = t => t.replace(/^mcp__[^_]*__/, "").replace(/^mcp__/, "");
 
@@ -164,7 +167,7 @@ document.getElementById("tiles").innerHTML = [
   handwork(v.handwork_hours) || [nf(v.tool_calls), "Tool-Aufrufe"],
 ].map(([a, b]) => `<div class="tile"><div class="v">${a}</div><div class="k">${b}</div></div>`).join("");
 
-document.getElementById("money-v").textContent = usd(m.api_usd);
+document.getElementById("money-v").textContent = eur(m.api_eur);
 document.getElementById("money-k").textContent = m.leverage
   ? `API-Wert · ${String(m.leverage).replace(".", ",")}× dein Abo`
   : "API-Wert";
