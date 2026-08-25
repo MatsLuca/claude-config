@@ -86,6 +86,9 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Offline (Limit-Abruf schlägt fehl).
   **Erwartet:** Kein Abbruch — die Karte zeigt statt der Limit-Auslastung den
   Modell-Mix, und die Antwort erwähnt die fehlenden Limit-Zahlen.
+- **Szenario:** Zweiter Lauf am selben Tag (Zieldatei vom ersten Lauf liegt noch da).
+  **Erwartet:** Das Bild wird neu gerendert und zeigt die aktuellen Zahlen — nie wird
+  ein altes PNG als Ergebnis ausgegeben oder in die Zwischenablage gelegt.
 - **Szenario:** Kein Chromium-Browser installiert.
   **Erwartet:** Klare Meldung „Kein Chrome/Chromium gefunden" mit dem Hinweis auf
   `CHROME_PATH`; kein Selbst-Installieren, kein halbes PNG.

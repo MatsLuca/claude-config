@@ -117,6 +117,13 @@ def main() -> None:
         "claude-wrapped-" + dt.datetime.now().strftime("%Y-%m-%d") + ".png")
     os.makedirs(os.path.dirname(out), exist_ok=True)
 
+    # Ein vorhandenes Ziel MUSS weg, bevor Chrome startet: die Wartelogik unten
+    # erkennt das fertige Bild daran, dass die Datei auftaucht und ihre Groesse
+    # stabil wird. Laege die Datei vom letzten Lauf noch da, waere diese Bedingung
+    # sofort erfuellt - der Lauf wuerde das alte Bild als neues ausgeben.
+    if os.path.exists(out):
+        os.remove(out)
+
     tmp_dir = tempfile.mkdtemp(prefix="wrapped-")
     page = os.path.join(tmp_dir, "card.html")
     with open(page, "w") as handle:
@@ -136,6 +143,7 @@ def main() -> None:
     # nicht immer von selbst - blindes Warten kostete 45 s pro Lauf. Also pollen:
     # sobald die Datei zweimal hintereinander dieselbe Groesse hat, ist der
     # Screenshot vollstaendig und der Prozess darf weg.
+    started = time.time()
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     deadline = time.monotonic() + args.timeout
     last_size = -1
@@ -157,7 +165,8 @@ def main() -> None:
             proc.kill()
     stderr = (proc.stderr.read() if proc.stderr else "") or ""
 
-    if not os.path.exists(out) or os.path.getsize(out) == 0:
+    if (not os.path.exists(out) or os.path.getsize(out) == 0
+            or os.path.getmtime(out) < started):
         sys.exit("Chrome hat kein Bild geschrieben:\n" + stderr[-1500:])
 
     copied = False if args.no_clipboard else to_clipboard(out)
