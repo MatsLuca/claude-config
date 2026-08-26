@@ -2,6 +2,17 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-08-26 — /neues-projekt: Modus --einordnen
+
+- Neuer Weg für „ich weiß noch nicht, wo das hingehört": die Home-Kachel in LatexTerm startet in der
+  Wurzel mit `--einordnen <Name>: <Zweck>`; Schritt 0 liest Router-CLAUDE.md + Bereiche, bietet 2–3
+  Orte mit Begründung an (AskUserQuestion, bester zuerst), legt den Ordner an und läuft dann den
+  normalen Ablauf mit `cd <Pfad> && ` vor jedem Bash-Aufruf (die Shell vergisst das Verzeichnis).
+- **Regel:** nach `--einordnen` nicht weiterarbeiten — die Session steht in der Wurzel. Der Abschluss
+  endet mit dem fetten Hinweis „⌘N, Ordner wählen, ⏎" — sonst arbeitet man in Documents drauflos.
+- `allowed-tools` um `Bash(cd:*)`, `Bash(mkdir:*)`, `Bash(git -C:*)` erweitert; `{purpose}` aus
+  dem Dialog kommt als `$ARGUMENTS` und spart die erste Interviewfrage.
+
 ## Stand bis 2026-08-24 (Umbau-Wellen 1–4, Detail)
 
 Nach dem Audit-Pass (Privacy, Validator-Härtung, Evals — Details `HISTORIE.md`) hat ein

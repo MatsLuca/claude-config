@@ -71,7 +71,7 @@ Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere A
 | `/finish` | Änderungen seit letztem Push analysieren, README/CHANGELOG & zugehörige GitHub-Issues pflegen, committen & pushen — in einem Rutsch |
 | `/finish-lite` | Leichter /finish für Wissensprojekte: committen mit Zeitstempel-Message, auf den Default-Branch rebasen & dorthin pushen — ohne Analyse & Doku-Pflege; identisch auf Laptop und in Cloud-Sessions (Session-Branch landet direkt auf main) |
 | `/github-pushes` | Eigene GitHub-Pushes in einem Zeitraum strukturiert anzeigen |
-| `/neues-projekt` | Aktuellen Ordner als Projekt einrichten: kurzes Interview, CLAUDE.md auf Projekt-Höhe, Zeiger in der Eltern-CLAUDE.md, optional Git/GitHub; `--nachruesten` für bestehende Ordner ohne CLAUDE.md |
+| `/neues-projekt` | Aktuellen Ordner als Projekt einrichten: kurzes Interview, CLAUDE.md auf Projekt-Höhe, Zeiger in der Eltern-CLAUDE.md, optional Git/GitHub; `--nachruesten` für bestehende Ordner ohne CLAUDE.md; `--einordnen <Name>: <Zweck>` klärt erst den Ort im Ablagebaum (2–3 Kandidaten mit Begründung) und legt den Ordner dann selbst an |
 | `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems |
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
 | `/wrapped` | Aus der lokalen Claude-Code-Nutzung eines Zeitraums ein teilbares „Wrapped"-PNG bauen (Tokens, API-Gegenwert, Limit-Auslastung, Nachtschicht) und in die Zwischenablage legen |
