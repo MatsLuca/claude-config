@@ -88,18 +88,24 @@ _mats_tools_timeout() {
   else shift; command "$@"; fi
 }
 
-# Wrap `claude`: Plugin-Sync (max. 8s, hängt nie), dann macht shell/start.sh aus dem Plugin
-# den Rest (Update-Check, Startzeile, Repo-Frische) — Startablauf ändert sich per Plugin-Update.
+# Wrap `claude`: Start sofort; shell/sync.sh (Plugin-Update + Klone) läuft im HINTERGRUND und
+# wirkt ab der nächsten Session — wie der eingebaute Auto-Updater von Claude Code. Erststart ohne
+# Plugin-Cache synchron. `frisch` = jetzt synchron syncen, dann starten (z. B. direkt nach einem Push).
 claude() {
-  local mt synced=1
-  _mats_tools_timeout 8 claude plugin update mats-tools@claude-config >/dev/null 2>&1 && synced=0
-  mt=$(_mats_tools_dir)
-  if [ -n "$mt" ] && [ -f "$mt/shell/start.sh" ]; then
-    MATS_TOOLS_DIR="$mt" MATS_TOOLS_SYNCED="$synced" . "$mt/shell/start.sh"
-  elif [ "$synced" = 0 ]; then echo "🔄 mats-tools aktuell."
+  local mt; mt=$(_mats_tools_dir)
+  if [ -z "$mt" ] || [ ! -f "$mt/shell/sync.sh" ]; then
+    echo "⏳ mats-tools wird erstmals geholt…"
+    _mats_tools_timeout 60 claude plugin update mats-tools@claude-config >/dev/null 2>&1
+    mt=$(_mats_tools_dir)
+  fi
+  if [ -n "$mt" ] && [ -f "$mt/shell/sync.sh" ]; then
+    if [ "${MATS_TOOLS_FRISCH:-0}" = 1 ]; then sh "$mt/shell/sync.sh" --now
+    else ( MATS_SYNC_CWD="$PWD" sh "$mt/shell/sync.sh" >/dev/null 2>&1 & ); fi
+    MATS_TOOLS_DIR="$mt" . "$mt/shell/start.sh"
   fi
   command claude "$@"
 }
+frisch() { MATS_TOOLS_FRISCH=1 claude --dangerously-skip-permissions "$@"; }
 # <<< mats-tools machine-setup <<<
 BLOCK
 }

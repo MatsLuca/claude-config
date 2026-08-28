@@ -79,7 +79,7 @@ and say what you changed — the bundled copy in the plugin stays canonical. Als
 **Umgebung:** macOS (zsh, ~/.zshrc) · kein Container
 **Eingerichtet:**
 - `yolo` → Claude im Bypass-Permissions-Mode · `claude` bleibt normaler Modus
-- Plugin-Auto-Update beim Start; Startzeile kommt aus dem Plugin (shell/start.sh)
+- Plugin-Auto-Update im Hintergrund (shell/sync.sh, wirkt ab nächster Session; `frisch` = sofort); Startzeile aus shell/start.sh
 - Status Line installiert + in settings.json verdrahtet
 - settings.json-Defaults (model=opus, effortLevel=high, skip-dangerous-prompt, push-notif)
 - jq: vorhanden

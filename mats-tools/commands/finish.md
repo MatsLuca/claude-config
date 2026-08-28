@@ -1,6 +1,6 @@
 ---
 description: Analysiert alle Änderungen seit dem letzten Push, pflegt README/CHANGELOG und zugehörige GitHub-Issues falls nötig, committet und pusht in einem Rutsch.
-allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh issue list:*), Bash(gh issue view:*), Bash(gh issue comment:*), Bash(export PATH=*), Bash(echo:*), Bash(ls:*), Read, Edit
+allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh issue list:*), Bash(gh issue view:*), Bash(gh issue comment:*), Bash(export PATH=*), Bash(echo:*), Bash(ls:*), Bash(sh:*), Read, Edit
 ---
 
 Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten GitHub-Push analysieren, ggf. README/CHANGELOG und zugehörige Issues pflegen, dann committen und pushen.
@@ -86,5 +86,13 @@ EOF
 (Bei fehlendem Upstream stattdessen `git push -u origin <branch>`.)
 
 Wird der Push abgelehnt (z.B. Remote weiter als lokal): abbrechen und Ursache melden — **kein** `--force`, kein automatischer Pull/Rebase.
+
+## Schritt 7 — Nach erfolgreichem Push: Plugin-Cache nachziehen (mechanisch, eine Zeile)
+
+```bash
+sh "${CLAUDE_PLUGIN_ROOT}/shell/sync.sh" --after-push
+```
+
+Das Skript entscheidet selbst: Ist dieses Repo das Marketplace-Repo von `mats-tools`, holt es das Update jetzt in den Plugin-Cache (die nächste Session hat es dann sofort); in jedem anderen Repo endet es still. Nichts dazu prüfen oder erklären — nur die Ausgabe (falls eine kommt) in die Meldung übernehmen.
 
 Melde am Ende kurz: Commit-Message, welche Docs aktualisiert wurden (falls), welche Issues verlinkt/geschlossen oder kommentiert wurden (falls), und das Push-Ergebnis.

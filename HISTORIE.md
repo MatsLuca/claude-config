@@ -2,6 +2,24 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-08-28 — Session-Start ohne Netz-Wartezeit
+
+- Timeline gemessen: ~3 s bis zum Prompt, davon ~1,8 s zwei serielle GitHub-Roundtrips im Wrapper
+  (Plugin-Update 0,9 s, Werkstatt-Fetch 0,8 s), bei lahmem Netz bis 13 s (Timeouts 8 s + 5 s);
+  einmal täglich zusätzlich `claude update` synchron mit 60-s-Timeout — obwohl Claude Code (native)
+  einen eigenen Auto-Updater hat (`claude doctor`: enabled, nächtliche Versionen im Ordner).
+  Claude selbst bootet in ~1 s (setup 118 ms, MCP/LSP nicht-blockierend).
+- **Umbau:** `shell/sync.sh` (neu) macht Plugin-Update + ff-only-Pull der Klone aus
+  `~/.config/mats-tools/sync-repos` im Hintergrund (Stempel, 10-min-Drossel, mkdir-Lock, 5 s
+  Anlaufpause, damit die Session vorher fertig geladen hat). Wrapper startet Claude sofort;
+  Erststart ohne Cache bleibt synchron. `frisch` = `--now`, dann yolo. `start.sh` ohne Netz und
+  ohne täglichen `claude update`; Repo-Frische nur noch lokal gegen die gefetchten Refs.
+- **„Gepusht → Strg-C → yolo" bleibt sauber:** `/finish` und `/finish-lite` rufen nach dem Push
+  `sync.sh --after-push` (Einzeiler, entscheidet selbst: nur im Marketplace-Repo, sonst still —
+  keine Prosa, keine Token in fremden Repos). Home-Kachel (`projekte list --json`) wärmt den Sync vor.
+- Mats' eigener Wrapper in `~/.zshrc` folgt dem neuen Block (+ Kickbacks-Teil); Sicherung
+  `~/.zshrc.bak-2026-08-28`.
+
 ## 2026-08-26 — /neues-projekt: Modus --einordnen
 
 - Neuer Weg für „ich weiß noch nicht, wo das hingehört": die Home-Kachel in LatexTerm startet in der

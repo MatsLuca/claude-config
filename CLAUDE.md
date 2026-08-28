@@ -35,7 +35,9 @@ Three nesting levels, each with its own manifest:
      as `systemMessage` + hands them to Claude as `additionalContext`). Writing to `NEWS.md`
      = messaging every subscriber at their next session start.
    - `mats-tools/shell/start.sh` → sourced by the `claude()` wrapper that `machine-setup`
-     installs; the wrapper in the rc file stays thin, the start line evolves here.
+     installs; the wrapper in the rc file stays thin, the start line evolves here. **No network**
+     here — `shell/sync.sh` does plugin update + clone pulls in the background (throttled 10 min,
+     `--now` for the `frisch` alias, `--after-push` from `/finish`), effective next session.
    - `mats-tools/shell/setup.sh` → the deterministic installer behind `machine-setup` (managed
      rc block, status line, settings.json merge, VS Code tweaks). The agent only runs it and
      handles its markers (`WRAPPER_CONFLICT`, `STATUSLINE_DIFFERS`, …). Validator check 7 runs

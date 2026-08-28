@@ -125,7 +125,9 @@ Claude Code den Git-Commit-SHA als Version: **jeder Push hierhin** wird beim nä
 `/plugin update` automatisch übernommen — kein manuelles Versions-Bumping nötig.
 
 Nach dem `machine-setup` passiert das sogar von selbst: der Agent installiert einen
-Shell-Wrapper, der das Plugin **bei jedem `claude`-Start automatisch aktualisiert**.
+Shell-Wrapper, der das Plugin **im Hintergrund aktualisiert** (`shell/sync.sh`, höchstens alle
+10 Minuten) — der Start wartet nicht aufs Netz, das Update wirkt ab der nächsten Session. Wer es
+*jetzt* braucht (z. B. direkt nach einem Push): `frisch` = synchron syncen, dann `yolo`.
 Manuell braucht es nur, falls der Wrapper (noch) nicht eingerichtet ist:
 
 ```bash
@@ -164,7 +166,8 @@ claude-config/
     ├── agents/                   # Subagents (*.md)
     ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
     ├── hooks/                    # SessionStart-Hook: zeigt NEWS.md-Einträge einmal + gibt sie Claude als Kontext
-    ├── shell/start.sh            # Start-Logik des claude()-Wrappers: Update-Check, Startzeile, Repo-Frische (ändert sich per Plugin-Update; der Wrapper bleibt dünn)
+    ├── shell/start.sh            # Startzeile des claude()-Wrappers, ohne Netz (ändert sich per Plugin-Update; der Wrapper bleibt dünn)
+    ├── shell/sync.sh             # Hintergrund-Sync: Plugin-Update + Klone aus ~/.config/mats-tools/sync-repos; --now (frisch), --after-push (/finish)
     ├── shell/setup.sh            # der Installer hinter machine-setup: Wrapper-Block, Status Line, settings.json, VS Code — idempotent, im Validator sandbox-getestet
     ├── NEWS.md                   # Nachrichten an alle Abonnenten (neuester Eintrag oben)
     ├── statusline/               # vendored Status-Line-Skript (vom machine-setup Agent installiert)

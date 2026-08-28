@@ -1,44 +1,25 @@
-# shell/start.sh — wird vom claude()-Wrapper (machine-setup, Step 1) nach dem Plugin-Sync
-# GESOURCT (sh/bash/zsh; unter Windows via `bash start.sh`). Hier lebt alles, was beim
-# Start passiert und sich ändern darf — was hier steht, kommt per Plugin-Update automatisch
-# auf alle Maschinen. Muss POSIX-sh-kompatibel bleiben und darf nicht hängen (Netz nur mit
-# Zeitlimit).
+# shell/start.sh — wird vom claude()-Wrapper (machine-setup, Step 1) GESOURCT (sh/bash/zsh; unter
+# Windows via `bash start.sh`). Hier lebt die Startzeile — was hier steht, kommt per Plugin-Update
+# automatisch auf alle Maschinen. Muss POSIX-sh-kompatibel bleiben und darf nichts Langsames tun:
+# KEIN Netz — Netz macht shell/sync.sh im Hintergrund (Vertrag: MATS_TOOLS_DIR, MATS_TOOLS_FRISCH).
 #
-# Vertrag mit dem Wrapper (der dünne Block aus shell/setup.sh):
-#   rein  MATS_TOOLS_DIR     aktiver Plugin-Ordner (optional, sonst selbst ermittelt)
-#         MATS_TOOLS_SYNCED  0 = Plugin-Sync ok (Default), 1 = fehlgeschlagen/Timeout
-#   raus  MATS_TOOLS_PROMPT  immer leer (Altlast; ältere Wrapper lesen sie noch und starten normal)
-# Ältere Wrapper (vor setup.sh), die Update-Check und Repo-Fetch selbst machen, sehen die
-# Fetch-Zeile ggf. doppelt — behoben durch einmal „Führe das machine-setup durch.".
+# Claude Code selbst hält sich über seinen eingebauten Auto-Updater aktuell (nachts im Hintergrund,
+# aktiv beim nächsten Start; `claude doctor` zeigt es). Ein eigener täglicher `claude update` stand
+# bis 2026-08-28 hier — gestrichen, er kostete bis zu 60 s beim ersten Start des Tages.
 
 # Aktiver mats-tools-Ordner im Plugin-Cache: laut installed_plugins.json (user-scope);
 # Fallback: jüngster Versionsordner. (Ein Update berührt auch den alten Ordner — mtime allein
-# ist deshalb kein sicheres Kriterium.) Bewusst identisch zur Kopie im Wrapper — der braucht
-# sie, um diese Datei überhaupt zu finden.
+# ist deshalb kein sicheres Kriterium.)
 _mats_tools_dir() {
   f="$HOME/.claude/plugins/installed_plugins.json"; d=""
   [ -f "$f" ] && d=$(awk '/"mats-tools@claude-config"/{b=1} b&&/"scope": *"user"/{u=1} b&&u&&/"installPath"/{sub(/.*"installPath": *"/,""); sub(/",?[[:space:]]*$/,""); print; exit}' "$f")
-  c="$HOME/.claude/plugins/cache/claude-config/mats-tools"   # kein Glob: zsh bricht bei leerem Muster ab
-  { [ -n "$d" ] && [ -d "$d" ]; } || { n=$(ls -t "$c" 2>/dev/null | head -1); [ -n "$n" ] && d="$c/$n"; }
-  [ -n "$d" ] && [ -d "$d" ] && printf '%s' "${d%/}"
+  { [ -n "$d" ] && [ -d "$d" ]; } || d=$(ls -td "$HOME"/.claude/plugins/cache/claude-config/mats-tools/*/ 2>/dev/null | head -1)
+  [ -n "$d" ] && printf '%s' "${d%/}"
 }
 
-# Befehl mit Zeitlimit (Sekunden): timeout/gtimeout/perl, sonst ohne Limit. Der Wrapper
-# bringt dieselbe Funktion mit (er braucht sie vor dem Sync); hier nur als Fallback.
-command -v _mats_tools_timeout >/dev/null 2>&1 || _mats_tools_timeout() {
-  if command -v timeout >/dev/null 2>&1; then timeout "$@"
-  elif command -v gtimeout >/dev/null 2>&1; then gtimeout "$@"
-  elif command -v perl >/dev/null 2>&1; then perl -e 'alarm shift; exec @ARGV' "$@"
-  else shift; command "$@"; fi
-}
-
-# Wie lange ist das letzte *echte* mats-tools-Update her? mtime des aktiven Versionsordners;
-# `plugin update` lässt sie bei No-op unangetastet. GNU stat zuerst, BSD-Fallback.
-_mats_tools_alter() {
-  dir="${MATS_TOOLS_DIR:-$(_mats_tools_dir)}"
-  [ -n "$dir" ] || return 1
-  ts=$(stat -c %Y "$dir" 2>/dev/null || stat -f %m "$dir" 2>/dev/null) || return 1
-  now=$(date +%s); d=$(( now - ts )); [ "$d" -lt 0 ] && d=0
+# Sekunden → „vor 3 Min." usw.
+_mats_tools_vor() {
+  d=$1; [ "$d" -lt 0 ] && d=0
   if   [ "$d" -lt 60 ];      then echo "vor ${d} Sek."
   elif [ "$d" -lt 3600 ];    then echo "vor $(( d/60 )) Min."
   elif [ "$d" -lt 86400 ];   then echo "vor $(( d/3600 )) Std."
@@ -48,28 +29,45 @@ _mats_tools_alter() {
   fi
 }
 
-# ── Täglicher Selbst-Update-Check von Claude Code ──────────────────────────────────────
-_luf="$HOME/.claude_last_update"; _today=$(date +%Y-%m-%d)
-if [ "$_today" != "$(cat "$_luf" 2>/dev/null)" ]; then
-  echo "⏳ Täglicher Update-Check für Claude Code…"
-  _mats_tools_timeout 60 claude update >/dev/null 2>&1
-  echo "$_today" > "$_luf"
-fi
-unset _luf _today
+# Wie lange ist das letzte *echte* mats-tools-Update her? mtime des aktiven Versionsordners;
+# `plugin update` lässt sie bei No-op unangetastet. GNU stat zuerst, BSD-Fallback.
+_mats_tools_alter() {
+  dir="${MATS_TOOLS_DIR:-$(_mats_tools_dir)}"
+  [ -n "$dir" ] || return 1
+  ts=$(stat -c %Y "$dir" 2>/dev/null || stat -f %m "$dir" 2>/dev/null) || return 1
+  _mats_tools_vor $(( $(date +%s) - ts ))
+}
 
 # ── Startzeile ─────────────────────────────────────────────────────────────────────────
-if [ "${MATS_TOOLS_SYNCED:-0}" = 0 ]; then
-  echo "🔄 mats-tools aktuell (letztes Update $(_mats_tools_alter || echo unbekannt))."
+_mt_upd=$(_mats_tools_alter || echo unbekannt)
+if [ "${MATS_TOOLS_FRISCH:-0}" = 1 ]; then
+  echo "🔄 mats-tools frisch synchronisiert (Update $_mt_upd)."
 else
-  echo "⚠️  mats-tools-Sync übersprungen (offline/Timeout) — Stand: Update $(_mats_tools_alter || echo unbekannt)"
+  _mt_sync=$(sh "${MATS_TOOLS_DIR:-$(_mats_tools_dir)}/shell/sync.sh" --age 2>/dev/null)
+  if [ -n "$_mt_sync" ] && [ "$_mt_sync" -lt 600 ]; then
+    echo "🔄 mats-tools (Update $_mt_upd · Sync $(_mats_tools_vor "$_mt_sync"))."
+  else
+    echo "🔄 mats-tools (Update $_mt_upd · Sync läuft nebenher, wirkt ab nächster Session — sofort: frisch)."
+  fi
+  unset _mt_sync
 fi
+unset _mt_upd
 
-# ── Repo-Frische: hängt der lokale Klon hinter origin? ─────────────────────────────────
+# ── Repo-Frische ohne Netz: Rückstand gegen die zuletzt gefetchten Refs ─────────────────
+# (sync.sh fetcht Startordner und sync-repos im Hintergrund; hier nur der lokale Vergleich.)
 if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-  GIT_TERMINAL_PROMPT=0 _mats_tools_timeout 5 git fetch --quiet 2>/dev/null
   _behind=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null)
   [ "${_behind:-0}" -gt 0 ] && echo "⬇️  Repo hängt $_behind Commit(s) hinter $(git rev-parse --abbrev-ref '@{u}') — ggf. git pull."
   unset _behind
+fi
+if [ -f "$HOME/.config/mats-tools/sync-repos" ]; then
+  while IFS= read -r _r; do
+    case "$_r" in ''|'#'*) continue ;; esac
+    [ -d "$_r/.git" ] || continue
+    _behind=$(git -C "$_r" rev-list --count 'HEAD..@{u}' 2>/dev/null)
+    [ "${_behind:-0}" -gt 0 ] && echo "⬇️  $(basename "$_r") hängt $_behind Commit(s) hinter origin — lokale Änderungen offen, bitte selbst pullen."
+  done < "$HOME/.config/mats-tools/sync-repos"
+  unset _r _behind
 fi
 
 MATS_TOOLS_PROMPT=""

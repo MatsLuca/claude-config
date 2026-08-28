@@ -11,6 +11,22 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-08-28 · Schnellerer Start: Update läuft jetzt nebenher
+
+<!-- claude:
+Der claude()-Wrapper aus shell/setup.sh wartet nicht mehr auf `claude plugin update`; shell/sync.sh
+macht das im Hintergrund (Stempel ~/.cache/mats-tools/sync.stamp, max. alle 10 min), das Update
+wirkt ab der nächsten Session. Neuer Alias `frisch` = synchron syncen, dann yolo. Der tägliche
+`claude update` in start.sh ist weg — Claude Code hat einen eigenen Auto-Updater (`claude doctor`).
+Wer den alten Wrapper hat, bekommt den neuen nur über „Führe das machine-setup durch." — nur auf
+Wunsch, nichts ungefragt umbauen.
+-->
+
+Der `claude`-Start wartet nicht mehr aufs Netz: Plugin-Update und Repo-Checks laufen im
+Hintergrund und wirken ab der nächsten Session (~2 s schneller, keine Hänger mehr bei lahmem
+GitHub). Neu: `frisch` startet mit sofortigem Sync. Um den neuen Wrapper zu bekommen, einmal
+„Führe das machine-setup durch." sagen.
+
 ## 2026-08-25 · Neu: /wrapped — deine Claude-Woche als Bild
 
 <!-- claude:
