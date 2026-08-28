@@ -11,6 +11,22 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-08-28 · Start-Timer: jede Session zeigt, was der Start gekostet hat
+
+<!-- claude:
+Neuer SessionStart-Hook hooks/start-timer.sh: liest die Stempel MATS_START_T0 (Oberfläche),
+MATS_T_RC (Zeile 1 der rc-Datei, schreibt setup.sh), MATS_T_WRAP/MATS_T_EXEC (Wrapper) und zeigt
+die Phasen als eine Zeile; Detail-Log ~/.cache/mats-tools/start-timer.log (`start-timer.sh --tail`).
+Fragt jemand „warum war der Start langsam", zuerst dieses Log lesen. Die Stempel kommen nur mit dem
+neuen Wrapper („Führe das machine-setup durch." — nur auf Wunsch). Außerdem gefixt: der Wrapper hielt
+in nicht-interaktiven Shells das Plugin für „nie geholt" und lief synchron in `plugin update` (60 s).
+-->
+
+Beim Session-Start steht jetzt eine Zeile `⏱ Start 2,1 s · Kachel→Shell … · Wrapper … · Claude
+Code …` — jeder Start landet ms-genau in `~/.cache/mats-tools/start-timer.log`. Dafür braucht es den
+neuen Wrapper: einmal „Führe das machine-setup durch." sagen. Nebenbei gefixt: `claude` aus Skripten
+wartete bis zu 60 s auf ein Plugin-Update.
+
 ## 2026-08-28 · Schnellerer Start: Update läuft jetzt nebenher
 
 <!-- claude:

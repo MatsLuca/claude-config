@@ -88,21 +88,32 @@ _mats_tools_timeout() {
   else shift; command "$@"; fi
 }
 
+# Millisekunden seit Epoch (Start-Timer, hooks/start-timer.sh): zsh/bash≥5 EPOCHREALTIME, sonst perl, sonst Sekunden.
+_mats_now_ms() {
+  if [ -n "${EPOCHREALTIME:-}" ]; then f=${EPOCHREALTIME#*.}; echo $(( ${EPOCHREALTIME%.*}*1000 + 10#${f:0:3} ))
+  elif command -v perl >/dev/null 2>&1; then perl -MTime::HiRes=time -e 'printf "%.0f\n", time*1000'
+  else echo $(( $(date +%s) * 1000 )); fi
+}
+
 # Wrap `claude`: Start sofort; shell/sync.sh (Plugin-Update + Klone) läuft im HINTERGRUND und
 # wirkt ab der nächsten Session — wie der eingebaute Auto-Updater von Claude Code. Erststart ohne
-# Plugin-Cache synchron. `frisch` = jetzt synchron syncen, dann starten (z. B. direkt nach einem Push).
+# Plugin-Cache synchron (nur wenn der Cache-Ordner wirklich fehlt — nicht, wenn bloß ein Helfer
+# in einer nicht-interaktiven Shell nicht mitkam). `frisch` = jetzt synchron syncen, dann starten.
+# MATS_T_WRAP/MATS_T_EXEC = Zeitstempel für den Start-Timer (SessionStart-Hook zeigt die Phasen).
 claude() {
-  local mt; mt=$(_mats_tools_dir)
-  if [ -z "$mt" ] || [ ! -f "$mt/shell/sync.sh" ]; then
+  export MATS_T_WRAP; MATS_T_WRAP=$(_mats_now_ms)
+  local mt; mt=$(_mats_tools_dir 2>/dev/null)
+  if [ ! -d "$HOME/.claude/plugins/cache/claude-config/mats-tools" ]; then
     echo "⏳ mats-tools wird erstmals geholt…"
     _mats_tools_timeout 60 claude plugin update mats-tools@claude-config >/dev/null 2>&1
-    mt=$(_mats_tools_dir)
+    mt=$(_mats_tools_dir 2>/dev/null)
   fi
   if [ -n "$mt" ] && [ -f "$mt/shell/sync.sh" ]; then
     if [ "${MATS_TOOLS_FRISCH:-0}" = 1 ]; then sh "$mt/shell/sync.sh" --now
     else ( MATS_SYNC_CWD="$PWD" sh "$mt/shell/sync.sh" >/dev/null 2>&1 & ); fi
     MATS_TOOLS_DIR="$mt" . "$mt/shell/start.sh"
   fi
+  export MATS_T_EXEC; MATS_T_EXEC=$(_mats_now_ms)
   command claude "$@"
 }
 frisch() { MATS_TOOLS_FRISCH=1 claude --dangerously-skip-permissions "$@"; }
@@ -133,6 +144,23 @@ elif [ "$DRY" = 1 ]; then
 else
   write_block "$RC" block_unix
   say "BLOCK: $RC (yolo-Alias + Start-Wrapper)"
+fi
+
+# ── 1b. Start-Timer: Zeitstempel in der ERSTEN Zeile der rc-Datei ─────────────
+# MATS_T_RC = Moment, in dem die Shell die rc-Datei zu lesen beginnt; hooks/start-timer.sh rechnet
+# daraus die Phase „Shell-rc" (rc-Datei bis Wrapper). Muss ganz oben stehen, sonst misst sie nichts.
+TIMER_MARK='# <<< mats-tools start-timer'
+timer_line() {
+  printf '%s\n' '[ -n "${ZSH_VERSION:-}" ] && zmodload zsh/datetime 2>/dev/null; if [ -n "${EPOCHREALTIME:-}" ]; then _mt_f=${EPOCHREALTIME#*.}; export MATS_T_RC=$(( ${EPOCHREALTIME%.*}*1000 + 10#${_mt_f:0:3} )); else export MATS_T_RC=$(( $(date +%s)*1000 )); fi  # <<< mats-tools start-timer (rc-Start; machine-setup, hooks/start-timer.sh) — bitte oben lassen'
+}
+if [ -f "$RC" ] && grep -qF "$TIMER_MARK" "$RC"; then
+  if [ "$(head -1 "$RC")" = "$(timer_line)" ]; then say "TIMER: $RC Zeile 1 (Start-Timer-Stempel)"
+  elif [ "$DRY" = 1 ]; then say "TIMER: würde in $RC erneuert"
+  else tmp=$(mktemp); { timer_line; grep -vF "$TIMER_MARK" "$RC"; } > "$tmp" && cat "$tmp" > "$RC" && rm -f "$tmp"; say "TIMER: $RC Zeile 1 erneuert"; fi
+elif [ "$DRY" = 1 ]; then
+  say "TIMER: würde als Zeile 1 nach $RC geschrieben"
+else
+  tmp=$(mktemp); { timer_line; cat "$RC" 2>/dev/null; } > "$tmp" && cat "$tmp" > "$RC" && rm -f "$tmp"; say "TIMER: $RC Zeile 1 (Start-Timer-Stempel)"
 fi
 
 # ── 1W. Windows: PowerShell-Profil ────────────────────────────────────────────

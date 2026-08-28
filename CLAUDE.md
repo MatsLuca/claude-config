@@ -30,8 +30,10 @@ Three nesting levels, each with its own manifest:
      `description`); companion files live next to the SKILL.md (e.g. `claude-md/verfassung.md`,
      `claude-md/scripts/inventar.sh`) and are referenced as `${CLAUDE_PLUGIN_ROOT}/skills/<name>/…`.
 
-   - `mats-tools/hooks/hooks.json` → plugin hooks; the only one is the **SessionStart news
-     hook** (`hooks/news.sh` reads `mats-tools/NEWS.md`, shows unread entries once per machine
+   - `mats-tools/hooks/hooks.json` → plugin hooks, both SessionStart: **start-timer**
+     (`hooks/start-timer.sh`: Startdauer je Phase aus den Stempeln `MATS_START_T0`/`MATS_T_RC`/
+     `MATS_T_WRAP`/`MATS_T_EXEC`, eine Zeile im Terminal, Log `~/.cache/mats-tools/start-timer.log`,
+     `--tail`/`--self`) and the **news hook** (`hooks/news.sh` reads `mats-tools/NEWS.md`, shows unread entries once per machine
      as `systemMessage` + hands them to Claude as `additionalContext`). Writing to `NEWS.md`
      = messaging every subscriber at their next session start.
    - `mats-tools/shell/start.sh` → sourced by the `claude()` wrapper that `machine-setup`

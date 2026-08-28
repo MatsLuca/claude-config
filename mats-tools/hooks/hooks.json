@@ -1,10 +1,15 @@
 {
-  "description": "mats-tools: News-Kanal — zeigt ungelesene Einträge aus NEWS.md einmal beim Session-Start und reicht sie Claude als Kontext.",
+  "description": "mats-tools: SessionStart-Hooks — Start-Timer (Dauer je Phase, Log ~/.cache/mats-tools/start-timer.log) und News-Kanal (ungelesene NEWS.md-Einträge einmal zeigen, Claude als Kontext).",
   "hooks": {
     "SessionStart": [
       {
         "matcher": "startup|resume",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/start-timer.sh\" --hook",
+            "timeout": 5
+          },
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/news.sh\" --hook",

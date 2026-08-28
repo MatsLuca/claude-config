@@ -146,6 +146,15 @@ einen neuen Skill benutzt —, nie ein Auftrag: nichts wird von selbst umgebaut.
 sich `~/.claude/mats-tools-news-seen`; `hooks/news.sh --reset` zeigt alles erneut, `--peek`
 zeigt ohne zu markieren, `--context` zeigt, was Claude bekommt.
 
+## ⏱ Start-Timer
+
+Jede Session beginnt mit einer Zeile wie `⏱ Start 2,1 s (ab Tastendruck) · Kachel→Shell 0,3 ·
+Shell-rc 0,2 · Wrapper 0,2 · Claude Code 1,4`. Die Stempel setzt die Startkette (`machine-setup`:
+Zeile 1 der rc-Datei = `MATS_T_RC`, der Wrapper = `MATS_T_WRAP`/`MATS_T_EXEC`; eine Oberfläche kann
+`MATS_START_T0=<ms>` vor `claude` stellen), der SessionStart-Hook `hooks/start-timer.sh` rechnet
+und protokolliert jeden Start ms-genau nach `~/.cache/mats-tools/start-timer.log`
+(`start-timer.sh --tail`). Ohne Wrapper-Stempel bleibt der Hook still.
+
 ## 🗂️ Struktur
 
 ```
@@ -165,7 +174,7 @@ claude-config/
     ├── commands/                 # Slash-Commands (*.md)
     ├── agents/                   # Subagents (*.md)
     ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
-    ├── hooks/                    # SessionStart-Hook: zeigt NEWS.md-Einträge einmal + gibt sie Claude als Kontext
+    ├── hooks/                    # SessionStart-Hooks: Start-Timer (Dauer je Phase → Terminal + ~/.cache/mats-tools/start-timer.log) und NEWS.md-Einträge einmal zeigen
     ├── shell/start.sh            # Startzeile des claude()-Wrappers, ohne Netz (ändert sich per Plugin-Update; der Wrapper bleibt dünn)
     ├── shell/sync.sh             # Hintergrund-Sync: Plugin-Update + Klone aus ~/.config/mats-tools/sync-repos; --now (frisch), --after-push (/finish)
     ├── shell/setup.sh            # der Installer hinter machine-setup: Wrapper-Block, Status Line, settings.json, VS Code — idempotent, im Validator sandbox-getestet
