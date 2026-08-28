@@ -22,8 +22,9 @@ neuen Wrapper („Führe das machine-setup durch." — nur auf Wunsch). Außerde
 in nicht-interaktiven Shells das Plugin für „nie geholt" und lief synchron in `plugin update` (60 s).
 -->
 
-Beim Session-Start steht jetzt eine Zeile `⏱ Start 2,1 s · Kachel→Shell … · Wrapper … · Claude
-Code …` — jeder Start landet ms-genau in `~/.cache/mats-tools/start-timer.log`. Dafür braucht es den
+Jeder Session-Start wird jetzt gemessen und landet ms-genau in `~/.cache/mats-tools/start-timer.log`
+(`start-timer.sh --tail`; Terminal-Zeile `⏱ Start 2,1 s · Wrapper … · Claude Code …` mit
+`MATS_START_TIMER_SHOW=1`). Dafür braucht es den
 neuen Wrapper: einmal „Führe das machine-setup durch." sagen. Nebenbei gefixt: `claude` aus Skripten
 wartete bis zu 60 s auf ein Plugin-Update.
 

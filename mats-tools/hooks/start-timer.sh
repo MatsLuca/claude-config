@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # hooks/start-timer.sh — Start-Timer: wie lange hat es vom Tastendruck bis zur laufenden Session
-# gedauert, und welche Phase hat es gekostet? Läuft als SessionStart-Hook, zeigt eine Zeile im
-# Terminal (systemMessage) und protokolliert jeden Start im Detail nach
+# gedauert, und welche Phase hat es gekostet? Läuft als SessionStart-Hook, protokolliert jeden
+# Start still im Detail (Terminal-Zeile nur mit MATS_START_TIMER_SHOW=1 — der Normalfall ist
+# das Log; LatexTerm zeigt die gefühlte Zeit als Live-Zähler auf dem Start-Vorhang) nach
 #   ~/.cache/mats-tools/start-timer.log        (eine Zeile je Start, Schlüssel=Wert, ms-genau)
 #
 # Zeitstempel (Millisekunden seit Epoch) kommen als Umgebungsvariablen aus der Startkette:
@@ -88,7 +89,11 @@ fi
 
 ctx="[start-timer] $msg — Einheiten in Sekunden; Phasen: Kachel→Shell = Oberfläche bis die Shell die rc-Datei liest, Shell-rc = rc-Datei bis zum claude()-Wrapper, Wrapper = Sync anstoßen + Startzeile, Claude Code = Prozessstart bis SessionStart-Hook. Detail-Log: $LOG (start-timer.sh --tail)."
 if command -v jq >/dev/null 2>&1; then
-  jq -n --arg m "$msg" --arg c "$ctx" '{systemMessage:$m, hookSpecificOutput:{hookEventName:"SessionStart", additionalContext:$c}}'
+  if [ "${MATS_START_TIMER_SHOW:-0}" = 1 ] || [ "$SELF" = 1 ]; then
+    jq -n --arg m "$msg" --arg c "$ctx" '{systemMessage:$m, hookSpecificOutput:{hookEventName:"SessionStart", additionalContext:$c}}'
+  else
+    jq -n --arg c "$ctx" '{hookSpecificOutput:{hookEventName:"SessionStart", additionalContext:$c}}'
+  fi
 else
   printf '%s\n' "$ctx"
 fi

@@ -32,7 +32,7 @@ Three nesting levels, each with its own manifest:
 
    - `mats-tools/hooks/hooks.json` → plugin hooks, both SessionStart: **start-timer**
      (`hooks/start-timer.sh`: Startdauer je Phase aus den Stempeln `MATS_START_T0`/`MATS_T_RC`/
-     `MATS_T_WRAP`/`MATS_T_EXEC`, eine Zeile im Terminal, Log `~/.cache/mats-tools/start-timer.log`,
+     `MATS_T_WRAP`/`MATS_T_EXEC`, still ins Log (Terminal-Zeile nur mit `MATS_START_TIMER_SHOW=1`), Log `~/.cache/mats-tools/start-timer.log`,
      `--tail`/`--self`) and the **news hook** (`hooks/news.sh` reads `mats-tools/NEWS.md`, shows unread entries once per machine
      as `systemMessage` + hands them to Claude as `additionalContext`). Writing to `NEWS.md`
      = messaging every subscriber at their next session start.

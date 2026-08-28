@@ -148,8 +148,8 @@ zeigt ohne zu markieren, `--context` zeigt, was Claude bekommt.
 
 ## ⏱ Start-Timer
 
-Jede Session beginnt mit einer Zeile wie `⏱ Start 2,1 s (ab Tastendruck) · Kachel→Shell 0,3 ·
-Shell-rc 0,2 · Wrapper 0,2 · Claude Code 1,4`. Die Stempel setzt die Startkette (`machine-setup`:
+Jeder Start wird still gemessen (Terminal-Zeile `⏱ Start 2,1 s (ab Tastendruck) · Kachel→Shell 0,3 ·
+Shell-rc 0,2 · Wrapper 0,2 · Claude Code 1,4` nur mit `MATS_START_TIMER_SHOW=1`). Die Stempel setzt die Startkette (`machine-setup`:
 Zeile 1 der rc-Datei = `MATS_T_RC`, der Wrapper = `MATS_T_WRAP`/`MATS_T_EXEC`; eine Oberfläche kann
 `MATS_START_T0=<ms>` vor `claude` stellen), der SessionStart-Hook `hooks/start-timer.sh` rechnet
 und protokolliert jeden Start ms-genau nach `~/.cache/mats-tools/start-timer.log`
