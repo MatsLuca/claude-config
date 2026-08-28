@@ -16,7 +16,8 @@
 # $MATS_SYNC_CWD (vom Wrapper: Startordner) wird zusätzlich nur gefetcht, damit die Startzeile
 # den Rückstand des Projekt-Repos ohne Netz kennt.
 #
-# Protokoll: ~/.claude_plugin_sync.log (eine Zeile je Lauf). Stempel: ~/.cache/mats-tools/sync.stamp.
+# Protokoll: ~/.claude_plugin_sync.log (eine Zeile je Lauf). Stempel: ~/.cache/mats-tools/sync.stamp;
+# ~/.cache/mats-tools/plugin-neu = Version, mit der noch keine Session lief (start.sh löscht ihn).
 
 set -u
 MODE="${1:-bg}"
@@ -67,7 +68,9 @@ ergebnis=""
 vorher=$(_plugin_dir)
 if _timeout 30 claude plugin update mats-tools@claude-config >/dev/null 2>&1; then
   nachher=$(_plugin_dir)
-  if [ -n "$nachher" ] && [ "$nachher" != "$vorher" ]; then ergebnis="plugin NEU $(basename "$nachher")"
+  if [ -n "$nachher" ] && [ "$nachher" != "$vorher" ]; then
+    ergebnis="plugin NEU $(basename "$nachher")"
+    basename "$nachher" > "$CACHE/plugin-neu"   # Marker: „noch keine Session damit" — start.sh löscht ihn
   else ergebnis="plugin ok"; fi
 else ergebnis="plugin timeout/offline"; fi
 

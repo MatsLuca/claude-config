@@ -40,7 +40,10 @@ _mats_tools_alter() {
 
 # ── Startzeile ─────────────────────────────────────────────────────────────────────────
 _mt_upd=$(_mats_tools_alter || echo unbekannt)
-if [ "${MATS_TOOLS_FRISCH:-0}" = 1 ]; then
+if [ -f "$HOME/.cache/mats-tools/plugin-neu" ]; then
+  echo "🆕 mats-tools $(cut -c1-7 "$HOME/.cache/mats-tools/plugin-neu") — erste Session mit dem Update."
+  rm -f "$HOME/.cache/mats-tools/plugin-neu"
+elif [ "${MATS_TOOLS_FRISCH:-0}" = 1 ]; then
   echo "🔄 mats-tools frisch synchronisiert (Update $_mt_upd)."
 else
   _mt_sync=$(sh "${MATS_TOOLS_DIR:-$(_mats_tools_dir)}/shell/sync.sh" --age 2>/dev/null)
