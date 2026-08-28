@@ -8,6 +8,26 @@
 # through the mtime() helper. Same file renders correctly on macOS, Linux, containers.
 input=$(cat)
 
+# --- Schalter je Segment -----------------------------------------------------
+# ~/.claude/statusline.conf (schreibt LatexTerm, ⌘, → Statuszeile): eine Zeile je
+# Schalter, `key=0|1`, `lines=1|2`. Fehlt die Datei = alles an, zweizeilig. Wird
+# gelesen, nicht gesourct — aus einer Konfigdatei läuft hier kein Code. Claude Code
+# rendert alle `refreshInterval` Sekunden neu, damit greift ein Umschalten live.
+O_DIR=1; O_GIT=1; O_MODEL=1; O_EFFORT=1; O_TIMER=1; O_CTX=1; O_LIMITS=1
+O_FABLE=1; O_COST=1; O_MONTH=1; O_EARN=1; O_LINES=2
+conf="$HOME/.claude/statusline.conf"
+if [ -f "$conf" ]; then
+  while IFS='=' read -r k v; do
+    case "$v" in 0|1|2) ;; *) continue ;; esac
+    case "$k" in
+      dir) O_DIR=$v ;;     git) O_GIT=$v ;;       model) O_MODEL=$v ;;
+      effort) O_EFFORT=$v ;; timer) O_TIMER=$v ;; ctx) O_CTX=$v ;;
+      limits) O_LIMITS=$v ;; fable) O_FABLE=$v ;; cost) O_COST=$v ;;
+      month) O_MONTH=$v ;; earn) O_EARN=$v ;;    lines) O_LINES=$v ;;
+    esac
+  done < "$conf"
+fi
+
 model=$(echo "$input" | jq -r '.model.display_name // "Unknown"')
 effort=$(echo "$input" | jq -r '.effort.level // empty')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
@@ -94,7 +114,10 @@ sep="${DIM}  ${G_SEP}  ${RST}"
 
 # --- context window ----------------------------------------------------------
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
-if [ -n "$used" ]; then
+ctx_str=""
+if [ "$O_CTX" = 0 ]; then
+  :
+elif [ -n "$used" ]; then
   used_int=$(printf '%.0f' "$used")
   c=$(hue "$used_int" "$CTX_C")
   ctx_str="${DIM}ctx${RST} $(bar "$used_int" "$c") ${c}${used_int}%${RST}"
@@ -109,6 +132,7 @@ week_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empt
 five_rst=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 week_rst=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 limits_str=""
+[ "$O_LIMITS" = 0 ] && five_pct="" && week_pct=""
 if [ -n "$five_pct" ]; then
   v=$(printf '%.0f' "$five_pct"); c=$(hue "$v" "$H5_C")
   r=""; [ -n "$five_rst" ] && r=" ${DIM}${G_REL}$(reltime "$five_rst")${RST}"
@@ -132,7 +156,7 @@ fi
 # rate-limitet (429) — seltener fragen heißt seltener scheitern, und ein
 # Wochenlimit ändert sich ohnehin langsam.
 fable_cache="$HOME/.claude/.fable-limit.json"
-if [ $(( $(date +%s) - $(mtime "$fable_cache") )) -gt 300 ]; then
+if [ "$O_FABLE" = 1 ] && [ $(( $(date +%s) - $(mtime "$fable_cache") )) -gt 300 ]; then
   touch "$fable_cache" 2>/dev/null   # Drossel: max. ein Fetch-Versuch pro Intervall
   (
     if [ -f "$HOME/.claude/.credentials.json" ]; then
@@ -154,7 +178,7 @@ if [ $(( $(date +%s) - $(mtime "$fable_cache") )) -gt 300 ]; then
   ) >/dev/null 2>&1 &
 fi
 fable_pct=""
-if [ -s "$fable_cache" ]; then
+if [ "$O_FABLE" = 1 ] && [ -s "$fable_cache" ]; then
   f_ts=$(jq -r '.ts // 0' "$fable_cache" 2>/dev/null)
   # Zahlen älter als 30 min verwerfen (Fetch schlägt dauerhaft fehl) -> nie lügen
   [ "${f_ts:-0}" -gt 0 ] 2>/dev/null && [ $(( $(date +%s) - f_ts )) -lt 1800 ] \
@@ -168,7 +192,14 @@ fi
 # --- session cost (Anthropic-Token diese Session, in EUR) --------------------
 cost_raw=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 cost_str=""
-if [ -n "$cost_raw" ]; then
+# Monats-Log immer pflegen (sonst fehlen der Summe die Sessions mit ausgeblendeter Anzeige)
+session_id=$(echo "$input" | jq -r '.session_id // empty')
+logdir="$HOME/.claude/cost-log/$(date +%Y-%m)"
+if [ -n "$cost_raw" ] && [ -n "$session_id" ]; then
+  mkdir -p "$logdir" 2>/dev/null
+  echo "$cost_raw" > "$logdir/$session_id" 2>/dev/null
+fi
+if [ "$O_COST" = 1 ] && [ -n "$cost_raw" ]; then
   # USD->EUR Kurs: max. 1x/Tag holen, lokal cachen; offline -> Fallback
   rate_cache="$HOME/.claude/.usd_eur_rate"
   rate=""
@@ -184,13 +215,8 @@ if [ -n "$cost_raw" ]; then
   cost_fmt=$(awk "BEGIN{printf \"%.2f\", $cost_raw * $rate}")
   cost_str="${sep}${COST_C}${cost_fmt}${G_EUR}${RST}"
 
-  # Monats-Summe: pro Session-ID den aktuellen Stand wegschreiben (überschreiben,
-  # nicht anhängen!) und alle Sessions des Monats aufaddieren.
-  session_id=$(echo "$input" | jq -r '.session_id // empty')
-  if [ -n "$session_id" ]; then
-    logdir="$HOME/.claude/cost-log/$(date +%Y-%m)"
-    mkdir -p "$logdir" 2>/dev/null
-    echo "$cost_raw" > "$logdir/$session_id" 2>/dev/null
+  # Monats-Summe: alle Sessions des Monats aufaddieren (je Datei der letzte Stand).
+  if [ "$O_MONTH" = 1 ] && [ -n "$session_id" ]; then
     month_usd=$(cat "$logdir"/* 2>/dev/null | awk '{s+=$1} END{printf "%.4f", s+0}')
     month_eur=$(awk "BEGIN{printf \"%.2f\", $month_usd * $rate}")
     cost_str="${cost_str} ${DIM}${G_SUM}${month_eur}${G_EUR}${RST}"
@@ -201,7 +227,7 @@ fi
 # Max. 2 Ziffern, Einheit skaliert mit: 0-59s -> 1.0-9.9m -> 10-59m -> 1.0-9.9h -> 10-99h.
 dur_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // empty')
 time_str=""
-if [ -n "$dur_ms" ]; then
+if [ "$O_TIMER" = 1 ] && [ -n "$dur_ms" ]; then
   secs=$(( $(printf '%.0f' "$dur_ms") / 1000 ))
   if   [ "$secs" -lt 60 ];    then t="${secs}s"
   elif [ "$secs" -lt 600 ];   then
@@ -218,7 +244,7 @@ fi
 
 # --- git: lokaler Stand vs. letzter Push (upstream) --------------------------
 git_str=""
-if [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+if [ "$O_GIT" = 1 ] && [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   branch=$(git -C "$cwd" branch --show-current 2>/dev/null)
   [ -z "$branch" ] && branch=$(git -C "$cwd" rev-parse --short HEAD 2>/dev/null)
   git_str="${sep}${GIT_C}${G_BR} ${branch}${RST}"
@@ -268,12 +294,23 @@ if [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&
   fi
 fi
 
-# --- render (zweizeilig: schneidet auf schmalen Terminals nicht mehr ab) ------
-# Zeile 1: Verzeichnis / Git / Modell (+ aktueller Effort-Level) / Session-Timer
-effort_sfx=""
-[ -n "$effort" ] && effort_sfx=" ${MODEL_C}${effort}${RST}"
-printf "${DIM}%s${RST}%b${sep}${MODEL_C}%s${RST}%b%b\n" \
-  "$dir" "$git_str" "$model" "$effort_sfx" "$time_str"
-# Zeile 2: Kontext / Limits / Kosten
-printf "%b%b%b\n" \
-  "$ctx_str" "$limits_str" "$cost_str"
+# --- render ------------------------------------------------------------------
+# Jedes Segment trägt seinen Trenner vorn; am Zeilenanfang wird er abgeschnitten.
+# Zeile 1: Verzeichnis / Git / Modell (+ Effort) / Session-Timer
+# Zeile 2: Kontext / Limits / Kosten — oder alles in einer Zeile (lines=1).
+dir_str=""; [ "$O_DIR" = 1 ] && dir_str="${sep}${DIM}${dir}${RST}"
+model_str=""
+if [ "$O_MODEL" = 1 ]; then
+  model_str="${sep}${MODEL_C}${model}${RST}"
+  [ "$O_EFFORT" = 1 ] && [ -n "$effort" ] && model_str="${model_str} ${MODEL_C}${effort}${RST}"
+fi
+[ -n "$ctx_str" ] && ctx_str="${sep}${ctx_str}"
+line1="${dir_str}${git_str}${model_str}${time_str}"
+line2="${ctx_str}${limits_str}${cost_str}"
+if [ "$O_LINES" = 1 ]; then
+  all="${line1}${line2}"
+  printf '%b\n' "${all#"$sep"}"
+else
+  [ -n "$line1" ] && printf '%b\n' "${line1#"$sep"}"
+  [ -n "$line2" ] && printf '%b\n' "${line2#"$sep"}"
+fi
