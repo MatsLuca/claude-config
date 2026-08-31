@@ -14,7 +14,7 @@ input=$(cat)
 # gelesen, nicht gesourct — aus einer Konfigdatei läuft hier kein Code. Claude Code
 # rendert alle `refreshInterval` Sekunden neu, damit greift ein Umschalten live.
 O_DIR=1; O_GIT=1; O_MODEL=1; O_EFFORT=1; O_TIMER=1; O_CTX=1; O_LIMITS=1
-O_FABLE=1; O_COST=1; O_MONTH=1; O_EARN=1; O_LINES=2
+O_FABLE=1; O_COST=1; O_MONTH=1; O_EARN=1; O_LOKAL=1; O_LINES=2
 conf="$HOME/.claude/statusline.conf"
 if [ -f "$conf" ]; then
   while IFS='=' read -r k v; do
@@ -24,6 +24,7 @@ if [ -f "$conf" ]; then
       effort) O_EFFORT=$v ;; timer) O_TIMER=$v ;; ctx) O_CTX=$v ;;
       limits) O_LIMITS=$v ;; fable) O_FABLE=$v ;; cost) O_COST=$v ;;
       month) O_MONTH=$v ;; earn) O_EARN=$v ;;    lines) O_LINES=$v ;;
+      lokal) O_LOKAL=$v ;;
     esac
   done < "$conf"
 fi
@@ -294,6 +295,37 @@ if [ "$O_GIT" = 1 ] && [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work
   fi
 fi
 
+# --- Lokal-Modus (Claude Code gegen Ollama; claude-werkstatt/lokal) ----------
+# Erkennt sich an der geerbten Base-URL (Port 11434). Zeigt Modell, CPU-Last der
+# Ollama-Prozesse, RAM des geladenen Modells und Tok/s der letzten Antwort
+# (Transcript: Output-Tokens geteilt durch das Fenster zum Vorgänger-Eintrag —
+# enthält den Prompt-Eval, ist also eine leicht konservative Näherung).
+lokal_str=""
+case "${ANTHROPIC_BASE_URL:-}" in *11434*)
+  if [ "$O_LOKAL" = 1 ]; then
+    if [ "$UNICODE" = 1 ]; then l_g='🦙'; else l_g='lokal'; fi
+    l_model="${ANTHROPIC_MODEL:-?}"; l_model="${l_model#lokal-}"
+    l_cpu=$(ps -Ao pcpu,comm 2>/dev/null | awk 'tolower($0) ~ /ollama/ {s+=$1} END{printf "%.0f", s+0}')
+    l_ram=$(ollama ps 2>/dev/null | awk 'NR==2 {print $3" "$4}')
+    l_tok=""
+    tp=$(echo "$input" | jq -r '.transcript_path // empty')
+    if [ -n "$tp" ] && [ -f "$tp" ]; then
+      l_tok=$(tail -n 40 "$tp" 2>/dev/null | jq -rs '
+        def ts($x): $x.timestamp | sub("\\.[0-9]+";"") | fromdateiso8601;
+        [ .[] | select(.timestamp?) ] as $e
+        | ($e | to_entries | [ .[] | select((.value.message.usage.output_tokens? // 0) > 4) ] | last) as $a
+        | if ($a == null or $a.key == 0) then empty else
+            (ts($a.value) - ts($e[$a.key-1])) as $d
+            | if $d > 0 then (($a.value.message.usage.output_tokens / $d) + 0.5 | floor | tostring) else empty end
+          end' 2>/dev/null)
+    fi
+    lokal_str="${sep}${H5_C}${l_g}${RST} ${MODEL_C}${l_model}${RST}"
+    [ -n "$l_cpu" ] && [ "$l_cpu" != 0 ] && lokal_str="${lokal_str} ${DIM}cpu${RST} ${l_cpu}%"
+    [ -n "$l_ram" ] && lokal_str="${lokal_str} ${DIM}ram${RST} ${l_ram}"
+    [ -n "$l_tok" ] && lokal_str="${lokal_str} ${COST_C}${l_tok}${RST} ${DIM}tok/s${RST}"
+  fi
+;; esac
+
 # --- render ------------------------------------------------------------------
 # Jedes Segment trägt seinen Trenner vorn; am Zeilenanfang wird er abgeschnitten.
 # Zeile 1: Verzeichnis / Git / Modell (+ Effort) / Session-Timer
@@ -306,7 +338,7 @@ if [ "$O_MODEL" = 1 ]; then
 fi
 [ -n "$ctx_str" ] && ctx_str="${sep}${ctx_str}"
 line1="${dir_str}${git_str}${model_str}${time_str}"
-line2="${ctx_str}${limits_str}${cost_str}"
+line2="${ctx_str}${lokal_str}${limits_str}${cost_str}"
 if [ "$O_LINES" = 1 ]; then
   all="${line1}${line2}"
   printf '%b\n' "${all#"$sep"}"
