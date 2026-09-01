@@ -167,10 +167,13 @@ Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
 ## HIER WEITERMACHEN
 
 - [ ] `/feedback` abschicken (Entwurf: Early Access für `plugin eval`); Wiedervorlage 15.09. prüft die Sperre.
-- [ ] Ritus fortsetzen, Reihenfolge nach Nutzung: `/optimieren neues-projekt`, `destillieren`,
-      `einarbeiten` unter „Auftrag vor Rezept" — vorher je ein Runner-Szenario in `eval.sh`, sonst fehlt der Beleg.
-- [ ] Agents: Beispielblöcke von `pdf-to-markdown` (~790 Token Grundlast) und `machine-setup` (~620)
-      kürzen; `machine-setup` könnte per `skills:` vorladen statt beschreiben.
+- [ ] Ritus fortsetzen, ein Ziel je Session, `/optimieren` macht den Ablauf selbst (Szenario anlegen,
+      Eval vorher, schärfen, Eval nachher, Validator). Reihenfolge nach Nutzung, Erledigtes abhaken:
+      - [ ] `/optimieren neues-projekt`
+      - [ ] `/optimieren destillieren`
+      - [ ] `/optimieren einarbeiten`
+      - [ ] `/optimieren pdf-to-markdown` (Beispielblöcke kürzen, ~790 Token Grundlast)
+      - [ ] `/optimieren machine-setup` (~620 Token Grundlast; per `skills:` vorladen statt beschreiben)
 - [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.; Kontrolle 24.08. abends:
       alle 9 alten SHAs noch 200) — auf Antwort warten, dann erneut prüfen
       (`curl -o /dev/null -w '%{http_code}' https://github.com/MatsLuca/claude-config/commit/<sha>`),

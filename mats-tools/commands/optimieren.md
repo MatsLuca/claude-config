@@ -1,7 +1,7 @@
 ---
-description: Optimiert einen Command, Agent oder Skill nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition. Meta-Pass über Standard/Evals selbst möglich.
+description: Optimiert einen Command, Agent oder Skill nach dem Authoring-Standard — prüft Frontmatter, Klarheit und Token-Effizienz und schärft die Definition, mit Eval-Lauf vorher und nachher (Runner-Szenario wird angelegt, falls es fehlt). Meta-Pass über Standard/Evals selbst möglich.
 argument-hint: <command-, agent-, skill- oder referenz-name, z.B. "finish", "pdf-to-markdown", "authoring-guide" — oder Pfad eines Werkstatt-Skills, z.B. "skills/scan">
-allowed-tools: Read, Edit, Glob, Bash(ls:*), Bash(git status:*), Bash(diff:*), Bash(git pull --ff-only:*), Bash(./tools/validate.sh:*), WebFetch(domain:platform.claude.com), AskUserQuestion
+allowed-tools: Read, Edit, Glob, Bash(ls:*), Bash(git status:*), Bash(diff:*), Bash(git pull --ff-only:*), Bash(./tools/validate.sh:*), Bash(tools/eval.sh:*), Bash(EVAL_OUT=*), Bash(mkdir:*), WebFetch(domain:platform.claude.com), AskUserQuestion
 ---
 
 Du optimierst einen Command, Agent, Skill oder eine Referenzdatei — aus diesem Plugin oder aus der Skill-Werkstatt (privates Repo `claude-werkstatt`) — gegen den Authoring-Standard, damit das Ziel seinen **Zweck besser erfüllt** — klarer, eindeutiger, token-effizienter. Optimieren ist nicht gleich Kürzen: oft heißt das verdichten, genauso aber **ergänzen oder umformulieren**, wo etwas fehlt oder schief steht — ein zu knappes oder unklares Ziel wird durch Addition besser, nicht durch weiteres Streichen.
@@ -41,7 +41,7 @@ Merke dir, ob es ein **Command**, **Agent** oder eine **Referenzdatei** ist — 
 
 - Ziel-Datei lesen.
 - Falls vorhanden, die zugehörigen Szenarien lesen — sie sagen, welches Verhalten erhalten bleiben muss: Plugin-Ziele aus `${CLAUDE_PLUGIN_ROOT}/reference/evals.md` (bzw. per Glob `**/reference/evals.md`), Werkstatt-Ziele aus `<repo-root>/evals.md`. Fehlt der Abschnitt, ist das selbst ein Befund (Schritt 4): erst Szenarien schreiben, dann schärfen.
-- Gibt es für das Ziel ein Szenario in `tools/eval.sh` (`tools/eval.sh --list`), ist ein Lauf **vor** dem Schärfen der billigste echte Befund — und **nach** dem Schärfen der Beweis, dass die Outcomes stehen.
+- **Runner-Szenario (Plugin-Commands):** `tools/eval.sh --list` zeigt, ob das Ziel eines hat. Fehlt es, schreibe zuerst eines nach dem Muster der vorhandenen (Fixture im Wegwerf-Ordner, Prüfungen auf der Platte oder am Transkript, Eintrag in `--list` und `alle`) — ohne Szenario gibt es keinen Beleg, dass das Schärfen nichts bricht. Dann der Lauf **vor** dem Schärfen als Baseline (`EVAL_OUT=<ordner> tools/eval.sh <szenario>`; rot vorher ist selbst ein Befund für Schritt 4) und in Schritt 6 der Lauf **danach** als Beweis. Agents, Skills und Werkstatt-Ziele laufen interaktiv bzw. im freien Lauf (`tools/eval.sh <command> [zusatz]`) — dort bleibt das Transkript neben dem Eval-Abschnitt der Beleg.
 
 ## Schritt 4 — Zweck klären, dann gegen den Standard prüfen
 
@@ -68,6 +68,8 @@ Setze die Befunde per `Edit` gezielt um:
 
 Existiert `tools/validate.sh` im Repo-Root, führe es aus (`./tools/validate.sh`). Rote Befunde, die deine Edits verursacht haben, sofort fixen und erneut laufen lassen — erst grün abschließen. Vorbestehende Rot-Befunde fremder Herkunft nicht stillschweigend mitfixen — nur melden.
 
+Dann das Runner-Szenario aus Schritt 3 erneut laufen lassen. Bleibt eine Prüfung rot, die vorher grün war, nachbessern oder die Änderung zurücknehmen — nie rot abschließen.
+
 ## Schritt 7 — Housekeeping prüfen
 
 Wenn sich `description`, Name oder das nach außen sichtbare Verhalten geändert haben, weise darauf hin, dass die README-Zeile (Plugin: `README.md`; Werkstatt: dessen `README.md`) nachgezogen werden muss — und biete an, das via `/finish` mitzunehmen. Diese Datei hier **nicht** ungefragt ändern.
@@ -76,4 +78,4 @@ Wenn sich `description`, Name oder das nach außen sichtbare Verhalten geändert
 
 Melde knapp:
 - Welche Datei optimiert wurde + 2-3 wichtigste Änderungen (mit dem jeweiligen Standard-Bezug).
-- Ein Testszenario, mit dem der User die optimierte Fassung gegenprüfen kann.
+- Eval vorher/nachher: Szenario, Prüfungen grün/rot, Zeilen vorher → nachher; ohne Runner-Szenario stattdessen ein Testszenario, mit dem der User gegenprüfen kann.

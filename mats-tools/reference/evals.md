@@ -182,6 +182,10 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Erkennt die veraltete Arbeitskopie und bringt sie erst auf Stand
   (bzw. meldet, wenn das nicht sauber geht) — geschärft wird nie eine veraltete
   Fassung.
+- **Szenario:** Plugin-Command ohne Runner-Szenario in `tools/eval.sh` (z.B. `/optimieren destillieren`).
+  **Erwartet:** Schreibt zuerst ein Szenario mit Fixture und Prüfung auf der Platte, lässt es
+  vor dem Schärfen laufen und danach erneut; die Abschlussmeldung nennt beide Ergebnisse.
+  Ein Ziel, dessen Szenario nach dem Umbau rot ist, wird nicht als fertig gemeldet.
 - **Szenario (Dogfood):** `/optimieren optimieren`.
   **Erwartet:** Kann sich selbst gegen den Standard prüfen.
 - **Szenario (Meta):** `/optimieren authoring-guide`.
