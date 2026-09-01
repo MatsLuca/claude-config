@@ -11,6 +11,24 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-09-01 · Claude 5: /finish startet nur noch, wenn du es tippst
+
+<!-- claude:
+Seit diesem Update tragen /finish und /finish-lite `disable-model-invocation: true`: sie lassen sich
+nicht über das Skill-Tool starten, der Nutzer tippt sie selbst; alle anderen Commands bleiben wie
+gehabt aufrufbar. Der Authoring-Standard verlangt jetzt „Auftrag vor Rezept" (Outcome + Regeln,
+Weg frei; wörtliche Blöcke nur mit Eval-Beleg) — beim Schreiben neuer Bausteine daran halten;
+finish, finish-lite und merken sind schon umgestellt. Der Wrapper-Block aus shell/setup.sh benennt
+seine Helfer jetzt ohne führenden Unterstrich (Claude Codes Shell-Snapshot übernimmt solche
+Funktionen nicht; `claude` aus einer Claude-Session heraus meldete „command not found").
+-->
+
+Mit dem neuen Modell (Claude 5) sind die Werkzeuge schlanker geworden: Claude bekommt das Ziel und
+die Regeln statt einer Schritt-für-Schritt-Anleitung. Sichtbar für dich: **/finish und /finish-lite
+laufen nur noch, wenn du sie selbst eintippst** — Claude pusht nichts mehr auf eigene Faust. Sonst
+ändert sich nichts. Wer mag, sagt einmal „Führe das machine-setup durch." (kleine Korrektur an der
+Startzeile; nicht nötig).
+
 ## 2026-08-28 · Start-Timer: jede Session zeigt, was der Start gekostet hat
 
 <!-- claude:

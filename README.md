@@ -62,7 +62,9 @@ irm https://raw.githubusercontent.com/MatsLuca/claude-config/master/bootstrap.ps
 
 ## 🧰 Was drin ist
 
-Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere Arbeit:
+Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere Arbeit. Commands sind
+technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `/finish` und
+`/finish-lite` (`disable-model-invocation`) — die laufen nur, wenn du sie tippst:
 
 ### ⚡ Commands
 
@@ -104,17 +106,21 @@ liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
 
 Der Kasten verbessert sich durch die Arbeit mit sich selbst:
 
-- **Bauen:** Skills mit Code entstehen in der privaten Werkstatt (Symlink nach `~/.claude/skills`)
-  und graduieren hierher, sobald sie markdown-rein und auch für andere nützlich sind.
+- **Bauen:** Was Konten oder Maschinenzustand braucht, entsteht in der privaten Werkstatt (Symlink
+  nach `~/.claude/skills`); hierher gehört, was ohne beides läuft und auch für andere nützlich ist —
+  Code inklusive (`/wrapped`).
 - **Schärfen:** `/optimieren <baustein>` prüft gegen den Authoring-Standard
   (`mats-tools/reference/authoring-guide.md`) und die Outcome-Evals (`reference/evals.md`) —
   die beschreiben *beobachtbares Verhalten*, nie Implementierung, damit eine bessere
-  Umsetzung nie an alten Details scheitert. `tools/eval.sh` lässt Szenarien headless im
+  Umsetzung nie an alten Details scheitert. Seit Claude 5 gilt **Auftrag vor Rezept**: ein
+  Baustein nennt Outcome und Regeln, den Weg findet das Modell; wörtliche Bash-Blöcke nur, wo
+  ein Eval zeigt, dass es ohne sie scheitert. `tools/eval.sh` lässt Szenarien headless im
   Wegwerf-Fixture laufen und prüft das Ergebnis auf der Platte.
 - **Neu denken:** Neues Modell, neue Claude-Code-Fähigkeit → `/neudenken` über den Kasten.
 - **Absichern:** `tools/validate.sh` (lokal + GitHub Action bei jedem Push) prüft Manifeste,
-  Frontmatter, README-Listing, Eval-Abdeckung, Plugin-Referenzen, Portabilität (BSD↔GNU) und
-  lässt `shell/setup.sh` real in einem Sandbox-HOME laufen.
+  Frontmatter, README-Listing, Eval-Abdeckung, Plugin-Referenzen, Portabilität (BSD↔GNU),
+  lässt `shell/setup.sh` real in einem Sandbox-HOME laufen und ruft lokal das native
+  `claude plugin validate` dazu.
 
 ---
 
@@ -171,7 +177,7 @@ claude-config/
 └── mats-tools/                   # das Plugin
     ├── .claude-plugin/
     │   └── plugin.json           # Plugin-Manifest
-    ├── commands/                 # Slash-Commands (*.md)
+    ├── commands/                 # Slash-Commands = Skills als flache Datei (*.md)
     ├── agents/                   # Subagents (*.md)
     ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
     ├── hooks/                    # SessionStart-Hooks: Start-Timer (Dauer je Phase → Terminal + ~/.cache/mats-tools/start-timer.log) und NEWS.md-Einträge einmal zeigen

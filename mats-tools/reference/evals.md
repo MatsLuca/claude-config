@@ -9,6 +9,13 @@ nie interne Marker, Flags oder konkrete Tool-Aufrufe. Ein Eval darf eine bessere
 Neuimplementierung niemals blockieren: Ändert sich das *Wie*, bleibt der Eval
 gültig; ändert sich das *Was*, wird der Eval bewusst mitgeändert — nie stillschweigend.
 
+**Schreibweise (nativ-kompatibel):** *Szenario* = Ausgangslage + Aufruf, so konkret,
+dass daraus später ein Prompt mit Fixture wird; *Erwartet* = ein Kriterium, das ein Richter
+am Transkript oder an erzeugten Dateien prüfen kann. Was nur der Arbeitsbaum zeigt (Commit
+da, gepusht, Baum sauber), prüft `tools/eval.sh` auf der Platte. Claude Codes
+`claude plugin eval` (Early Access, Fälle = `prompt.md` + `graders/*.md`) ergänzt später den
+Vergleichslauf ohne Plugin und LLM-bewertete Kriterien — es ersetzt den Runner nicht.
+
 **Loop:** Szenario ausführen → Verhalten beobachten → Abweichung als Befund in
 `/optimieren <ziel>` einspeisen → schärfen → erneut prüfen. `/optimieren` liest
 diese Datei und muss die hier beschriebenen Outcomes erhalten.
@@ -19,7 +26,7 @@ aus der Repo-Quelle in einem Wegwerf-Fixture:
 
 ```bash
 tools/eval.sh --list             # benannte Szenarien mit Fixture + automatischer Prüfung
-tools/eval.sh finish-lite:sync   # ein Szenario; `alle` für alle
+tools/eval.sh finish:feature     # ein Szenario; `alle` für alle
 tools/eval.sh merken             # freier Lauf: Transkript neben dem Eval-Abschnitt, Urteil von Hand
 ```
 

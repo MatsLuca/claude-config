@@ -2,6 +2,64 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-09-01 — `/neudenken` mit Fable 5.1: Auftrag vor Rezept
+
+Vierter Neudenken-Pass in zehn Tagen, Anlass neues Modell. Belege: Baseline `eval.sh alle` 6/6 grün
+unter Fable 5.1; in zwei von drei Läufen lehnte die Berechtigungsprüfung den vorgeschriebenen
+Bash-Einzeiler ab und das Modell zerlegte ihn selbst — Outcome hielt, Rezept nicht. `claude plugin
+details` zählt alle elf Commands als Skills; Skill-Tool-Aufrufe von finish-lite/finish/optimieren in
+den Transkripten seit 7.8. Nutzung 7.8.–1.9.: merken 87, finish-lite 33, claude-md/finish je 14,
+einarbeiten/github-pushes/Agents 0. Seit 25.8. kein `/optimieren`-Pass; sechs von zehn Commits
+Infrastruktur; Plugin hält 2417 Zeilen Code gegen 1875 Prosa. Guide-Agent (Doku): Commands→Skills
+offiziell verschmolzen, `disable-model-invocation`/`context: fork`/`model`/`effort`/`hooks` im
+Skill-Frontmatter, `permissionMode`/`mcpServers`/`hooks` bei Plugin-Agents ignoriert, natives
+`claude plugin validate` GA, `claude plugin eval` Early Access ohne Platten-Grader, keine
+modellspezifische Prompt-Anleitung in der Claude-Code-Doku.
+
+Urteil: gesund, Umbau im Detail. Umgesetzt (Details im Stand-Block der CLAUDE.md vom 01.09.):
+Sperr-Flag auf finish/finish-lite/claude-chats, Guide auf „Auftrag vor Rezept", finish/finish-lite/
+merken geschärft (98/28/66 → 21/20/30 Zeilen), Runner-Szenarien finish:feature/finish:clean/
+merken:stand, Validator-Check 8 (natives validate), Wrapper-Helfer ohne Unterstrich, NEWS-Eintrag,
+Wiedervorlage 15.09., Feedback-Entwurf. Verworfen nach Test: `${CLAUDE_SKILL_DIR}` in
+`allowed-tools`. Ersetzte Stand-Blöcke darunter.
+
+## Aktueller Stand (2026-08-25)
+
+**`/wrapped`** dazugekommen — der erste Command mit eigenen Skripten
+(`mats-tools/scripts/wrapped/`: `aggregate.py`, `card.html`, `render.py`). Er baut aus den
+lokalen Dateien unter `~/.claude` ein teilbares PNG (Chrome headless, Zwischenablage).
+Zwei Entscheidungen, die man nicht aus dem Code ablesen kann:
+
+- **Nichts Privates aufs Bild.** Projekt-, Ordner- und Dateinamen fehlen *im Aggregat*, nicht
+  erst in der Karte — das Bild geht in Gruppenchats. Wer den Command erweitert, hält das so.
+- **Handarbeit wird pro Auftrag geschätzt, nicht pro Werkzeug-Aufruf** (`TASK_MINUTES`).
+  Grund: ohne Claude hätte man dieselben Shell-Befehle nie getippt, sondern das Ziel anders
+  erreicht; außerdem bleibt die Zahl stabil, wenn ein Modell dieselbe Aufgabe mit 5 statt 50
+  Aufrufen löst. Die Zahl trägt sichtbar ein `≈` und wird als Schätzung benannt.
+
+Layout-Prinzip der Karte: wenige große Aussagen (eine Hero-Zahl, drei Kacheln, zwei Werte,
+eine Kurve), keine Panel-Rahmen. Ein reicheres Bild war gebaut und wurde bewusst halbiert.
+
+## Stand bis 2026-08-24 (abends)
+
+`/neudenken` → Zweck-Satz (oben) → Plan mit vier Wellen, **alle am 24.08. umgesetzt** (Protokoll:
+`../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`; Welle-Details in `HISTORIE.md`):
+
+- **Getrennt:** Werkstatt (`skills/` mit Code, `plans/`) → privates `claude-werkstatt`; hier nichts
+  Privates mehr per Konstruktion (Checks 7/8, Sperrlisten-Lint weg). −3400 Zeilen insgesamt.
+- **Geschnitten:** News reine Info (kein Auto-Prompt/Nachrüst-Modus); `machine-setup` =
+  `shell/setup.sh` (Marker, Sandbox-Test = Validator-Check 7) + dünner Agent; README einzige Liste;
+  `start.sh` hat nur noch einen Wrapper-Vertrag (`MATS_TOOLS_SYNCED`).
+- **Loop scharf:** `tools/eval.sh` (headless, Fixtures, 6/6 grün), `/optimieren` kennt Werkstatt-Ziele,
+  Ritus in den Conventions.
+- **Kontext-Gerüst:** Router-Regel + `~/.claude/reference/werkzeugkasten.md` (Ortsfrage statt Pflichtweg,
+  „mach das global"-Rezept), Memory, Aliase `kasten`/`werkstatt`, eigener Wrapper = dünner Vertrag +
+  Werkstatt-Pull beim Start.
+- Live geprüft: Plugin-Cache `e6f2a91`, Startzeilen `🔄 mats-tools` / `🔧 Werkstatt`, Setup-Kette aus dem
+  Cache im Sandbox-HOME, auf diesem Mac meldet der Agent korrekt `WRAPPER_CONFLICT`/`STATUSLINE_DIFFERS`
+  (Kickbacks-Block)/`SETTINGS_DIFFERS` und fasst nichts an.
+
+
 ## 2026-08-28 — Session-Start ohne Netz-Wartezeit
 
 - Timeline gemessen: ~3 s bis zum Prompt, davon ~1,8 s zwei serielle GitHub-Roundtrips im Wrapper

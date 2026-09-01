@@ -72,7 +72,7 @@ alias yolo='claude --dangerously-skip-permissions'
 
 # Aktiver mats-tools-Ordner im Plugin-Cache: laut installed_plugins.json (user-scope);
 # Fallback: jüngster Versionsordner.
-_mats_tools_dir() {
+mats_tools_dir() {
   f="$HOME/.claude/plugins/installed_plugins.json"; d=""
   [ -f "$f" ] && d=$(awk '/"mats-tools@claude-config"/{b=1} b&&/"scope": *"user"/{u=1} b&&u&&/"installPath"/{sub(/.*"installPath": *"/,""); sub(/",?[[:space:]]*$/,""); print; exit}' "$f")
   c="$HOME/.claude/plugins/cache/claude-config/mats-tools"   # kein Glob: zsh bricht bei leerem Muster ab
@@ -81,7 +81,7 @@ _mats_tools_dir() {
 }
 
 # Befehl mit Zeitlimit (Sekunden): timeout/gtimeout/perl, sonst ohne Limit.
-_mats_tools_timeout() {
+mats_tools_timeout() {
   if command -v timeout >/dev/null 2>&1; then timeout "$@"
   elif command -v gtimeout >/dev/null 2>&1; then gtimeout "$@"
   elif command -v perl >/dev/null 2>&1; then perl -e 'alarm shift; exec @ARGV' "$@"
@@ -89,7 +89,7 @@ _mats_tools_timeout() {
 }
 
 # Millisekunden seit Epoch (Start-Timer, hooks/start-timer.sh): zsh/bash≥5 EPOCHREALTIME, sonst perl, sonst Sekunden.
-_mats_now_ms() {
+mats_now_ms() {
   if [ -n "${EPOCHREALTIME:-}" ]; then f=${EPOCHREALTIME#*.}; echo $(( ${EPOCHREALTIME%.*}*1000 + 10#${f:0:3} ))
   elif command -v perl >/dev/null 2>&1; then perl -MTime::HiRes=time -e 'printf "%.0f\n", time*1000'
   else echo $(( $(date +%s) * 1000 )); fi
@@ -101,19 +101,19 @@ _mats_now_ms() {
 # in einer nicht-interaktiven Shell nicht mitkam). `frisch` = jetzt synchron syncen, dann starten.
 # MATS_T_WRAP/MATS_T_EXEC = Zeitstempel für den Start-Timer (SessionStart-Hook zeigt die Phasen).
 claude() {
-  export MATS_T_WRAP; MATS_T_WRAP=$(_mats_now_ms)
-  local mt; mt=$(_mats_tools_dir 2>/dev/null)
+  export MATS_T_WRAP; MATS_T_WRAP=$(mats_now_ms)
+  local mt; mt=$(mats_tools_dir 2>/dev/null)
   if [ ! -d "$HOME/.claude/plugins/cache/claude-config/mats-tools" ]; then
     echo "⏳ mats-tools wird erstmals geholt…"
-    _mats_tools_timeout 60 claude plugin update mats-tools@claude-config >/dev/null 2>&1
-    mt=$(_mats_tools_dir 2>/dev/null)
+    mats_tools_timeout 60 claude plugin update mats-tools@claude-config >/dev/null 2>&1
+    mt=$(mats_tools_dir 2>/dev/null)
   fi
   if [ -n "$mt" ] && [ -f "$mt/shell/sync.sh" ]; then
     if [ "${MATS_TOOLS_FRISCH:-0}" = 1 ]; then sh "$mt/shell/sync.sh" --now
     else ( MATS_SYNC_CWD="$PWD" sh "$mt/shell/sync.sh" >/dev/null 2>&1 & ); fi
     MATS_TOOLS_DIR="$mt" . "$mt/shell/start.sh"
   fi
-  export MATS_T_EXEC; MATS_T_EXEC=$(_mats_now_ms)
+  export MATS_T_EXEC; MATS_T_EXEC=$(mats_now_ms)
   command claude "$@"
 }
 frisch() { MATS_TOOLS_FRISCH=1 claude --dangerously-skip-permissions "$@"; }

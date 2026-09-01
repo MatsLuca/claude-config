@@ -1,98 +1,21 @@
 ---
 description: Analysiert alle Änderungen seit dem letzten Push, pflegt README/CHANGELOG und zugehörige GitHub-Issues falls nötig, committet und pusht in einem Rutsch.
+disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh issue list:*), Bash(gh issue view:*), Bash(gh issue comment:*), Bash(export PATH=*), Bash(echo:*), Bash(ls:*), Bash(sh:*), Read, Edit
 ---
 
-Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten GitHub-Push analysieren, ggf. README/CHANGELOG und zugehörige Issues pflegen, dann committen und pushen.
+Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten Push verstehen, wo nötig README/CHANGELOG und GitHub-Issues nachziehen, committen, pushen. Wie du dir den Überblick verschaffst, entscheidest du — wenige Runden, unabhängige Aufrufe parallel, Übersicht vor Vollinhalt (`git status --short`, `git log @{u}..HEAD --oneline`, `git diff @{u} --stat`, die letzten Commits als Stil-Referenz); den vollen Diff nur gezielt für Dateien, deren Stat-Zeile für Commit-Message und Doku-Entscheidung nicht reicht. Untracked Dateien sind neu — kurz ansehen, wenn relevant.
 
-**Arbeite token-effizient: erst billige Übersichten, vollen Inhalt nur bei Bedarf.**
+## Was am Ende gilt
 
-## Schritt 1 — Zustand in EINEM Aufruf erfassen
+- **Nichts zu tun** (Baum sauber, keine unpushed Commits) → melden und stoppen. Baum sauber, aber unpushed Commits → nur pushen, kein leerer Commit.
+- **Kein Upstream** → der Branch wurde nie gepusht: „Diff seit Push" ist alles ab dem ersten Commit (`git diff HEAD --stat` plus untracked), Push mit `git push -u origin <branch>`.
+- **README** nur anfassen, wenn die Änderung dort Dokumentiertes sichtbar verändert (Features, Commands, Setup, API) — punktuell per `Edit` in den betroffenen Abschnitten, nicht neu schreiben; interne Refactors und Bugfixes brauchen meist nichts. **CHANGELOG** nur ergänzen, wenn einer existiert, im Format und an der Stelle, die die Datei vorgibt (`## [Unreleased]` oder oben, mit heutigem Datum, falls die Datei Daten nutzt); keinen anlegen.
+- **Issues** nur, wenn das Projekt sie nutzt: `gh issue list --state open --limit 30 --json number,title` (PATH um `/opt/homebrew/bin` ergänzen); schlägt es fehl oder ist leer, entfällt der Schritt ohne Nachhaken. Erledigt die Arbeit ein Issue → `Closes #<N>` in die Commit-Message, GitHub schließt es beim Push. Betroffen, aber nicht erledigt → einen Status-Kommentar nur anbieten; `gh issue comment` erst nach Zustimmung (externer Schreibzugriff). Bei Unsicherheit `gh issue view <N>`.
+- **Commit:** Conventional-Commits-Subject (`type: kurze Beschreibung`, imperativ, im Stil der letzten Commits), bei mehreren logischen Änderungen ein kurzer Body mit dem *Warum*, je Issue eine Zeile `Closes #<N>`, zuletzt der Trailer `Co-Authored-By: Claude <noreply@anthropic.com>`. Message per Heredoc, damit Mehrzeiler sauber bleiben; alles stagen (`git add -A`, inklusive geänderter Docs), committen, pushen.
+- **Push abgelehnt** (Remote weiter als lokal) → abbrechen und Ursache melden. Kein `--force`, kein automatischer Pull/Rebase.
+- **Nach erfolgreichem Push** einmal `sh "${CLAUDE_PLUGIN_ROOT}/shell/sync.sh" --after-push`: im Marketplace-Repo von `mats-tools` zieht es den Plugin-Cache nach, überall sonst endet es still. Nichts dazu prüfen oder erklären — nur eine etwaige Ausgabe in die Meldung übernehmen.
 
-Führe genau diesen kombinierten Befehl aus (eine Bash-Runde, keine Einzelaufrufe):
+## Meldung
 
-```bash
-echo "=== BRANCH ===" && git rev-parse --abbrev-ref HEAD && \
-echo "=== UPSTREAM ===" && git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "NO_UPSTREAM" && \
-echo "=== STATUS ===" && git status --short && \
-echo "=== UNPUSHED COMMITS ===" && git log @{u}..HEAD --oneline 2>/dev/null || echo "(kein upstream / alle commits via stat unten)" && \
-echo "=== DIFFSTAT (tracked, seit Push) ===" && git diff @{u} --stat 2>/dev/null || git diff HEAD --stat && \
-echo "=== LETZTE COMMITS (Stil-Referenz) ===" && git log -5 --oneline 2>/dev/null || echo "(noch keine Commits)"
-```
-
-Auswertung:
-- **Keine Änderungen** (leerer Status, keine unpushed commits) → melde das und stoppe. Nichts zu tun.
-- **Kein Upstream** (`NO_UPSTREAM`) → der Branch wurde nie gepusht. Als "Diff seit Push" gilt dann alles ab dem ersten Commit; nutze `git diff HEAD --stat` plus untracked Dateien aus dem Status. Push-Variante: Schritt 6.
-
-## Schritt 2 — Verstehen, was passiert ist
-
-Die `--stat`-Übersicht reicht meist, um Umfang und Art der Änderung zu erkennen.
-- Nur wenn die Stat-Liste nicht ausreicht, um eine gute Commit-Message und README/CHANGELOG-Entscheidung zu treffen, lies den vollen Diff **gezielt** für die relevanten Dateien: `git diff @{u} -- <pfad>`. Lade nicht den kompletten Diff blind.
-- Untracked Dateien (`??` im Status) sind neu — kurz anschauen, wenn relevant.
-
-Fasse für dich in 1-2 Sätzen zusammen, was die Änderung bewirkt (Feature / Fix / Refactor / Docs / Chore).
-
-## Schritt 3 — README & CHANGELOG prüfen
-
-Existenz billig prüfen, bevor du liest:
-
-```bash
-ls README* CHANGELOG* 2>/dev/null
-```
-
-- **README**: Nur lesen/aktualisieren, wenn die Änderung etwas Sichtbares betrifft, das dort dokumentiert ist (neue Features, geänderte Commands, Setup, API). Reine interne Refactors/Bugfixes brauchen meist kein README-Update. Wenn du liest und es groß ist, lies gezielt die betroffenen Abschnitte.
-- **CHANGELOG**: Falls vorhanden, neuen Eintrag passend zum bestehenden Format/Stil ergänzen (z.B. unter `## [Unreleased]` oder oben, je nach Konvention der Datei). Datum heute verwenden, falls das Format Daten nutzt. Existiert kein CHANGELOG, erstelle KEINS von dir aus.
-
-Nutze `Edit` für punktuelle Änderungen statt die Datei neu zu schreiben.
-
-## Schritt 4 — GitHub-Issues abgleichen (nur falls das Projekt sie nutzt)
-
-Billig prüfen, ob offene Issues existieren (eine Runde; bricht sauber ab, wenn kein GitHub-Remote / kein `gh` vorhanden ist):
-
-```bash
-export PATH="/opt/homebrew/bin:$PATH"
-gh issue list --state open --limit 30 --json number,title \
-  --jq '.[] | "#\(.number) \(.title)"' 2>/dev/null || echo "KEINE_ISSUES_ODER_KEIN_GH"
-```
-
-- **`KEINE_ISSUES_ODER_KEIN_GH` oder leere Ausgabe** → Schritt überspringen, das Projekt nutzt keine Issues. Nicht nachhaken.
-- Sonst: gleiche die offenen Issues gegen die in Schritt 2 verstandene Änderung ab. Nur wirklich betroffene Issues anfassen — bei Unsicherheit `gh issue view <N>` für den vollen Text.
-
-Pro betroffenem Issue:
-- **Die Änderung erledigt das Issue** → Default: `Closes #<N>` in die Commit-Message aufnehmen (Schritt 5). GitHub schließt es beim Push automatisch, kein extra Schreibzugriff nötig.
-- **Issue ist betroffen, aber noch nicht erledigt** → biete einen kurzen Status-Kommentar via `gh issue comment <N>` an; schreibe ihn erst nach Zustimmung (externer Schreibzugriff, nicht ungefragt).
-
-## Schritt 5 — Commit-Message überlegen
-
-Conventional-Commits-Stil, an die Stil-Referenz aus Schritt 1 angepasst. Knappe imperative Subject-Zeile (`type: kurze Beschreibung`), bei mehreren logischen Änderungen kurze Bullet-Body. Beschreibe das *Warum*, nicht nur das *Was*. Erledigt die Arbeit ein Issue aus Schritt 4, nimm `Closes #<N>` in den Body auf (eine Zeile pro Issue).
-
-## Schritt 6 — Committen & Pushen in einem Rutsch
-
-**Sonderfall:** Working Tree sauber, aber unpushed Commits vorhanden → nichts committen, direkt `git push` (kein leerer Commit).
-
-Sonst, wenn alles bereit ist (inkl. ggf. geänderter README/CHANGELOG), alles stagen und committen. Message via heredoc, damit Mehrzeiler sauber sind, und mit Co-Author-Trailer:
-
-```bash
-git add -A && git commit -m "$(cat <<'EOF'
-<subject>
-
-<optionaler body>
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-EOF
-)" && git push
-```
-
-(Bei fehlendem Upstream stattdessen `git push -u origin <branch>`.)
-
-Wird der Push abgelehnt (z.B. Remote weiter als lokal): abbrechen und Ursache melden — **kein** `--force`, kein automatischer Pull/Rebase.
-
-## Schritt 7 — Nach erfolgreichem Push: Plugin-Cache nachziehen (mechanisch, eine Zeile)
-
-```bash
-sh "${CLAUDE_PLUGIN_ROOT}/shell/sync.sh" --after-push
-```
-
-Das Skript entscheidet selbst: Ist dieses Repo das Marketplace-Repo von `mats-tools`, holt es das Update jetzt in den Plugin-Cache (die nächste Session hat es dann sofort); in jedem anderen Repo endet es still. Nichts dazu prüfen oder erklären — nur die Ausgabe (falls eine kommt) in die Meldung übernehmen.
-
-Melde am Ende kurz: Commit-Message, welche Docs aktualisiert wurden (falls), welche Issues verlinkt/geschlossen oder kommentiert wurden (falls), und das Push-Ergebnis.
+Knapp: Commit-Message, aktualisierte Docs (falls), verlinkte, geschlossene oder kommentierte Issues (falls), Push-Ergebnis.

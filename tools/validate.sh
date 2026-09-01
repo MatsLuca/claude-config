@@ -16,6 +16,9 @@
 #      Dazu: NEWS.md hat höchstens einen <!-- claude: -->-Block pro Eintrag.
 #   7. shell/setup.sh läuft in einem Sandbox-HOME zweimal durch: Block genau einmal, rc parst
 #      in bash, settings.json valide — der Installer ist damit real getestet, nicht nur gelesen.
+#   8. `claude plugin validate` (nativ, seit Claude Code 2.1) über Plugin und Marketplace — nur
+#      wo `claude` installiert ist (lokal; CI hat es nicht), ohne --strict: die fehlende
+#      Version in plugin.json ist gewollt (SHA = Version) und würde strict rot machen.
 #
 # Verhaltens-Evals (reference/evals.md) prüft das hier NICHT — die laufen headless
 # bzw. manuell, siehe den Loop-Abschnitt in evals.md.
@@ -173,6 +176,19 @@ else
   fail "setup.sh: Sandbox-Lauf fehlgeschlagen — siehe $SB/run*.log"
 fi
 [ "$FAILS" -gt 0 ] || rm -rf "$SB"
+
+# ── 8. claude plugin validate (nativ), wo verfügbar ─────────────────────────
+if command -v claude >/dev/null 2>&1; then
+  for t in mats-tools .claude-plugin/marketplace.json; do
+    if out=$(command claude plugin validate "$t" 2>&1); then
+      ok "claude plugin validate: $t"
+    else
+      fail "claude plugin validate: $t"; printf '%s\n' "$out" | sed 's/^/    /'
+    fi
+  done
+else
+  ok "claude nicht installiert — natives plugin validate übersprungen (läuft lokal)"
+fi
 
 # ── Ergebnis ──────────────────────────────────────────────────────────────────
 echo

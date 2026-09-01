@@ -3,64 +3,28 @@ description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrele
 allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Read, Edit, Write, AskUserQuestion
 ---
 
-Du hältst den aktuellen Arbeitsstand fest, damit der aktive Chat verlassen werden kann, ohne dass Kontext verloren geht. Das ist **kein** Programmier-/Git-Abschluss (dafür gibt es `/finish`) — hier geht es darum, **Wissen und Stand in Kontextdateien zu sichern**, in beliebigen Umgebungen (Studium, Notizen, Recherche, Schreibprojekte, Code).
+Du hältst den Arbeitsstand dieser Session in den Kontextdateien des Projekts fest, damit der Chat verlassen werden kann, ohne dass Kontext verloren geht — in jeder Umgebung (Studium, Notizen, Recherche, Schreibprojekte, Code). Kein Programmier-/Git-Abschluss, dafür gibt es `/finish`. Erst billige Übersicht (Ordner, Markdown-Dateien, Repo ja/nein), dann gezielt schreiben.
 
-**Arbeite token-effizient: erst billige Übersicht, dann gezielt schreiben.**
+## Was du festhältst
 
-## Schritt 1 — Lage in EINEM Aufruf erfassen
+Aus dem Verlauf nur, was für ein Weitermachen morgen zählt — der Future-Du soll in 30 Sekunden wieder drin sein: Ergebnisse und Entscheidungen (auch verworfene Wege mit Grund), der nächste konkrete Schritt, offene Fragen und Blocker, Fundstellen, Pfade und Zwischenergebnisse, die sonst verloren gingen. Kein Verlaufsprotokoll, nichts Triviales.
 
-```bash
-echo "=== ORDNER ===" && pwd && \
-echo "=== MARKDOWN & KONTEXT ===" && ls -1 *.md 2>/dev/null || echo "(keine .md im Root)" && \
-echo "=== STRUKTUR (Root) ===" && ls -1F && \
-echo "=== GIT? ===" && git rev-parse --is-inside-work-tree 2>/dev/null && git branch --show-current 2>/dev/null || echo "KEIN_REPO"
-```
+**Verfassungs-Befunde** getrennt davon: hat die Session sichtbar gemacht oder geändert, *wozu* das System existiert oder *wie* es organisiert ist (welcher Ordner wofür, Namensschema, Verlinkung, Grundsatz-Entscheidungen)? Nur Beobachtetes und Entschiedenes zählt — kein Interview, nichts spekulieren.
 
-## Schritt 2 — Verstehen, was in dieser Session passierte
+## Wohin
 
-Geh den bisherigen Chatverlauf gedanklich durch und destilliere **nur das, was für ein Weitermachen morgen wirklich zählt**:
-- **Was wurde getan / entschieden** (Ergebnisse, Festlegungen, verworfene Wege inkl. Grund).
-- **Was ist offen** — der nächste konkrete Schritt, offene Fragen, Blocker.
-- **Wichtiger Kontext**, der sonst verloren ginge (Fundstellen, Annahmen, Zwischenergebnisse, Links/Dateipfade).
-- **Verfassungs-Befunde** — hat die Session sichtbar gemacht oder geändert, **wozu** dieses System existiert oder **wie** es organisiert ist (welcher Ordner wofür, Namensschema, wie verlinkt wird, Grundsatz-Entscheidungen)? Nur zählen, was tatsächlich passiert oder entschieden wurde — nichts spekulieren, kein Interview.
+- **`CLAUDE.md` existiert** → immer Ziel. Stand in den vorhandenen Stand-/Status-Abschnitt, sonst neu als `## Aktueller Stand (<heutiges Datum>)` am Ende. Verfassungs-Befunde in den Zweck-/Konventions-Teil vorn — ohne Befund bleibt er unangetastet, ein junges System darf eine Ein-Satz-Verfassung haben, nichts erfinden, nichts aufblähen. Genau diese Teile lesen `/einarbeiten` und `/destillieren` später als beabsichtigte Konvention des Systems.
+- Gehört Inhalt thematisch klar in eine andere Datei (`NOTES.md`, `STATUS.md`, Themen-Markdown, Mitschrift), dort gezielt ergänzen; große Dateien nur in den betroffenen Abschnitten lesen.
+- **Kein passendes Ziel** → eine Datei vorschlagen (für ein Arbeitsverzeichnis i.d.R. `CLAUDE.md`, sonst ein themenpassendes `*.md`) und nach kurzer Bestätigung anlegen. Unsicher, welche Datei wohin → per `AskUserQuestion` fragen, nicht raten.
+- **Höhe (Skill `claude-md`):** ist die Ziel-CLAUDE.md laut Kopfzeile oder Rolle des Ordners ein Router oder Bereich (gleichartige Kinder, selten cwd), gehört dort kein Stand hinein — in die CLAUDE.md/README des betroffenen Kindes schreiben, oben höchstens ein Zeiger. Beim Neuanlegen den Skill laden (Höhe + Skelett); fehlt der Projekt-CLAUDE.md die Kopfzeile `# CLAUDE.md — <Ordnername> (Projekt)`, beim Schreiben setzen, sonst nichts umbauen.
 
-Halte es knapp und handlungsorientiert. Kein Verlaufsprotokoll — der Future-Du soll in 30 Sekunden wieder drin sein. Lass Triviales weg.
+## Regeln beim Schreiben
 
-## Schritt 3 — Zieldatei(en) bestimmen
+- `Edit` für Bestehendes, `Write` nur für Neues. Stil, Überschriftenebenen, Sprache und Ton der Datei wahren; Gültiges nicht überschreiben, Veraltetes aktualisieren statt duplizieren.
+- **Genau ein datierter Stand-Block.** Was du dabei ersetzt, wandert 1:1 nach `HISTORIE.md` im selben Ordner (neueste zuerst; anlegen, falls sie fehlt) — nie als „Vorheriger Stand" in der CLAUDE.md stehen lassen.
+- Offenes als Checkliste (`- [ ]`), damit der nächste Einstieg sofort sichtbar ist.
+- **Git nur anbieten.** Im Repo nicht ungefragt committen: am Ende kurz anbieten („Soll ich die Doku-Änderung committen (und pushen)?") und erst auf Zustimmung nur die geänderten Dateien committen — Message `docs: Stand festgehalten (/merken)` mit dem Trailer `Co-Authored-By: Claude <noreply@anthropic.com>`; pushen nur, wenn gewünscht. Kein Repo → kein Angebot.
 
-- **`CLAUDE.md` existiert** → sie ist immer ein Ziel. Aktualisiere/ergänze sie. Wenn es schon einen Stand-/Status-/„Aktueller Stand"-Abschnitt gibt, pflege diesen; sonst ergänze einen klar benannten Abschnitt am Ende (z.B. `## Aktueller Stand (<heutiges Datum>)`). Gibt es Verfassungs-Befunde (Schritt 2), pflege zusätzlich den Zweck-/Konventions-Teil der Datei — meist oben, vor dem Stand.
-- **Weitere projektrelevante Dateien** (meist Markdown): Wenn Inhalt thematisch klar woanders hingehört (z.B. eine `NOTES.md`, `STATUS.md`, ein Themen-Markdown, eine Mitschrift), aktualisiere zusätzlich gezielt **diese** Datei. Lies große Dateien gezielt in den betroffenen Abschnitten, nicht komplett.
-- **Keine CLAUDE.md, kein passendes Ziel** → schlage dem User eine Datei vor (i.d.R. `CLAUDE.md` für ein Arbeitsverzeichnis, sonst eine themenpassende `*.md`) und lege sie nach kurzer Bestätigung an.
-- **Höhen-Check (Skill `claude-md`):** Ist die Ziel-CLAUDE.md laut Kopfzeile oder Rolle des Ordners ein **Router** oder **Bereich** (Ordner mit gleichartigen Kindern, selten cwd), gehört dort kein Stand hinein — den Stand in die CLAUDE.md/README des betroffenen Kindes schreiben und oben höchstens einen Zeiger lassen. Beim Neuanlegen einer CLAUDE.md den Skill laden (Höhe + Skelett).
+## Meldung
 
-Bei Unsicherheit, welche Datei wohin (oder ob eine neue angelegt werden soll): per `AskUserQuestion` kurz rückfragen, statt zu raten.
-
-## Schritt 4 — Schreiben
-
-- Nutze `Edit` für punktuelle Ergänzungen in bestehenden Dateien, `Write` nur für neu anzulegende.
-- **Passe dich an Stil und Struktur der jeweiligen Datei an** (Überschriftenebenen, Sprache, Ton). Schreibe nicht über bestehende, noch gültige Inhalte — ergänze oder aktualisiere veraltete Stellen.
-- **Verfassung getrennt vom Stand:** Zweck & Konventionen sind langsam veränderlich und gehören nach vorn; der Stand ist schnelllebig und datiert. Ein junges System darf eine Ein-Satz-Verfassung haben — nichts erfinden, nichts aufblähen: ohne Verfassungs-Befund bleibt der Teil unangetastet. (Genau diese Abschnitte lesen `/einarbeiten` und `/destillieren` später als beabsichtigte Konvention des Systems.)
-- Datiere den Stand-Abschnitt mit dem heutigen Datum. **Genau ein Stand-Block:** Inhalt, den du dabei ersetzt, wandert nach `HISTORIE.md` im selben Ordner (neueste zuerst; anlegen, falls fehlt) — nie als „Vorheriger Stand" in der CLAUDE.md stehen lassen.
-- Fehlt der Projekt-CLAUDE.md die Kopfzeile `# CLAUDE.md — <Ordnername> (Projekt)`, setze sie beim Schreiben mit (Verfassung im Skill `claude-md`); sonst nichts umbauen.
-- Markiere offene Punkte klar (z.B. als Checkliste `- [ ]`), damit der nächste Einstieg sofort sichtbar ist.
-
-## Schritt 5 — Git nur anbieten (nicht automatisch)
-
-- **`KEIN_REPO`** → überspringen.
-- **Repo erkannt** → committe **nicht** ungefragt. Biete am Ende kurz an: „Soll ich die Doku-Änderung committen (und pushen)?" Erst auf Zustimmung:
-
-```bash
-git add <nur die in Schritt 4 geänderten/angelegten Dateien> && git commit -m "docs: Stand festgehalten (/merken)
-
-Co-Authored-By: Claude <noreply@anthropic.com>" && git push
-```
-
-(Wenn der User nur committen, nicht pushen will, das `&& git push` weglassen.)
-
-## Abschluss
-
-Melde knapp:
-- Welche Datei(en) aktualisiert/angelegt wurden.
-- 2-3 Stichpunkte: was festgehalten wurde und was als nächster Schritt notiert ist.
-
-Damit ist der Stand gesichert — das Fenster kann gefahrlos geschlossen werden.
+Welche Datei(en) aktualisiert oder angelegt; 2–3 Stichpunkte, was festgehalten ist und was als nächster Schritt notiert steht. Dann kann das Fenster zu.

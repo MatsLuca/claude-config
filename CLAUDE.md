@@ -10,9 +10,9 @@ marketplace** — not an app, no build step: structured Markdown + JSON manifest
 Code loads as slash-commands, subagents and skills. The private sibling `claude-werkstatt`
 holds everything with code, accounts or private notes (aliases `kasten` / `werkstatt`;
 placement rule and recipes in `~/.claude/reference/werkzeugkasten.md`). There **is** a check: `tools/validate.sh` verifies manifests,
-frontmatter, listing sync, plugin-internal references, and portability — run it after any
-change to commands/agents/manifests (CI runs it on every push via
-`.github/workflows/validate.yml`). Behavior is verified against the outcome-level scenarios
+frontmatter, listing sync, plugin-internal references, portability, and (where `claude` is
+installed) calls the native `claude plugin validate` — run it after any change to
+commands/agents/manifests (CI runs it on every push via `.github/workflows/validate.yml`). Behavior is verified against the outcome-level scenarios
 in `mats-tools/reference/evals.md` — interactively or headless (see the Loop section there).
 
 ## Architecture
@@ -25,6 +25,9 @@ Three nesting levels, each with its own manifest:
    Commands and agents are auto-discovered from convention directories, *not* listed in the manifest.
 3. **Commands, agents & skills** — Markdown files with YAML frontmatter:
    - `mats-tools/commands/*.md` → slash-commands (filename = command name, so `finish.md` → `/finish`).
+     Technically skills as flat files: Claude Code merged commands into skills (2026), so the
+     model can start them via the Skill tool too — `disable-model-invocation: true` marks the ones
+     only the user may start (`/finish`, `/finish-lite`).
    - `mats-tools/agents/*.md` → subagents (the `name:` field in frontmatter is the agent id).
    - `mats-tools/skills/<name>/SKILL.md` → skills (user-invocable *and* model-triggered via
      `description`); companion files live next to the SKILL.md (e.g. `claude-md/verfassung.md`,
@@ -78,8 +81,13 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   working language). Agent *instruction bodies* are written in **English**, with German *output
   templates* (e.g. `## Aufgabe`, `**Gegeben:**`) since the produced files are for German study
   material. Keep new commands German and new agents English-instructions/German-output unless asked otherwise.
-- Command bodies emphasize **token efficiency** — combine status-gathering into a single Bash
-  round (cheap overview first, full content only when needed). Follow this pattern in new commands.
+- **Auftrag vor Rezept** (authoring-guide, since the Claude 5 pass on 2026-09-01): a command states
+  the outcome and the inviolable rules; the model finds the way. Literal bash blocks only where an
+  eval run proves the model fails without them (a comment names the reason). Few tool rounds,
+  independent calls in parallel — no mandated one-liners: compound `&&`/`$(…)` commands collide
+  with narrowed `allowed-tools`, and the model splits them anyway. `finish`, `finish-lite`, `merken`
+  are the reference implementations; `neues-projekt`, `destillieren`, `einarbeiten` still carry the
+  old recipe style (next `/optimieren` targets).
 - **Portability (macOS + Linux):** commands must also work in containers/Codespaces. For
   BSD↔GNU dialect splits (`date`, `stat`, `sed -i`) use the probe-then-variant pattern
   (cheap GNU probe once, then stick to one dialect — see `mtime()` in
@@ -92,7 +100,10 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 - The authoring standard (`mats-tools/reference/authoring-guide.md`) is itself an optimizable
   target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
 - **The loop is the point.** Behaviour evals run for real via `tools/eval.sh` (headless from the
-  repo source, throwaway fixture, on-disk checks; costs tokens, so not in CI). **Ritual:** a new
+  repo source, throwaway fixture, on-disk checks for finish, finish-lite, merken, xcode; costs
+  tokens, so not in CI). The native `claude plugin eval` (early access) will add the
+  with/without-plugin comparison and LLM-graded criteria, but has no on-disk grader — it
+  complements `eval.sh`, it does not replace it. **Ritual:** a new
   model or a new Claude Code capability → `/neudenken` over this repo, then `/optimieren` per
   building block, with an `eval.sh` run before and after. A change that touches an eval's wording
   updates `evals.md` explicitly.
@@ -123,44 +134,43 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
 
-## Aktueller Stand (2026-08-25)
+## Aktueller Stand (2026-09-01)
 
-**`/wrapped`** dazugekommen — der erste Command mit eigenen Skripten
-(`mats-tools/scripts/wrapped/`: `aggregate.py`, `card.html`, `render.py`). Er baut aus den
-lokalen Dateien unter `~/.claude` ein teilbares PNG (Chrome headless, Zwischenablage).
-Zwei Entscheidungen, die man nicht aus dem Code ablesen kann:
+`/neudenken` mit Fable 5.1 (Anlass: neues Modell). Urteil: gesund, Umbau im Detail — am selben
+Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
 
-- **Nichts Privates aufs Bild.** Projekt-, Ordner- und Dateinamen fehlen *im Aggregat*, nicht
-  erst in der Karte — das Bild geht in Gruppenchats. Wer den Command erweitert, hält das so.
-- **Handarbeit wird pro Auftrag geschätzt, nicht pro Werkzeug-Aufruf** (`TASK_MINUTES`).
-  Grund: ohne Claude hätte man dieselben Shell-Befehle nie getippt, sondern das Ziel anders
-  erreicht; außerdem bleibt die Zahl stabil, wenn ein Modell dieselbe Aufgabe mit 5 statt 50
-  Aufrufen löst. Die Zahl trägt sichtbar ein `≈` und wird als Schätzung benannt.
-
-Layout-Prinzip der Karte: wenige große Aussagen (eine Hero-Zahl, drei Kacheln, zwei Werte,
-eine Kurve), keine Panel-Rahmen. Ein reicheres Bild war gebaut und wurde bewusst halbiert.
-
-## Stand bis 2026-08-24 (abends)
-
-`/neudenken` → Zweck-Satz (oben) → Plan mit vier Wellen, **alle am 24.08. umgesetzt** (Protokoll:
-`../claude-werkstatt/plans/werkzeugkasten_2026-08-24.md`; Welle-Details in `HISTORIE.md`):
-
-- **Getrennt:** Werkstatt (`skills/` mit Code, `plans/`) → privates `claude-werkstatt`; hier nichts
-  Privates mehr per Konstruktion (Checks 7/8, Sperrlisten-Lint weg). −3400 Zeilen insgesamt.
-- **Geschnitten:** News reine Info (kein Auto-Prompt/Nachrüst-Modus); `machine-setup` =
-  `shell/setup.sh` (Marker, Sandbox-Test = Validator-Check 7) + dünner Agent; README einzige Liste;
-  `start.sh` hat nur noch einen Wrapper-Vertrag (`MATS_TOOLS_SYNCED`).
-- **Loop scharf:** `tools/eval.sh` (headless, Fixtures, 6/6 grün), `/optimieren` kennt Werkstatt-Ziele,
-  Ritus in den Conventions.
-- **Kontext-Gerüst:** Router-Regel + `~/.claude/reference/werkzeugkasten.md` (Ortsfrage statt Pflichtweg,
-  „mach das global"-Rezept), Memory, Aliase `kasten`/`werkstatt`, eigener Wrapper = dünner Vertrag +
-  Werkstatt-Pull beim Start.
-- Live geprüft: Plugin-Cache `e6f2a91`, Startzeilen `🔄 mats-tools` / `🔧 Werkstatt`, Setup-Kette aus dem
-  Cache im Sandbox-HOME, auf diesem Mac meldet der Agent korrekt `WRAPPER_CONFLICT`/`STATUSLINE_DIFFERS`
-  (Kickbacks-Block)/`SETTINGS_DIFFERS` und fasst nichts an.
+- **Prämisse gefallen:** Commands und Skills sind in Claude Code ein Mechanismus; das Modell
+  startet jeden Command über das Skill-Tool selbst. `disable-model-invocation: true` jetzt auf
+  `/finish`, `/finish-lite` (und `/claude-chats` in der Werkstatt) — headless geprüft: gesperrte
+  Bausteine verschwinden aus dem Skill-Angebot, `claude -p "/mats-tools:finish"` läuft weiter.
+- **Standard:** „Auftrag vor Rezept" im authoring-guide, Command-oder-Skill-Abschnitt neu, Flag in
+  der Checkliste; „markdown-rein" überall durch „ohne Konten/Maschinenzustand" ersetzt (Router,
+  Referenz, README).
+- **Geschärft:** `finish` 98→21, `finish-lite` 28→20, `merken` 66→30 Zeilen. Neue Runner-Szenarien
+  `finish:feature`, `finish:clean`, `merken:stand`; Baseline mit den alten Fassungen 13/13 grün,
+  nach dem Umbau 18/18 grün (finish:feature 6, finish:clean 2, finish-lite 5, merken 5); Transkripte zeigen dieselben Meldungen wie vorher, nur ohne den Umweg über den abgelehnten Einzeiler.
+- **Validator:** Check 8 ruft lokal `claude plugin validate` (ohne `--strict`, die fehlende Version
+  ist gewollt); CI hat kein `claude`, dort entfällt er.
+- **Wrapper:** Helfer im Managed Block ohne führenden Unterstrich (`mats_now_ms`, `mats_tools_dir`,
+  `mats_tools_timeout`) — Claude Codes Shell-Snapshot übernimmt `_`-Funktionen nicht, `claude` aus
+  einer Claude-Session heraus meldete „command not found". Mats' `~/.zshrc` gleich mit
+  (Sicherung `~/.zshrc.bak-2026-09-01`).
+- **Geprüft und verworfen:** `${CLAUDE_SKILL_DIR}` in `allowed-tools` greift auf 2.1.257 für
+  Plugin-Skills nicht (headless verweigert, blanket `Bash` läuft) — `claude-md` bleibt wie es ist.
+- **Natives `claude plugin eval`** ist Early Access (Org-Flag): Fälle = `prompt.md` + Grader,
+  Vergleichslauf ohne Plugin, LLM-Judge, kein Platten-Check. Feedback-Entwurf liegt in der
+  `/feedback`-Warteschlange; Wiedervorlage 15.09. macht den Selbsttest.
+- Nutzung 7.8.–1.9. als Kompass: merken 87, finish-lite 33, claude-md/finish je 14; einarbeiten,
+  github-pushes und beide Agents 0. Grundlast ~3,0k Token je Session (`claude plugin details`),
+  davon ~1,4k die Beispielblöcke der zwei ruhenden Agents.
 
 ## HIER WEITERMACHEN
 
+- [ ] `/feedback` abschicken (Entwurf: Early Access für `plugin eval`); Wiedervorlage 15.09. prüft die Sperre.
+- [ ] Ritus fortsetzen, Reihenfolge nach Nutzung: `/optimieren neues-projekt`, `destillieren`,
+      `einarbeiten` unter „Auftrag vor Rezept" — vorher je ein Runner-Szenario in `eval.sh`, sonst fehlt der Beleg.
+- [ ] Agents: Beispielblöcke von `pdf-to-markdown` (~790 Token Grundlast) und `machine-setup` (~620)
+      kürzen; `machine-setup` könnte per `skills:` vorladen statt beschreiben.
 - [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.; Kontrolle 24.08. abends:
       alle 9 alten SHAs noch 200) — auf Antwort warten, dann erneut prüfen
       (`curl -o /dev/null -w '%{http_code}' https://github.com/MatsLuca/claude-config/commit/<sha>`),

@@ -6,9 +6,8 @@ und Skills (`skills/<name>/SKILL.md`) in diesem Plugin. Destilliert aus Anthropi
 und den Repo-Konventionen aus `CLAUDE.md`.
 
 Genutzt vom `/optimieren`-Command als Prüfgrundlage — für das Plugin *und* für die
-Skill-Werkstatt (privates Repo `claude-werkstatt`, aus der reife Skills hierher
-graduieren). Wer hier etwas ändert, ändert den Standard für alle Commands, Agents und
-Skills. Der Zweck, dem alles dient: *ein Werkzeugkasten für die Arbeit mit Claude, der
+Werkstatt (privates Repo `claude-werkstatt` für alles mit Konten oder Maschinenzustand).
+Wer hier etwas ändert, ändert den Standard für alle Commands, Agents und Skills. Der Zweck, dem alles dient: *ein Werkzeugkasten für die Arbeit mit Claude, der
 sich durch die Arbeit mit ihm selbst schärft.*
 
 ## Inhalt
@@ -40,12 +39,16 @@ Gelten für Commands, Agents **und** Skills.
   das ankert Verhalten in wenigsten Tokens und schärft zugleich das Triggern,
   wenn dasselbe Wort in Prompts und Code lebt. Drei Qualitäten nebeneinander
   („klar, eindeutig, token-effizient") sind ein Kandidat zum Kollabieren.
-- **Passende Freiheitsgrade.** Anweisungstiefe an die Fragilität der Aufgabe
-  koppeln:
-  - *Schmaler Grat* (fragil, exakte Reihenfolge nötig) → präzise, wörtliche
-    Anweisung, keine Abweichung (z.B. ein exakter Bash-Block).
-  - *Offenes Feld* (mehrere Wege gültig, kontextabhängig) → Richtung geben,
-    Claude den besten Weg finden lassen.
+- **Auftrag vor Rezept.** Ein Baustein sagt zuerst, *was* am Ende gelten muss
+  (das Outcome, wie in `evals.md`) und welche Regeln dabei unverletzlich sind
+  (kein `--force`, Commit nur anbieten, Verlauf nach `HISTORIE.md`). *Wie* das
+  Modell dorthin kommt, entscheidet es selbst. Ein wörtlicher Schritt oder
+  Bash-Block steht nur dort, wo ein Eval-Lauf zeigt, dass das Modell ohne ihn
+  scheitert — und trägt dann den Grund als Kommentar, damit der nächste Pass ihn
+  erneut prüft. Die Beweislast liegt beim Rezept, nicht bei der Freiheit.
+- **Passende Freiheitsgrade.** *Schmaler Grat* (eine Abweichung kostet Daten:
+  Rebase, Push, Löschen) → die **Regel** wörtlich, der Weg frei. *Offenes Feld*
+  (mehrere Wege gültig) → Richtung geben, Claude den besten Weg finden lassen.
 - **Konsistente Terminologie.** Ein Begriff pro Konzept, durchgängig. Nicht
   „Datei/Ziel/Pfad" mischen, wenn dasselbe gemeint ist.
 - **Keine zeit-sensitiven Infos.** Nichts, was veraltet („ab August 2025…").
@@ -64,15 +67,17 @@ Gelten für Commands, Agents **und** Skills.
   Implementierung und blockiert bessere — das Gegenteil des Zwecks.
 - **Heutige Krücken nicht als Dogma gießen.** Workarounds für aktuelle
   Modell-/Tool-Limitierungen (exakt vorgegebene Blöcke, harte Reihenfolgen) als
-  das kennzeichnen, was sie sind — beim Optimieren prüfen, ob die Limitierung
-  noch existiert, statt die Krücke zu verewigen.
+  das kennzeichnen, was sie sind — bei jedem Modellwechsel und jedem
+  Optimier-Pass prüfen, ob die Limitierung noch existiert, statt die Krücke zu
+  verewigen. Ein Eval-Lauf vorher/nachher ist der Beleg.
 
 ---
 
 ## Commands (`commands/*.md`)
 
 Ein Command ist ein **deutsches** Prompt-Template, das der User per `/name`
-auslöst. `$ARGUMENTS` wird im Body durch die User-Eingabe ersetzt.
+auslöst — technisch ein Skill als flache Datei (siehe „Command oder Skill?").
+`$ARGUMENTS` wird im Body durch die User-Eingabe ersetzt.
 
 ### Frontmatter
 - `description:` — **deutsch**, eine Zeile, picker-tauglich. Sagt knapp, *was*
@@ -83,17 +88,22 @@ auslöst. `$ARGUMENTS` wird im Body durch die User-Eingabe ersetzt.
   Nur Tools listen, die der Command tatsächlich braucht.
 - `argument-hint:` — optional; zeigt im Picker das erwartete Argument
   (z.B. `<Zeitraum, z.B. "1 Woche">`).
+- `disable-model-invocation: true` — Pflicht, wo der Command Fremdsysteme
+  anfasst oder Inhalte bewegt (Push, Versand, Browser): ohne das Flag startet
+  Claude jeden Command auch selbst über das Skill-Tool. Bewusst offen lassen,
+  wo das gewollt ist (`/merken` auf Zuruf).
 
 ### Body
 - **Sprache: deutsch.**
-- **Token-effizient:** Status/Übersicht in *einer* kombinierten Bash-Runde
-  erfassen (billige Übersicht zuerst, vollen Inhalt nur bei Bedarf nachladen).
-  Vorbild: der kombinierte `echo … && …`-Block in `finish.md`.
-- **Klare nummerierte Schritte** mit `## Schritt N — …`. Pro Schritt eine
-  abgegrenzte Aufgabe, die auf einem *prüfbaren* Fertig-Kriterium endet (binär
-  beobachtbar, nicht „fühlt sich fertig an" — Vorbild: „erst **grün**
-  abschließen" in `optimieren.md`). Ein unscharfes Kriterium lädt dazu ein, den
-  Schritt vorzeitig abzuhaken, bevor die eigentliche Arbeit getan ist.
+- **Aufbau:** Zweck in einem Absatz, dann die unverletzlichen Regeln, dann was
+  am Ende gemeldet wird. Nummerierte Schritte nur, wo die Reihenfolge selbst
+  eine Regel ist (erst Drift, dann Struktur) — dann endet jeder Schritt auf
+  einem *prüfbaren* Fertig-Kriterium (binär beobachtbar, Vorbild: „erst
+  **grün** abschließen" in `optimieren.md`), sonst wird er vorzeitig abgehakt.
+- **Token-effizient:** wenige Werkzeug-Runden, unabhängige Aufrufe parallel,
+  Übersicht vor Vollinhalt. Kein Pflicht-Einzeiler „genau so ausführen":
+  zusammengesetzte Befehle mit `&&`/`$(…)` scheitern an eng gescopten
+  `allowed-tools`, und das Modell zerlegt sie ohnehin selbst.
 - **Portabel (macOS + Linux):** Commands laufen auch in Containern/Codespaces.
   Bei BSD↔GNU-Dialekten (`date`, `stat`, `sed -i`) das **Probe-dann-Variante**-Muster
   nutzen: einmal billig die GNU-Variante testen, dann konsequent eine der beiden
@@ -102,8 +112,6 @@ auslöst. `$ARGUMENTS` wird im Body durch die User-Eingabe ersetzt.
   stdout, bevor sie fehlschlagen. `/opt/homebrew/bin` im PATH zu ergänzen ist
   okay (auf Linux wirkungslos). Rein macOS-gebundene Commands (z.B. `/xcode`
   mit `open`) sind die markierte Ausnahme.
-- **Fragile Schritte wörtlich vorgeben** (exakter Bash-Block zum Kopieren),
-  offene Entscheidungen Claude überlassen.
 - **Abschlussmeldung:** knapp halten — was getan wurde, keine langen
   Erklärungen außer bei Auffälligkeiten.
 
@@ -145,17 +153,19 @@ Ein Skill ist ein Prompt-Paket, das Claude **selbst lädt**, sobald die
 aufrufen kann. Companion-Dateien (Verfassung, Skripte) liegen im selben Ordner.
 
 ### Entscheidung: Command oder Skill?
-Die Trennung im Repo ist historisch gewachsen (Commands zuerst, Skills seit
-2026-07). Die Regel, damit das nächste Feature nicht zufällig entscheidet:
-- **Command**, wenn nur der User den Ablauf auslöst (`/finish`, `/merken`) —
-  ein Verb, das Mats tippt. Bestehende Commands bleiben Commands; kein Umzug um
-  der Einheitlichkeit willen.
-- **Skill**, wenn Claude den Inhalt *von sich aus* brauchen soll, weil er in
-  anderer Arbeit relevant wird (`claude-md` beim Anlegen einer CLAUDE.md,
-  `latexterm` bei Terminal-Fragen) — der Trigger ist die Situation, nicht ein
-  Tipp-Befehl.
-- Wandert die Plattform weiter (Commands als Skill-Sonderfall), ist das ein
-  Befund für die Meta-Pflege — nicht stillschweigend migrieren.
+Technisch **ein** Mechanismus: `commands/<name>.md` ist ein Skill als flache
+Datei, Claude Code listet beide gleich und ruft beide über das Skill-Tool auf
+(`claude plugin details` zählt sie zusammen). Die Trennung im Repo ist nur noch
+Ablage, die Regel dafür:
+- **Command**, wenn der Ablauf ein Verb ist, das Mats tippt (`/finish`,
+  `/merken`). Ob Claude ihn *auch* selbst starten darf, entscheidet allein
+  `disable-model-invocation` — nicht der Ordner. Bestehende Commands bleiben
+  Commands; kein Umzug um der Einheitlichkeit willen.
+- **Skill** (`skills/<name>/SKILL.md`), wenn Companion-Dateien dazugehören oder
+  Claude den Inhalt *von sich aus* laden soll, weil eine Situation ihn braucht
+  (`claude-md` beim Anlegen einer CLAUDE.md, `latexterm` bei Terminal-Fragen) —
+  die `description` trägt dann das Triggern. Neue Bausteine mit Dateien daneben
+  werden Skills.
 
 ### Frontmatter
 - `name:` — gleich dem Ordnernamen (der Validator prüft das).
@@ -192,19 +202,24 @@ Die Trennung im Repo ist historisch gewachsen (Commands zuerst, Skills seit
   `README.md` (die einzige Liste; Manifest-Descriptions sind statisch) **und**
   einen Abschnitt in `evals.md` (der Validator verlangt beides; ohne Evals ist
   ein Ziel vom Optimier-Loop abgekoppelt).
-- **Werkstatt → Plugin:** Skills mit Code, Konten oder Maschinenzustand leben im
-  Werkstatt-Repo; hierher graduiert nur, was markdown-rein ist und auch anderen
-  nützt. Ein Werkstatt-Skill folgt demselben Standard und hat seine Evals in
+- **Werkstatt → Plugin:** Was Mats' Konten oder Maschinenzustand braucht, lebt
+  im Werkstatt-Repo; hierher gehört, was ohne beides läuft, portabel ist und
+  auch anderen nützt — Code ist erlaubt (`scripts/wrapped`, `inventar.sh`).
+  Ein Werkstatt-Baustein folgt demselben Standard und hat seine Evals in
   `<werkstatt>/evals.md`.
 - **Plugin-interne Datei-Referenzen:** über `${CLAUDE_PLUGIN_ROOT}/…`. Keine
   Pfade aus dem Plugin heraus (`../…`) — die werden im installierten Zustand
   nicht mitkopiert.
 - **Mechanische Verifikation:** `tools/validate.sh` (läuft auch in CI) prüft
-  Manifeste, Frontmatter, Listing-Sync, Plugin-Referenzen, Portabilitäts-Lint
-  und lässt `shell/setup.sh` im Sandbox-HOME laufen. Nach jeder Änderung
-  ausführen — grün ist die Mindestbedingung. **Verhaltens-Evals** laufen mit
+  Manifeste, Frontmatter, Listing-Sync, Plugin-Referenzen, Portabilitäts-Lint,
+  lässt `shell/setup.sh` im Sandbox-HOME laufen und ruft, wo `claude` installiert
+  ist, `claude plugin validate` dazu (ohne `--strict`: die fehlende Version ist
+  gewollt). Nach jeder Änderung ausführen — grün ist die Mindestbedingung.
+  `claude plugin details mats-tools` zeigt die Token-Grundlast je Baustein —
+  der Messwert zu „Knapp ist König". **Verhaltens-Evals** laufen mit
   `tools/eval.sh` (headless, echte Tokens, nicht in CI): benannte Szenarien mit
-  Fixture + Prüfung, oder freier Lauf mit Transkript neben dem Eval-Abschnitt.
+  Fixture + Prüfung auf der Platte, oder freier Lauf mit Transkript neben dem
+  Eval-Abschnitt.
 
 ---
 
@@ -220,8 +235,9 @@ definieren, nicht ausgenommen. Beim Meta-Pass gilt:
   und den Fähigkeiten der Plattform (Skills, Hooks, neue Frontmatter-Felder)?
   Der Guide ist ein Destillat mit Verfallsdatum, keine Verfassung.
 - **Format-Annahmen hinterfragen:** Wandert Claude Code zu einem neuen
-  Mechanismus (z.B. Skills statt Commands), gehört das als Befund auf den
-  Tisch — nicht stillschweigend wegadaptiert.
+  Mechanismus, gehört das als Befund auf den Tisch — nicht stillschweigend
+  wegadaptiert (so geschehen mit der Verschmelzung von Commands und Skills,
+  siehe „Command oder Skill?").
 - Änderungen hier ändern den Standard für alle Commands und Agents — Plan
   zeigen, dann umsetzen.
 
@@ -237,8 +253,11 @@ Beim Optimieren eines Commands/Agents/Skills abhaken:
 - [ ] Agent-`description` in 3. Person, mit `<example>`-Blöcken.
 - [ ] Skill: Command-oder-Skill-Entscheidung hält (Trigger ist die Situation,
       nicht ein Tipp-Befehl); Anwendbarkeit wird im Body zuerst geklärt.
-- [ ] `allowed-tools` eng gescopt (verengte Bash-Pattern, nur Nötiges).
+- [ ] `allowed-tools` eng gescopt (verengte Bash-Pattern, nur Nötiges) — und
+      passend zu den *einzelnen* Befehlen, die der Body nahelegt.
 - [ ] `argument-hint` vorhanden, falls der Command Argumente nutzt.
+- [ ] `disable-model-invocation` gesetzt, wo der Command Fremdsysteme anfasst
+      oder Inhalte bewegt; bewusst offen, wo Claude ihn selbst starten soll.
 
 **Body**
 - [ ] Knapp — kein Token ohne Mehrwert; No-op-Test bestanden (ändert der Satz
@@ -246,11 +265,12 @@ Beim Optimieren eines Commands/Agents/Skills abhaken:
 - [ ] Konsistente Begriffe; jede Bedeutung nur an einer Quelle (keine
       Duplikation). Keine zeit-sensitiven Infos.
 - [ ] Leitwörter genutzt, wo ein Wort ein Verhalten trägt (statt es zu umschreiben).
-- [ ] Token-effizient: Übersicht zuerst, voller Inhalt nur bei Bedarf
-      (Commands: kombinierte Bash-Runde).
-- [ ] Freiheitsgrade passend (fragil → exakt, offen → Richtung).
+- [ ] Token-effizient: Übersicht zuerst, voller Inhalt nur bei Bedarf; wenige
+      Runden, parallel — kein Pflicht-Einzeiler.
+- [ ] Auftrag vor Rezept: Outcome + Regeln zuerst; wörtliche Blöcke nur mit
+      Eval-Beleg (Kommentar nennt den Grund); Schritte nur, wo die Reihenfolge
+      selbst eine Regel ist, dann mit prüfbarem Fertig-Kriterium.
 - [ ] Ein Default statt vieler Optionen; konkrete Beispiele.
-- [ ] Klare Schritte mit prüfbarem Fertig-Kriterium bei komplexen Workflows.
 
 **Konventionen**
 - [ ] Sprach-Split eingehalten.
