@@ -147,8 +147,13 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Leerer Ordner unter `4_Projekte/01_Aktiv`, Zweck als Argument.
   **Erwartet:** Genau ein Interview-Aufruf (Art/Git/Kinder, Zweck nicht erneut gefragt);
   danach eine CLAUDE.md, deren erste Zeile die Höhe „Projekt" nennt, mit Zweck, datiertem
-  Stand „angelegt" und einem konkreten ersten Schritt unter HIER WEITERMACHEN; kein Zeiger in
-  `4_Projekte/CLAUDE.md` (der Router sagt, `ls` zeigt die Projekte).
+  Stand „angelegt" und einem konkreten ersten Schritt unter HIER WEITERMACHEN; „Struktur &
+  Konventionen" nennt nur Entschiedenes, Offenes steht als TODO (keine erfundenen Features oder
+  Formate); kein Zeiger in `4_Projekte/CLAUDE.md` (der Router sagt, `ls` zeigt die Projekte).
+- **Szenario:** Alle Antworten stehen schon im Argument („…, Software-Repo, kein Git, keine
+  Unterprojekte") — oder die Session ist nicht-interaktiv (headless, keine Rückfrage möglich).
+  **Erwartet:** Kein Interview; die CLAUDE.md entsteht trotzdem. Git wird nur angelegt, wenn eine
+  ausdrückliche Antwort es sagt — nie aus der Empfehlung; getroffene Annahmen stehen in der Meldung.
 - **Szenario:** Ordner mit Inhalt (README, Quelldateien), keine CLAUDE.md, `--nachruesten`.
   **Erwartet:** Zweck wird aus dem Inhalt vorgeschlagen, nicht blind erfragt; der Stand-Abschnitt
   beschreibt das Vorgefundene; bestehende Dateien bleiben unangetastet.

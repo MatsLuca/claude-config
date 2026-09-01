@@ -169,7 +169,7 @@ Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
 - [ ] `/feedback` abschicken (Entwurf: Early Access für `plugin eval`); Wiedervorlage 15.09. prüft die Sperre.
 - [ ] Ritus fortsetzen, ein Ziel je Session, `/optimieren` macht den Ablauf selbst (Szenario anlegen,
       Eval vorher, schärfen, Eval nachher, Validator). Reihenfolge nach Nutzung, Erledigtes abhaken:
-      - [ ] `/optimieren neues-projekt`
+      - [x] `/optimieren neues-projekt` (01.09.: 97→79 Zeilen, Runner-Szenarien leer/vorhanden/nachruesten, 14/14 grün)
       - [ ] `/optimieren destillieren`
       - [ ] `/optimieren einarbeiten`
       - [ ] `/optimieren pdf-to-markdown` (Beispielblöcke kürzen, ~790 Token Grundlast)

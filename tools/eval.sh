@@ -49,6 +49,15 @@ fixture_repo() {
   printf 'Notiz\n' > "$d/work/notiz.md"
 }
 
+# Fixture: Mini-Ablagebaum mit zwei Router-CLAUDE.md (für neues-projekt); $1 = Wurzel
+fixture_tree() {
+  local d="$1"; mkdir -p "$d/Documents/4_Projekte/01_Aktiv" "$d/Documents/4_Projekte/02_Persoenlich"
+  printf '# CLAUDE.md — Documents (Router)\n\nPersönliches Ablagesystem (PARA). Für konkrete Arbeit in den Kind-Ordner wechseln — dessen CLAUDE.md ist dort maßgeblich.\n\n## Kinder\n- `4_Projekte/` — Software- und Wissensprojekte · eigene CLAUDE.md\n' > "$d/Documents/CLAUDE.md"
+  printf '# CLAUDE.md — 4_Projekte (Router)\n\nProjekte. Für Projektarbeit in den Projektordner wechseln — dessen CLAUDE.md ist die einzige Quelle für Zweck und Stand.\n\n## Kinder\n- `01_Aktiv/` — Software-Projekte, meist mit eigenem Git-Repo\n- `02_Persoenlich/` — Wissens- und Orga-Projekte ohne Build\n\n`01_Aktiv/` und `02_Persoenlich/` haben bewusst keine eigene CLAUDE.md — `ls` zeigt die Projekte.\n' > "$d/Documents/4_Projekte/CLAUDE.md"
+}
+# Prüfsumme einer Datei (cksum ist auf BSD und GNU gleich; ohne Dateiname im Output)
+sum() { cksum < "$1"; }
+
 szenario() {
   local name="$1" fx="$OUT/$1"; mkdir -p "$fx"
   printf '\n\033[1m▶ %s\033[0m  (Fixture: %s)\n' "$name" "$fx"
@@ -106,6 +115,38 @@ szenario() {
       grep -q '2026-08-01' "$fx/work/HISTORIE.md" 2>/dev/null && pass "alter Stand in HISTORIE.md" || fail "HISTORIE.md fehlt oder ohne alten Stand"
       [ "$(git -C "$fx/work" rev-parse HEAD)" = "$before" ] && pass "kein ungefragter Commit" || fail "hat ungefragt committet"
       ;;
+    neues-projekt:leer)
+      fixture_tree "$fx"; p="$fx/Documents/4_Projekte/01_Aktiv/Notizzaehler"; mkdir -p "$p"
+      r1=$(sum "$fx/Documents/CLAUDE.md"); r2=$(sum "$fx/Documents/4_Projekte/CLAUDE.md")
+      run_cmd neues-projekt "$p" "$fx/transcript.txt" "Kleines CLI-Werkzeug, das Markdown-Notizen zählt. Software-Repo, kein Git, keine Unterprojekte."
+      [ -f "$p/CLAUDE.md" ] && head -1 "$p/CLAUDE.md" | grep -q '^# CLAUDE.md — Notizzaehler (Projekt)$' && pass "Kopfzeile nennt Höhe Projekt" || fail "CLAUDE.md fehlt oder Kopfzeile falsch: $(head -1 "$p/CLAUDE.md" 2>/dev/null)"
+      grep -q "^## Aktueller Stand ($(date +%Y-%m)" "$p/CLAUDE.md" 2>/dev/null && pass "Stand-Block datiert heute" || fail "kein heutiger Stand-Block"
+      grep -q '^## HIER WEITERMACHEN' "$p/CLAUDE.md" 2>/dev/null && grep -q '^- \[ \]' "$p/CLAUDE.md" && pass "HIER WEITERMACHEN mit Checkliste" || fail "HIER WEITERMACHEN/Checkliste fehlt"
+      grep -qi 'notiz' "$p/CLAUDE.md" 2>/dev/null && pass "Zweck aus dem Argument übernommen" || fail "Zweck nicht übernommen"
+      [ ! -d "$p/.git" ] && pass "kein Repo (Antwort: kein Git)" || fail "git init trotz „kein Git“"
+      [ "$(sum "$fx/Documents/CLAUDE.md")" = "$r1" ] && [ "$(sum "$fx/Documents/4_Projekte/CLAUDE.md")" = "$r2" ] && pass "Router unangetastet (ls zeigt die Projekte)" || fail "Router-CLAUDE.md verändert"
+      ;;
+    neues-projekt:vorhanden)
+      fixture_tree "$fx"; p="$fx/Documents/4_Projekte/01_Aktiv/Altprojekt"; mkdir -p "$p"
+      printf '# CLAUDE.md — Altprojekt (Projekt)\n\nBestehendes Werkzeug, fertig eingerichtet.\n\n## Aktueller Stand (2026-08-01)\n\n- läuft\n' > "$p/CLAUDE.md"; printf '# Altprojekt\n' > "$p/README.md"
+      c1=$(sum "$p/CLAUDE.md")
+      run_cmd neues-projekt "$p" "$fx/transcript.txt"
+      [ "$(sum "$p/CLAUDE.md")" = "$c1" ] && pass "bestehende CLAUDE.md unangetastet" || fail "CLAUDE.md wurde verändert"
+      grep -q 'claude-md' "$fx/transcript.txt" && pass "verweist auf /claude-md als Wartungsgang" || fail "Hinweis auf /claude-md fehlt"
+      [ ! -d "$p/.git" ] && pass "kein Repo angelegt" || fail "git init ohne Auftrag"
+      ;;
+    neues-projekt:nachruesten)
+      fixture_tree "$fx"; p="$fx/Documents/4_Projekte/02_Persoenlich/Rezeptsammlung"; mkdir -p "$p/vorspeisen" "$p/hauptgerichte"
+      printf '# Rezeptsammlung\n\nFamilienrezepte als Markdown, ein Ordner je Gang.\n' > "$p/README.md"
+      printf '# Kürbissuppe\n\nZutaten: Kürbis, Zwiebel, Brühe.\n' > "$p/vorspeisen/kuerbissuppe.md"; printf '# Linsen\n\nZutaten: Linsen, Karotte.\n' > "$p/hauptgerichte/linsen.md"
+      f1=$(sum "$p/README.md"); f2=$(sum "$p/vorspeisen/kuerbissuppe.md"); f3=$(sum "$p/hauptgerichte/linsen.md")
+      run_cmd neues-projekt "$p" "$fx/transcript.txt" "--nachruesten"
+      [ -f "$p/CLAUDE.md" ] && head -1 "$p/CLAUDE.md" | grep -q '^# CLAUDE.md — Rezeptsammlung (Projekt)$' && pass "Kopfzeile nennt Höhe Projekt" || fail "CLAUDE.md fehlt oder Kopfzeile falsch: $(head -1 "$p/CLAUDE.md" 2>/dev/null)"
+      grep -qi 'rezept' "$p/CLAUDE.md" 2>/dev/null && pass "Zweck aus dem Inhalt abgeleitet" || fail "Zweck nicht aus dem Inhalt"
+      grep -q "^## Aktueller Stand ($(date +%Y-%m)" "$p/CLAUDE.md" 2>/dev/null && pass "Stand-Block datiert heute" || fail "kein heutiger Stand-Block"
+      [ "$(sum "$p/README.md")" = "$f1" ] && [ "$(sum "$p/vorspeisen/kuerbissuppe.md")" = "$f2" ] && [ "$(sum "$p/hauptgerichte/linsen.md")" = "$f3" ] && pass "bestehende Dateien unangetastet" || fail "bestehende Dateien verändert"
+      [ ! -d "$p/.git" ] && pass "kein Repo ohne ausdrückliche Antwort" || fail "git init ohne Antwort"
+      ;;
     *) echo "unbekanntes Szenario: $name (siehe --list)"; return 2 ;;
   esac
   printf '  Transkript: %s\n' "$fx/transcript.txt"
@@ -121,11 +162,14 @@ Szenarien mit Fixture + automatischer Prüfung:
   finish-lite:synchron   nichts geändert → „Schon synchron.", kein leerer Commit
   merken:stand           CLAUDE.md mit altem Stand-Block + Session-Kontext → ein neuer Stand, alter in HISTORIE.md, kein Commit
   xcode:leer             leeres Verzeichnis → „kein Xcode-Projekt gefunden"
+  neues-projekt:leer     leerer Ordner unter 01_Aktiv, Zweck + Antworten als Argument → CLAUDE.md (Projekt, Stand, HIER WEITERMACHEN), kein Interview, kein Git, Router unangetastet
+  neues-projekt:vorhanden  CLAUDE.md existiert → unverändert, Hinweis auf /claude-md
+  neues-projekt:nachruesten  Ordner mit Inhalt, --nachruesten → CLAUDE.md mit Zweck aus dem Inhalt, Dateien unangetastet, kein Git
   alle                   alle obigen nacheinander
 Freier Lauf:  tools/eval.sh <command> [prompt-zusatz]   (Transkript + Eval-Abschnitt, Urteil von Hand)
 EOF
     exit 0 ;;
-  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand xcode:leer; do szenario "$s"; done ;;
+  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten xcode:leer; do szenario "$s"; done ;;
   *:*)  szenario "$1" ;;
   *)
     cmd="$1"; shift; [ -f "$PLUGIN/commands/$cmd.md" ] || { echo "kein Command: $cmd"; exit 2; }
