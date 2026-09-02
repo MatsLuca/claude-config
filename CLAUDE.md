@@ -185,8 +185,8 @@ November. `latexterm` am 02.09. in die Werkstatt (steuert eine App, die nur Mats
       - [x] `/optimieren machine-setup` (02.09.: Description 1373→~330 Zeichen ohne Beispielblöcke, `tools:` gesetzt, awk-Fallback raus — `${CLAUDE_PLUGIN_ROOT}` expandiert im Agent-Body nachweislich —, Rückfrage-Regel für Subagenten; Live-Lauf auf Mats' Mac vorher/nachher 8→7 Tool-Aufrufe, nichts verändert)
 - [x] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.): am 02.09. alle 9 alten SHAs 404,
       Anfragetext und beide Bundles in `9_Temp/` gelöscht.
-- [ ] PowerShell-Block (`setup.sh`, `PWSH_BLOCK`) bewährt sich erst beim ersten echten Windows-Lauf —
-      der Agent bittet den Nutzer dann um den Testlauf; nichts vorab zu tun.
+- [~] PowerShell-Block (`setup.sh`, Schritt 1W) — geparkt 02.09.: nur Syntax-geprüft, echter Windows-Lauf
+      erst wenn ein Abonnent den Agenten laufen lässt und Rückmeldung gibt; nichts vorab zu tun.
 - [ ] Erster echter Neu-Rechner (oder Wegwerf-Container): den `machine-setup`-Agenten einmal auf einer
       leeren Maschine sehen. Live gelaufen ist er bisher nur als Re-Run auf Mats' Mac (02.09., headless:
       Konflikt-Marker korrekt gedeutet, nichts überschrieben). Sandbox-HOME headless geht auf macOS nicht
