@@ -55,6 +55,33 @@ fixture_tree() {
   printf '# CLAUDE.md — Documents (Router)\n\nPersönliches Ablagesystem (PARA). Für konkrete Arbeit in den Kind-Ordner wechseln — dessen CLAUDE.md ist dort maßgeblich.\n\n## Kinder\n- `4_Projekte/` — Software- und Wissensprojekte · eigene CLAUDE.md\n' > "$d/Documents/CLAUDE.md"
   printf '# CLAUDE.md — 4_Projekte (Router)\n\nProjekte. Für Projektarbeit in den Projektordner wechseln — dessen CLAUDE.md ist die einzige Quelle für Zweck und Stand.\n\n## Kinder\n- `01_Aktiv/` — Software-Projekte, meist mit eigenem Git-Repo\n- `02_Persoenlich/` — Wissens- und Orga-Projekte ohne Build\n\n`01_Aktiv/` und `02_Persoenlich/` haben bewusst keine eigene CLAUDE.md — `ls` zeigt die Projekte.\n' > "$d/Documents/4_Projekte/CLAUDE.md"
 }
+# Fixture: Wegwerf-Klon dieses Repos mit einem absichtlich schlampigen Command `zaehlen` (für optimieren);
+# $1 = Wurzel → Klon liegt unter $1/repo. Der Klon hängt an diesem Repo als origin, pusht aber nie.
+fixture_clone() {
+  local d="$1" r="$1/repo"; git clone -q "$ROOT" "$r"
+  cat > "$r/mats-tools/commands/zaehlen.md" <<'EOF'
+---
+description: Counts the markdown files in the current directory and shows the biggest ones (counts markdown files, shows the largest markdown files).
+allowed-tools: Bash, Read, Write, Edit, WebFetch, Glob, Grep
+---
+
+Du bist ein hilfreicher Assistent. Du zählst Markdown-Dateien. Du zählst die Markdown-Dateien im aktuellen Ordner und zeigst die größten. Zähle die Markdown-Dateien im aktuellen Ordner. Zeige dann die größten Markdown-Dateien. Gewünschte Anzahl: $ARGUMENTS.
+
+Seit August 2025 gibt es drei Wege, das zu tun: du kannst `find` benutzen, oder `ls -R`, oder das Glob-Tool — such dir einen aus und erkläre dem Nutzer ausführlich, warum du diesen Weg gewählt hast und was die anderen Wege gewesen wären.
+
+## Schritt 1
+Zähle die Dateien. Denk daran, dass Markdown-Dateien auf `.md` enden. Markdown-Dateien enden auf `.md`.
+
+## Schritt 2
+Zeige die größten Dateien. Die Größe bekommst du mit `stat -f %z` (macOS).
+
+## Schritt 3
+Erkläre am Ende noch einmal ausführlich, was du getan hast, wie viele Dateien es gibt, welche die größten sind, und bedanke dich beim Nutzer.
+EOF
+  printf '| `/zaehlen` | Zählt Markdown-Dateien im aktuellen Ordner und zeigt die größten |\n' >> "$r/README.md"
+  printf '\n## /zaehlen\n- **Szenario:** Ordner mit drei Markdown-Dateien, `/zaehlen 2`.\n  **Erwartet:** Meldet die Anzahl 3 und nennt die zwei größten Dateien; nichts wird geschrieben.\n' >> "$r/mats-tools/reference/evals.md"
+  git -C "$r" add -A; git -C "$r" -c user.name=eval -c user.email=eval@beispiel.de commit -qm "zaehlen: Probe-Command"
+}
 # Prüfsumme einer Datei (cksum ist auf BSD und GNU gleich; ohne Dateiname im Output)
 sum() { cksum < "$1"; }
 
@@ -147,6 +174,21 @@ szenario() {
       [ "$(sum "$p/README.md")" = "$f1" ] && [ "$(sum "$p/vorspeisen/kuerbissuppe.md")" = "$f2" ] && [ "$(sum "$p/hauptgerichte/linsen.md")" = "$f3" ] && pass "bestehende Dateien unangetastet" || fail "bestehende Dateien verändert"
       [ ! -d "$p/.git" ] && pass "kein Repo ohne ausdrückliche Antwort" || fail "git init ohne Antwort"
       ;;
+    optimieren:probe)
+      fixture_clone "$fx"; r="$fx/repo"; z="$r/mats-tools/commands/zaehlen.md"
+      g1=$(sum "$r/mats-tools/reference/authoring-guide.md"); z1=$(sum "$z")
+      [ -n "${EVAL_MAX_TURNS:-}" ] || MAXTURNS=40   # Standard + Ziel + Szenario anlegen + zwei Läufe + Validator brauchen Runden
+      run_cmd optimieren "$r" "$fx/transcript.txt" "zaehlen"
+      [ "$(sum "$z")" != "$z1" ] && pass "Ziel-Datei geschärft" || fail "zaehlen.md unverändert"
+      ! grep -Eq '^allowed-tools:.*(^|[ ,])Bash([ ,]|$)' "$z" && pass "kein blanket Bash mehr" || fail "allowed-tools noch mit blanket Bash"
+      grep -q '^argument-hint:' "$z" && pass "argument-hint ergänzt" || fail "argument-hint fehlt"
+      ! grep -q 'August 2025' "$z" && pass "zeit-sensitive Info entfernt" || fail "„Seit August 2025“ steht noch drin"
+      ! grep -q 'bedanke dich' "$z" && pass "Füllsel entfernt" || fail "Dank-Floskel steht noch drin"
+      [ "$(sum "$r/mats-tools/reference/authoring-guide.md")" = "$g1" ] && pass "Standard unangetastet" || fail "authoring-guide.md verändert"
+      "$r/tools/eval.sh" --list | grep -q 'zaehlen:' && pass "Runner-Szenario angelegt" || fail "kein zaehlen-Szenario in eval.sh --list"
+      (cd "$r" && ./tools/validate.sh >"$fx/validate.txt" 2>&1) && pass "Validator im Klon grün" || fail "Validator im Klon rot (siehe $fx/validate.txt)"
+      grep -qi 'befund' "$fx/transcript.txt" && pass "Befund-Liste im Transkript" || fail "keine Befunde gemeldet"
+      ;;
     *) echo "unbekanntes Szenario: $name (siehe --list)"; return 2 ;;
   esac
   printf '  Transkript: %s\n' "$fx/transcript.txt"
@@ -165,11 +207,12 @@ Szenarien mit Fixture + automatischer Prüfung:
   neues-projekt:leer     leerer Ordner unter 01_Aktiv, Zweck + Antworten als Argument → CLAUDE.md (Projekt, Stand, HIER WEITERMACHEN), kein Interview, kein Git, Router unangetastet
   neues-projekt:vorhanden  CLAUDE.md existiert → unverändert, Hinweis auf /claude-md
   neues-projekt:nachruesten  Ordner mit Inhalt, --nachruesten → CLAUDE.md mit Zweck aus dem Inhalt, Dateien unangetastet, kein Git
+  optimieren:probe       Repo-Klon mit schlampigem Command → Ziel geschärft (enge Tools, argument-hint, kein Ballast), Szenario angelegt, Standard unangetastet, Validator grün
   alle                   alle obigen nacheinander
 Freier Lauf:  tools/eval.sh <command> [prompt-zusatz]   (Transkript + Eval-Abschnitt, Urteil von Hand)
 EOF
     exit 0 ;;
-  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten xcode:leer; do szenario "$s"; done ;;
+  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten optimieren:probe xcode:leer; do szenario "$s"; done ;;
   *:*)  szenario "$1" ;;
   *)
     cmd="$1"; shift; [ -f "$PLUGIN/commands/$cmd.md" ] || { echo "kein Command: $cmd"; exit 2; }
