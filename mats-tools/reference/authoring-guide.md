@@ -128,14 +128,18 @@ auf Anfrage startet.
 - `description:` — in **3. Person** geschrieben („Converts PDFs…", nicht „I
   can…"/„You can…"); inkonsistente Perspektive stört das Triggern. Enthält
   *was* der Agent tut **und wann** er genutzt werden soll, mit konkreten
-  Stichworten. Eingebettete `<example>`-Blöcke (User-Anfrage +
-  `<commentary>`) steuern das proaktive Triggern — Vorbild: `machine-setup.md`.
-- `model:`, `color:` — setzen.
+  Stichworten; „use proactively“, wo der Agent von selbst anspringen soll.
+  **Knapp:** die description liegt in jeder Session im Kontext, der Body nur
+  beim Lauf — Details gehören in den Body. `<example>`-Blöcke sind in der
+  Claude-Code-Doku nicht mehr beschrieben; nur nachrüsten, wenn das Triggern
+  nachweislich versagt. Vorbild: `machine-setup.md`.
+- `model:`, `color:` — setzen. `tools:` — Namensliste (kein `Bash(…)`-Muster),
+  nur was der Body braucht. Ein Subagent kann den Nutzer nicht fragen —
+  Entscheidungen gehen als Frage im Bericht an die Hauptsession.
 
 ### Body
 - **Instruktionen auf englisch**, **Output-Templates auf deutsch**
-  (`## Aufgabe`, `**Gegeben:**`, `**Lösung:**`) — die erzeugten Dateien sind
-  deutsches Studienmaterial.
+  (`## Aufgabe`, `**Gegeben:**`) — Berichte gehen an deutsche Nutzer.
 - **Progressive disclosure:** Body schlank halten (Richtwert < 500 Zeilen).
   Details in separate Referenzdateien, die *eine Ebene tief* von hier verlinkt
   sind (keine Referenz-auf-Referenz-Ketten).
@@ -249,7 +253,7 @@ Beim Optimieren eines Commands/Agents/Skills abhaken:
 **Frontmatter**
 - [ ] `description` spezifisch — sagt *was* (Agent und Skill zusätzlich: *wann*;
       Skill auch: wann *nicht*).
-- [ ] Agent-`description` in 3. Person, mit `<example>`-Blöcken.
+- [ ] Agent-`description` in 3. Person, knapp (Details in den Body); `tools:` gesetzt.
 - [ ] Skill: Command-oder-Skill-Entscheidung hält (Trigger ist die Situation,
       nicht ein Tipp-Befehl); Anwendbarkeit wird im Body zuerst geklärt.
 - [ ] `allowed-tools` eng gescopt (verengte Bash-Pattern, nur Nötiges) — und

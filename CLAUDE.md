@@ -181,14 +181,16 @@ unter Beobachtung bis November.
       - [x] `/optimieren neues-projekt` (01.09.: 97→79 Zeilen, Runner-Szenarien leer/vorhanden/nachruesten, 14/14 grün)
       - [x] `/optimieren destillieren` (02.09.: 75→49 Zeilen, Auftrag vor Rezept, Runner-Szenarien drift/gesund, 8/8 grün)
       - [x] `/optimieren einarbeiten` → gestrichen (02.09.: 0 Aufrufe in allen Transkripten seit 7.8., Zweck ohne Command erfüllt)
-      - [ ] `/optimieren machine-setup` (~620 Token Grundlast; per `skills:` vorladen statt beschreiben) — **nächste Session**
+      - [x] `/optimieren machine-setup` (02.09.: Description 1373→~330 Zeichen ohne Beispielblöcke, `tools:` gesetzt, awk-Fallback raus — `${CLAUDE_PLUGIN_ROOT}` expandiert im Agent-Body nachweislich —, Rückfrage-Regel für Subagenten; Live-Lauf auf Mats' Mac vorher/nachher 8→7 Tool-Aufrufe, nichts verändert)
 - [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.; Kontrolle 24.08. abends:
       alle 9 alten SHAs noch 200) — auf Antwort warten, dann erneut prüfen
       (`curl -o /dev/null -w '%{http_code}' https://github.com/MatsLuca/claude-config/commit/<sha>`),
       danach Anfragetext + beide Bundles in `9_Temp/` löschen.
 - [ ] PowerShell-Block (`setup.sh`, `PWSH_BLOCK`) bewährt sich erst beim ersten echten Windows-Lauf —
       der Agent bittet den Nutzer dann um den Testlauf; nichts vorab zu tun.
-- [ ] Erster echter Neu-Rechner (oder Wegwerf-Container): den `machine-setup`-Agenten einmal ganz
-      durchlaufen sehen (Recon → Skript → Marker deuten → Bericht) — der Prosa-Teil ist noch nie live gelaufen.
+- [ ] Erster echter Neu-Rechner (oder Wegwerf-Container): den `machine-setup`-Agenten einmal auf einer
+      leeren Maschine sehen. Live gelaufen ist er bisher nur als Re-Run auf Mats' Mac (02.09., headless:
+      Konflikt-Marker korrekt gedeutet, nichts überschrieben). Sandbox-HOME headless geht auf macOS nicht
+      (Keychain-Login hängt am Config-Pfad) — deshalb kein Runner-Szenario für Agents.
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents` → `/optimieren claude-md`; `inventar.sh`
       GNU-Zweig einmal im Container laufen lassen.

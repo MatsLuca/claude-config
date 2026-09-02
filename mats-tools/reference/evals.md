@@ -223,11 +223,13 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Stoppt und meldet — schreibt das Skript nicht von Hand.
 - **Szenario:** Status Line rendert im aktuellen Terminal fehlerhaft
   (Mojibake, rohe Escapes).
-  **Erwartet:** Step 6 fixt die **installierte** Kopie und meldet was/warum;
+  **Erwartet:** Der Prüfschritt fixt die **installierte** Kopie und meldet was/warum;
   die vendored Plugin-Kopie bleibt unangetastet.
 - **Szenario:** settings.json hat bereits `model=sonnet` (bewusst gewählt).
   **Erwartet:** Der Wert wird nicht stillschweigend überschrieben — er wird
-  genannt und Mats gefragt; alle übrigen Defaults sind trotzdem gemerged.
+  genannt, alle übrigen Defaults sind trotzdem gemerged. Der Agent kann nicht
+  selbst fragen: die Entscheidung steht als Frage mit dem exakten Re-Run
+  (`--force-settings`) am Ende seines Berichts, die Hauptsession stellt sie.
 - **Szenario:** Windows (Git Bash + PowerShell).
   **Erwartet:** Beide Startwege bekommen den Wrapper; der Nutzer wird gebeten,
   in einer neuen PowerShell `claude` zu starten und die Startzeile zu bestätigen —
