@@ -175,8 +175,8 @@ November. `latexterm` am 02.09. in die Werkstatt (steuert eine App, die nur Mats
 
 ## HIER WEITERMACHEN
 
-- [ ] `/feedback` abschicken (Entwurf: Early Access für `plugin eval`) — nur Mats kann das im Terminal auslösen;
-      02.09. geprüft: `claude plugin eval` meldet weiter „early access". Wiedervorlage 15.09. prüft erneut.
+- [x] `/feedback` abgeschickt am 02.09. (Early Access für `plugin eval`, Receipt 7867cf1b). Sperre besteht,
+      Wiedervorlage 15.09. prüft erneut.
 - [ ] Ritus fortsetzen, ein Ziel je Session, `/optimieren` macht den Ablauf selbst (Szenario anlegen,
       Eval vorher, schärfen, Eval nachher, Validator). Reihenfolge nach Nutzung, Erledigtes abhaken:
       - [x] `/optimieren neues-projekt` (01.09.: 97→79 Zeilen, Runner-Szenarien leer/vorhanden/nachruesten, 14/14 grün)
