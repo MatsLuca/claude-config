@@ -5,8 +5,8 @@ Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merk
 ## 2026-09-02 — `/einarbeiten` gestrichen
 
 Prüfung, ob der Command bleiben soll, statt ihn zu schärfen. Beleg: alle 336 lokalen Transkripte
-seit 7.8. durchsucht, kein einziger Aufruf (einziger Treffer die Prüf-Session selbst); angelegt
-9.6., dreimal überarbeitet. Urteil: kein eigener Auftrag — „lies X und trag das Relevante ein"
+seit 7.8. durchsucht, kein einziger Aufruf; die Prompt-Historie (`history.jsonl`, ab Dez. 2025)
+zeigt 16 Aufrufe, alle Juni/Juli 2026, seit August null; angelegt 9.6., dreimal überarbeitet. Urteil: kein eigener Auftrag — „lies X und trag das Relevante ein"
 macht das Modell aus dem Stand, der Skill `claude-md` regelt die Zieldatei, der Zweig
 „Infragestellen" ist Teilmenge von `/destillieren`. Kosten: 83 Zeilen, längste Description im
 Plugin, vier Eval-Szenarien ohne Runner. Entfernt: Command, README-Zeile, Eval-Abschnitt,

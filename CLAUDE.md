@@ -87,8 +87,8 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   independent calls in parallel — no mandated one-liners: compound `&&`/`$(…)` commands collide
   with narrowed `allowed-tools`, and the model splits them anyway. `finish`, `finish-lite`, `merken`
   are the reference implementations; `neues-projekt` and `destillieren` followed on 2026-09-01/02.
-  `einarbeiten` was removed on 2026-09-02 (never invoked; the model does it unprompted, `claude-md`
-  governs the target file).
+  `einarbeiten` was removed on 2026-09-02 (16 uses, all in June/July 2026, none since; the model
+  does it unprompted, `claude-md` governs the target file).
 - **Portability (macOS + Linux):** commands must also work in containers/Codespaces. For
   BSD↔GNU dialect splits (`date`, `stat`, `sed -i`) use the probe-then-variant pattern
   (cheap GNU probe once, then stick to one dialect — see `mtime()` in
