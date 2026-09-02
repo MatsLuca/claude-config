@@ -17,7 +17,8 @@ oder **Projekt** und sagt es in der Kopfzeile.
 **Proaktiv** (beim Anlegen/Umbauen einer CLAUDE.md aus anderer Arbeit heraus): Höhe bestimmen,
 Skelett aus der Verfassung nehmen (Projekt: Zweck → „Struktur & Konventionen" → „Aktueller
 Stand (<Datum>)" → „HIER WEITERMACHEN"), Höhen-Check auf den Inhalt — ohne eigenen Bericht,
-der Umbau ist Teil der laufenden Aufgabe.
+der Umbau ist Teil der laufenden Aufgabe. Bestehende Datei ohne Höhen-Kopfzeile: beim Schreiben
+die Kopfzeile setzen (fremde Kennzeile als zweite Zeile behalten), sonst nichts umbauen.
 
 ## Schritt 1 — Lage erfassen
 
@@ -57,7 +58,8 @@ Ehrlich melden, wenn wenig zu tun ist — nichts erfinden, wo die Datei ihre Hö
 Bericht knapp: Höhe (ist/soll), Bytes, Befunde als Liste `Befund → Aktion → Ziel`.
 Im Wartungsgang Zustimmung per `AskUserQuestion` holen (mehrere unabhängige Eingriffe:
 `multiSelect`, ein Eintrag je Eingriff). Reinheilung ohne Rückfrage erlaubt: Kopfzeile setzen,
-toten Zeiger korrigieren.
+toten Zeiger korrigieren. **Keine Rückfrage möglich** (kein `AskUserQuestion`, nicht-interaktive
+Session): Bericht und Reinheilung, dann Stopp — der Umbau wartet auf Mats, nichts wird verschoben.
 
 Umbau: **erst das Ziel schreiben, dann oben kürzen** — Inhalt darf nie nur gelöscht werden.
 - Ist die Datei nicht versioniert (kein Git, gitignored), vorher Kopie nach `~/Documents/9_Temp/`.
@@ -66,6 +68,8 @@ Umbau: **erst das Ziel schreiben, dann oben kürzen** — Inhalt darf nie nur ge
   nicht warten, bis es auffällt.
 - Zeiger von außen nachziehen: Memory-Dateien, andere CLAUDE.md, Skripte, die auf den
   verschobenen Abschnitt zeigten (`grep -rl` über `~/Documents` und `~/.claude`).
+- Keine Verfassungsregeln in die Datei schreiben („Stand steht nur im Kind"): die Verfassung
+  lebt hier im Skill, die CLAUDE.md trägt nur ihren Inhalt.
 - Nicht committen — Abschluss per `/finish` ist Mats' Sache.
 
 `Edit` für punktuelle Änderungen, `Write` nur für neue Dateien. Stil der Zieldatei wahren.

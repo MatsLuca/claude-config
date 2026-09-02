@@ -192,5 +192,9 @@ November. `latexterm` am 02.09. in die Werkstatt (steuert eine App, die nur Mats
       leeren Maschine sehen. Live gelaufen ist er bisher nur als Re-Run auf Mats' Mac (02.09., headless:
       Konflikt-Marker korrekt gedeutet, nichts überschrieben). Sandbox-HOME headless geht auf macOS nicht
       (Keychain-Login hängt am Config-Pfad) — deshalb kein Runner-Szenario für Agents.
+- [ ] Befunde aus `/optimieren claude-md` (02.09., Inventar über `~/Documents`): `~/.claude/CLAUDE.md` liegt mit
+      4,5 KB über dem 4-KB-Budget; 30 von 46 CLAUDE.md haben keine Höhen-Kopfzeile; drei Projekt-Dateien
+      über 280 Zeilen (LatexTerm, RT-B, japan-crew) und Projektarbeit mit 101 KB. Wartungsgänge per
+      `/claude-md <pfad>`, eine Datei je Session.
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents` → `/optimieren claude-md`; `inventar.sh`
       GNU-Zweig einmal im Container laufen lassen.

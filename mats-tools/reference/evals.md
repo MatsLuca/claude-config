@@ -260,6 +260,10 @@ beim Lesen des Transkripts direkt abhakbar sind.
   danach vollständig in `HISTORIE.md` (Beleg wird gezeigt), die zeitlosen Regeln
   stehen vorn im Verfassungs-Teil, oben bleibt genau ein datierter Stand;
   Zeiger von außen auf die verschobenen Abschnitte sind nachgezogen; kein Commit.
+- **Szenario:** Wartungsgang auf eine Bereichs-Datei mit Stand-Block und totem
+  Zeiger, ohne Möglichkeit zur Rückfrage (nicht-interaktiv).
+  **Erwartet:** Bericht mit Höhe und Befunden; der tote Zeiger ist behoben, der
+  Stand-Block steht noch in der Bereichs-Datei — verschoben wird erst nach Zustimmung.
 - **Szenario:** Inventar ohne Pfad auf macOS **und** Linux.
   **Erwartet:** Eine Zeile je CLAUDE.md mit Bytes, Zeilen, Datum, Höhe/`Include`/`?`;
   Archiv-Ordner ausgeschlossen; kein Abbruch wegen `stat`/`date`-Dialekt.

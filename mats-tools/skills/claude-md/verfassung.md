@@ -26,6 +26,11 @@ Claude Code lädt beim Session-Start die **gesamte Ahnenkette** — `~/.claude/C
 dann jede CLAUDE.md von `~/Documents` abwärts bis zum cwd. CLAUDE.md in *Unter*ordnern
 kommen erst lazy dazu, wenn dort Dateien gelesen werden.
 
+`@datei`-Imports laden vollständig mit, sparen also nichts. Nach `/compact` kommt nur die
+Wurzel-CLAUDE.md zurück, Unterordner-Dateien erst beim nächsten Lesen. Regeln, die nur
+bestimmte Dateien betreffen, gehören nach `.claude/rules/<thema>.md` mit `paths:`-Frontmatter —
+die laden erst, wenn Claude passende Dateien liest.
+
 Daraus folgt alles Weitere: **Je höher, desto billiger und stabiler; je tiefer, desto
 reicher und volatiler.** Eine obere Ebene wird in jeder Session darunter mitbezahlt und
 fast nie als cwd geöffnet — sie darf deshalb nichts enthalten, das veralten kann.
@@ -41,7 +46,7 @@ Jede CLAUDE.md ist genau **eine** davon und sagt es in ihrer ersten Zeile
 | **Wo** | `~/.claude` (Maschine), `Documents`, `4_Projekte`, `3_Studium` | `1_Privat`, ein Semester, `Hetzner_Server` — Ordner mit gleichartigen Kindern | Referenzprojekt, LatexTerm, ein Fach — hier wird gearbeitet |
 | **Job** | Karte der Kinder (eine Zeile Zweck je Kind) + Konventionen, die für den ganzen Teilbaum gelten + der Satz „hier oben: Allgemeines; für Details runter nach X" | Arbeitsmuster, die für *alle* Kinder gelten + Kinderliste mit je einer Zeile Zweck | Zweck, Konventionen (Verfassungs-Teil), **Status-Dashboard mit Zeigern**, „HIER WEITERMACHEN" |
 | **Nicht-Job** | Fakten, Status, Historie, Verhaltensskripte, Befund-Protokolle | Projektstatus, „Aktueller Stand"-Blöcke, Technik-Details eines Kindes | Erledigt-Verläufe (→ `HISTORIE.md`), Vollreferenz (→ READMEs), Medien-Dumps |
-| **Budget** | ≤ 2 KB (`~/.claude`: ≤ 4 KB) | ≤ 4 KB | kein Limit — aber *verdichtet*: **ein** datierter Stand-Block, jeder Punkt Stand + Zeiger; ältere Stände sind Verlauf → `HISTORIE.md` |
+| **Budget** | ≤ 2 KB (`~/.claude`: ≤ 4 KB) | ≤ 4 KB | Richtwert < 200 Zeilen (Claude-Code-Doku: darüber sinkt die Befolgung) und *verdichtet*: **ein** datierter Stand-Block, jeder Punkt Stand + Zeiger; ältere Stände sind Verlauf → `HISTORIE.md` |
 | **Pflege** | nur bei Strukturänderung | bei neuem Kind / neuem Muster | `/merken` nach Sessions, `/destillieren` bei Wucherung |
 
 **Maschine** (`~/.claude/CLAUDE.md`) ist ein Router mit Sonderbudget: pro Thema 1–3 Zeilen
@@ -140,6 +145,9 @@ langsam veränderlich, steht vorn)
   Debug-Funde und Entscheidungen, die dort nicht stehen, nach `HISTORIE.md`. Bei **zwei
   Autoren** (geteiltes Repo, fremdes Tooling): Kopfzeile setzen, die fremde Kennzeile als
   zweite Zeile behalten, Format-Eigenheiten (BOM, Abschnittsnamen) nicht stillschweigend kippen.
+  **Öffentliches Repo:** Privates (Pfade, Konten, Maschinenzustand) nach `CLAUDE.local.md`
+  (gitignored, lädt wie die CLAUDE.md); Dateigebundenes (Build-Fallen eines Unterordners) als
+  pfadgebundene Regel nach `.claude/rules/`.
 - **Verhaltens-Personas** (Lern-Coach, Autopilot): gehören nicht in eine CLAUDE.md —
   als Command/Skill nach mats-tools, die CLAUDE.md verweist darauf; wird die Persona nicht
   mehr gebraucht, reicht Archivieren (`_Archiv_<Name>_<YYYY-MM>.md` im Ordner, Zeiger bleibt).
@@ -156,7 +164,10 @@ Diese Verfassung ist selbst optimierbar (`/optimieren claude-md`). Prüfgrundlag
 nicht sie selbst, sondern: erfüllt sie ihren Zweck — bleiben Router/Bereiche unter Budget,
 wandert Status nicht wieder nach oben, stimmt die Lademechanik noch mit Claude Code überein?
 Ändert sich die Lademechanik (z. B. Unterordner-CLAUDE.md nicht mehr lazy), ist das ein
-Befund für den Prinzip-Abschnitt, nicht stillschweigend wegzuadaptieren.
+Befund für den Prinzip-Abschnitt, nicht stillschweigend wegzuadaptieren. Abgleich mit der
+[Memory-Doku](https://code.claude.com/docs/en/memory.md) (Lademechanik, Imports, `rules/`,
+Größen-Richtwert) und mit `inventar.sh ~/Documents`: bleiben Router/Bereiche unter Budget,
+wächst die Maschinen-Datei über ihr Budget, sind Kopfzeilen verbreitet? Zuletzt 2026-09-02.
 
 ## Prüf-Checkliste
 
@@ -165,6 +176,6 @@ Befund für den Prinzip-Abschnitt, nicht stillschweigend wegzuadaptieren.
 - [ ] Router/Bereich: kein Stand-Datum, kein Status, keine Fakten, die veralten können.
 - [ ] Kinderliste vollständig; jeder Zeiger trifft eine existierende Datei.
 - [ ] Nichts wiederholt, was eine Eltern-Ebene schon sagt.
-- [ ] Projekt: Verfassungs-Teil vorn, genau ein datierter Stand, Stand-Punkte = Stand + Zeiger, kein Verlauf.
+- [ ] Projekt: Verfassungs-Teil vorn, genau ein datierter Stand, Stand-Punkte = Stand + Zeiger, kein Verlauf; unter ~200 Zeilen, sonst verdichten oder auslagern.
 - [ ] Beim Schnitt: Ziel trägt den Inhalt belegt; zeitlose Regeln aus dem Verlauf stehen vorn.
 - [ ] Kein Gemini-Header, keine Persona-Skripte, kein Befund-Protokoll (→ `reference/`).
