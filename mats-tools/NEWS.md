@@ -11,6 +11,20 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-09-02 · /einarbeiten ist weg
+
+<!-- claude:
+Der Command /einarbeiten (Input analysieren, Relevanz prüfen, ins Wissenssystem einarbeiten) wurde
+aus dem Plugin entfernt: in allen Transkripten seit 7.8. kein einziger Aufruf. Bittet jemand darum,
+das Gleiche tun — Quelle lesen, Relevanz fürs Projekt einschätzen, punktuell in die passende Datei
+schreiben (bei CLAUDE.md gilt der Skill claude-md), bei Widerspruch zum Bestand den Konflikt nennen
+statt ihn zu glätten. Kein Ersatz-Command nötig.
+-->
+
+**/einarbeiten gibt es nicht mehr.** Der Command hat nur getan, was Claude ohnehin kann: „Lies
+diesen Link/diese Datei und trag das Wichtige in die CLAUDE.md ein" — genau so sagen, es klappt ohne
+Slash-Befehl. Sonst ändert sich nichts.
+
 ## 2026-09-01 · Claude 5: /finish startet nur noch, wenn du es tippst
 
 <!-- claude:

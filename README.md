@@ -78,7 +78,6 @@ technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
 | `/wrapped` | Aus der lokalen Claude-Code-Nutzung eines Zeitraums ein teilbares „Wrapped"-PNG bauen (Tokens, API-Gegenwert, Limit-Auslastung, Nachtschicht) und in die Zwischenablage legen |
 | `/optimieren` | Einen Command, Agent, Skill oder eine Referenzdatei nach dem Authoring-Standard schärfen — mit Eval-Lauf vorher und nachher; ein fehlendes Runner-Szenario legt der Command selbst an |
-| `/einarbeiten` | Beliebigen Input (Text/Datei/URL) semantisch analysieren, Projekt-Relevanz prüfen und ins Wissenssystem einarbeiten — oder bestehende Strukturen begründet infrage stellen |
 | `/destillieren` | Gewachsenes Wissenssystem pflegen: Drift (veraltete/widersprüchliche Querverweise) heilen, dann Redundanz verdichten & Ordnerstrukturen neu denken — strukturelle Eingriffe erst nach Plan-Zustimmung |
 | `/neudenken` | Ein digitales System vom Zweck her neu denken: Ziele belegt rekonstruieren, Prämissen mit vollem Urteil hinterfragen und einschätzen, ob und wie tief sich ein Umbau lohnt — ohne selbst umzusetzen |
 

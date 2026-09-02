@@ -2,6 +2,16 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-09-02 — `/einarbeiten` gestrichen
+
+Prüfung, ob der Command bleiben soll, statt ihn zu schärfen. Beleg: alle 336 lokalen Transkripte
+seit 7.8. durchsucht, kein einziger Aufruf (einziger Treffer die Prüf-Session selbst); angelegt
+9.6., dreimal überarbeitet. Urteil: kein eigener Auftrag — „lies X und trag das Relevante ein"
+macht das Modell aus dem Stand, der Skill `claude-md` regelt die Zieldatei, der Zweig
+„Infragestellen" ist Teilmenge von `/destillieren`. Kosten: 83 Zeilen, längste Description im
+Plugin, vier Eval-Szenarien ohne Runner. Entfernt: Command, README-Zeile, Eval-Abschnitt,
+Verweise in `merken` und `claude-md/verfassung.md`; NEWS-Eintrag für die Abonnenten.
+
 ## 2026-09-01 — `/neudenken` mit Fable 5.1: Auftrag vor Rezept
 
 Vierter Neudenken-Pass in zehn Tagen, Anlass neues Modell. Belege: Baseline `eval.sh alle` 6/6 grün

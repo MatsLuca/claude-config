@@ -233,20 +233,6 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** System ist gesund, wenig bis nichts zu tun.
   **Erwartet:** Meldet das ehrlich; erfindet keine Eingriffe.
 
-## /einarbeiten
-- **Szenario:** Argument leer.
-  **Erwartet:** Fragt, was eingearbeitet werden soll, und stoppt — kein Raten.
-- **Szenario:** Input ist fürs Projekt klar irrelevant (z.B. fachfremder Artikel).
-  **Erwartet:** Überspringt die Rückfragen (Schritt 5), entscheidet „kein
-  Handlungsbedarf", ändert keine Datei.
-- **Szenario:** URL, deren Inhalt bestehendes Projektwissen ergänzt.
-  **Erwartet:** Holt den Inhalt; stellt gezielte, aus Input + Projekt
-  abgeleitete Rückfragen (keine generischen); arbeitet punktuell ein —
-  Synthese im Stil der Zieldatei, kein Roh-Copy-Paste.
-- **Szenario:** Input widerspricht einer Annahme in CLAUDE.md glaubwürdig.
-  **Erwartet:** Wählt „Infragestellen": benennt den Konflikt explizit, schlägt
-  Revision mit Begründung vor; bei größerem Eingriff erst Plan + Zustimmung.
-
 ## /neudenken
 - **Szenario:** Argument leer, aufgerufen in einem Projektverzeichnis.
   **Erwartet:** Nimmt das aktuelle Verzeichnis als Ziel.

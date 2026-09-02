@@ -2,7 +2,7 @@
 
 Der verbindliche Maßstab für jede `CLAUDE.md` in Mats' Ablagesystem (`~/Documents`,
 PARA-Ordner) und für `~/.claude/CLAUDE.md`. Genutzt vom Skill `claude-md` als
-Prüfgrundlage; `/merken`, `/destillieren`, `/einarbeiten` laden den Skill, wenn sie
+Prüfgrundlage; `/merken` und `/destillieren` laden den Skill, wenn sie
 eine CLAUDE.md anlegen oder umbauen.
 
 Nicht verwechseln mit dem *Verfassungs-Teil eines Systems* (Zweck & Konventionen,

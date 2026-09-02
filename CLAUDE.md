@@ -86,8 +86,9 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   eval run proves the model fails without them (a comment names the reason). Few tool rounds,
   independent calls in parallel — no mandated one-liners: compound `&&`/`$(…)` commands collide
   with narrowed `allowed-tools`, and the model splits them anyway. `finish`, `finish-lite`, `merken`
-  are the reference implementations; `neues-projekt`, `destillieren`, `einarbeiten` still carry the
-  old recipe style (next `/optimieren` targets).
+  are the reference implementations; `neues-projekt` and `destillieren` followed on 2026-09-01/02.
+  `einarbeiten` was removed on 2026-09-02 (never invoked; the model does it unprompted, `claude-md`
+  governs the target file).
 - **Portability (macOS + Linux):** commands must also work in containers/Codespaces. For
   BSD↔GNU dialect splits (`date`, `stat`, `sed -i`) use the probe-then-variant pattern
   (cheap GNU probe once, then stick to one dialect — see `mtime()` in
@@ -171,7 +172,7 @@ Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
       Eval vorher, schärfen, Eval nachher, Validator). Reihenfolge nach Nutzung, Erledigtes abhaken:
       - [x] `/optimieren neues-projekt` (01.09.: 97→79 Zeilen, Runner-Szenarien leer/vorhanden/nachruesten, 14/14 grün)
       - [x] `/optimieren destillieren` (02.09.: 75→49 Zeilen, Auftrag vor Rezept, Runner-Szenarien drift/gesund, 8/8 grün)
-      - [ ] `/optimieren einarbeiten`
+      - [x] `/optimieren einarbeiten` → gestrichen (02.09.: 0 Aufrufe in allen Transkripten seit 7.8., Zweck ohne Command erfüllt)
       - [ ] `/optimieren pdf-to-markdown` (Beispielblöcke kürzen, ~790 Token Grundlast)
       - [ ] `/optimieren machine-setup` (~620 Token Grundlast; per `skills:` vorladen statt beschreiben)
 - [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.; Kontrolle 24.08. abends:
