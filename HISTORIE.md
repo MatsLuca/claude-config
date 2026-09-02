@@ -2,6 +2,22 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-09-02 — Inventur nach Nutzung: drei Bausteine raus, einer in die Werkstatt
+
+Frage: Was sind die Peak-Werkzeuge, was hat nicht denselben Stellenwert? Beleg: Prompt-Historie
+`~/.claude/history.jsonl` (Dez. 2025 – Sep. 2026, 5707 Prompts) je getipptem Command, dazu
+Skill-Tool- und Agent-Aufrufe in den Transkripten seit 7.8. und die Description-Länge je Baustein
+als Grundlast-Maß. Ergebnis: merken 235, finish 82, optimieren 31, finish-lite 27, destillieren 19,
+xcode 18, einarbeiten 16 (Juni/Juli), neudenken 10, github-pushes 7 (zuletzt Juli), neues-projekt 5
+und wrapped 5 (nur August); Modell-Aufrufe: merken 22, claude-md 13, finish-lite 12, latexterm 8,
+finish 8, optimieren 6; Agents seit 7.8. null. Die zwei Agents trugen ~45 % der Grundlast
+(1764 + 1373 Description-Zeichen). Entschieden: `github-pushes` gestrichen (Prompt reicht),
+`wrapped` in die Werkstatt (`commands/wrapped/`, Gag-Werkzeug mit Code), `pdf-to-markdown`
+gestrichen (Mats braucht ihn nicht mehr), `machine-setup` bleibt und wird als Nächstes
+optimiert. Mitgezogen: README, Evals, authoring-guide (Agent-Vorbild jetzt `machine-setup`),
+`optimieren`-Argument-Hint, plugin.json-Description und Keywords, CLAUDE.md-Sprachregel (kein
+„Studienmaterial" mehr), NEWS-Eintrag.
+
 ## 2026-09-02 — `/einarbeiten` gestrichen
 
 Prüfung, ob der Command bleiben soll, statt ihn zu schärfen. Beleg: alle 336 lokalen Transkripte

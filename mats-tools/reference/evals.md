@@ -70,53 +70,6 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Nichts geändert, Remote unverändert.
   **Erwartet:** Meldet nur „Schon synchron." — kein leerer Commit.
 
-## /github-pushes
-- **Szenario:** Argument leer.
-  **Erwartet:** Nimmt die letzten 24 Stunden als Default und erwähnt das in
-  der Antwort.
-- **Szenario:** „letzte Woche".
-  **Erwartet:** Zeitraum-Start liegt 7 Tage zurück; Ergebnis pro Repo gruppiert,
-  neueste zuerst, private Repos mit 🔒; Kurz-Summary vorangestellt.
-- **Szenario:** Lauf auf Linux/Container **und** auf macOS.
-  **Erwartet:** Der Zeitraum-Start wird auf beiden Plattformen korrekt
-  berechnet — kein Abbruch wegen `date`-Dialekt.
-- **Szenario:** Keine Commits im Zeitraum.
-  **Erwartet:** Meldet knapp, dass im Zeitraum keine Pushes gefunden wurden.
-
-## /wrapped
-- **Szenario:** Argument leer.
-  **Erwartet:** Nimmt 7 Tage ohne Rückfrage; Ausgabe enthält einen `png`-Pfad, und
-  die Antwort nennt Zeitraum, Hero-Zahl und Kosten-Vergleich in wenigen Zeilen.
-- **Szenario:** „diesen Monat" mit `--plan pro`.
-  **Erwartet:** `--days 30 --plan pro`; der „×-rausgeholt"-Wert rechnet gegen den
-  anteiligen Pro-Preis, nicht gegen max20.
-- **Szenario:** Zwei Läufe am selben Tag, ohne `--theme`.
-  **Erwartet:** Dieselbe Farbwelt — die Wahl hängt am Datum, nicht an der Uhrzeit.
-- **Szenario:** Kein Netz und kein Wechselkurs-Cache.
-  **Erwartet:** Die Karte zeigt trotzdem Euro (letzter bekannter oder Näherungskurs),
-  statt abzubrechen oder auf Dollar zurückzufallen.
-- **Szenario:** Offline (Limit-Abruf schlägt fehl).
-  **Erwartet:** Kein Abbruch — die Karte zeigt statt der Limit-Auslastung den
-  Modell-Mix, und die Antwort erwähnt die fehlenden Limit-Zahlen.
-- **Szenario:** Zweiter Lauf am selben Tag (Zieldatei vom ersten Lauf liegt noch da).
-  **Erwartet:** Das Bild wird neu gerendert und zeigt die aktuellen Zahlen — nie wird
-  ein altes PNG als Ergebnis ausgegeben oder in die Zwischenablage gelegt.
-- **Szenario:** Kein Chromium-Browser installiert.
-  **Erwartet:** Klare Meldung „Kein Chrome/Chromium gefunden" mit dem Hinweis auf
-  `CHROME_PATH`; kein Selbst-Installieren, kein halbes PNG.
-- **Szenario:** Zeitraum ohne jede Aktivität (z.B. `--since` in der Zukunft).
-  **Erwartet:** Bild entsteht trotzdem mit Nullen statt NaN/leeren Kacheln.
-- **Szenario:** Dieselbe Arbeit, einmal mit einem geschwätzigen und einmal mit einem
-  sparsamen Modell erledigt (50 statt 5 Werkzeug-Aufrufe).
-  **Erwartet:** Die Handarbeits-Schätzung bleibt praktisch gleich — gezählt werden
-  Aufträge, nicht Aufrufe — und die Karte trägt sichtbar ein `≈`.
-- **Szenario:** Session besteht überwiegend aus „ja"/„mach weiter"-Zurufen.
-  **Erwartet:** Diese Aufträge fallen als `trivial` mit 1 Minute ins Gewicht und
-  blähen die Zahl nicht auf.
-- **Szenario:** Arbeit lag in privat benannten Projekten.
-  **Erwartet:** Weder Karte noch `/tmp/wrapped.json` enthalten Projekt-, Ordner- oder
-  Dateinamen — nur Zählungen und Werkzeugnamen.
-
 ## /merken
 - **Szenario:** Verzeichnis mit existierender CLAUDE.md.
   **Erwartet:** CLAUDE.md ist Ziel; Stand-Abschnitt gepflegt/ergänzt (datiert),
@@ -279,17 +232,6 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Beide Startwege bekommen den Wrapper; der Nutzer wird gebeten,
   in einer neuen PowerShell `claude` zu starten und die Startzeile zu bestätigen —
   ein gemeldeter Fehler wird als eigener behandelt, nicht abgewimmelt.
-
-## pdf-to-markdown (Agent)
-- **Szenario:** Altklausur-PDF.
-  **Erwartet:** Klassifiziert als Klausur; Frontmatter `type: exam`;
-  Aufgaben/Punkte erhalten; Diagramme rekonstruierbar beschrieben.
-- **Szenario:** Vorlesungsfolien-PDF.
-  **Erwartet:** Klassifiziert als Folien; jede Folie getrackt; animierte Folien
-  zum Endzustand gemerged; TOC bei > 20 Folien.
-- **Szenario:** Paper/Skript-PDF.
-  **Erwartet:** Generischer Modus; lineare, vollständige Reproduktion; eigene
-  Überschriftenhierarchie gespiegelt.
 
 ## claude-md (Skill)
 - **Szenario:** Wartungsgang auf eine Bereichs-Datei mit datiertem „Aktueller

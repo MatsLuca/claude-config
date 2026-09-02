@@ -1,6 +1,6 @@
 ---
 description: Schärft einen Command, Agent, Skill oder eine Referenzdatei gegen den Authoring-Standard — Befund-Liste, gezielte Edits, Eval-Lauf vorher und nachher (ein fehlendes Runner-Szenario legt der Command selbst an). Meta-Pass über Standard/Evals selbst möglich.
-argument-hint: <command-, agent-, skill- oder referenz-name, z.B. "finish", "pdf-to-markdown", "authoring-guide" — oder Pfad eines Werkstatt-Skills, z.B. "skills/scan">
+argument-hint: <command-, agent-, skill- oder referenz-name, z.B. "finish", "machine-setup", "authoring-guide" — oder Pfad eines Werkstatt-Skills, z.B. "skills/scan">
 allowed-tools: Read, Edit, Glob, Grep, Bash(ls:*), Bash(wc:*), Bash(git status:*), Bash(diff:*), Bash(git pull --ff-only:*), Bash(./tools/validate.sh:*), Bash(tools/eval.sh:*), Bash(EVAL_OUT=*), Bash(mkdir:*), WebFetch(domain:platform.claude.com), AskUserQuestion
 ---
 

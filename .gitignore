@@ -1,6 +1,5 @@
 .DS_Store
 GEMINI.md
 
-# Python-Bytecode der scripts/ (entsteht beim Importieren in Tests)
 __pycache__/
 *.pyc

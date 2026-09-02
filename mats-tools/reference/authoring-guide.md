@@ -129,7 +129,7 @@ auf Anfrage startet.
   can…"/„You can…"); inkonsistente Perspektive stört das Triggern. Enthält
   *was* der Agent tut **und wann** er genutzt werden soll, mit konkreten
   Stichworten. Eingebettete `<example>`-Blöcke (User-Anfrage +
-  `<commentary>`) steuern das proaktive Triggern — Vorbild: `pdf-to-markdown.md`.
+  `<commentary>`) steuern das proaktive Triggern — Vorbild: `machine-setup.md`.
 - `model:`, `color:` — setzen.
 
 ### Body
@@ -203,7 +203,7 @@ Ablage, die Regel dafür:
   ein Ziel vom Optimier-Loop abgekoppelt).
 - **Werkstatt → Plugin:** Was Mats' Konten oder Maschinenzustand braucht, lebt
   im Werkstatt-Repo; hierher gehört, was ohne beides läuft, portabel ist und
-  auch anderen nützt — Code ist erlaubt (`scripts/wrapped`, `inventar.sh`).
+  auch anderen nützt — Code ist erlaubt (`inventar.sh`).
   Ein Werkstatt-Baustein folgt demselben Standard und hat seine Evals in
   `<werkstatt>/evals.md`.
 - **Plugin-interne Datei-Referenzen:** über `${CLAUDE_PLUGIN_ROOT}/…`. Keine

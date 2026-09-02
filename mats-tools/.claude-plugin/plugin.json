@@ -1,6 +1,6 @@
 {
   "name": "mats-tools",
-  "description": "Mats' Werkzeugkasten für Claude Code — Commands, Agents und Skills für Git-Workflow, Wissensarbeit, PDF→Markdown und Maschinen-Setup, plus der Loop (/optimieren, /neudenken), der sie schärft. Liste: README.md.",
+  "description": "Mats' Werkzeugkasten für Claude Code — Commands, Agent und Skills für Git-Workflow, Wissensarbeit, CLAUDE.md-Pflege und Maschinen-Setup, plus der Loop (/optimieren, /neudenken), der sie schärft. Liste: README.md.",
   "author": {
     "name": "Mats Dagott"
   },
@@ -8,11 +8,7 @@
     "productivity",
     "git",
     "github",
-    "issues",
     "xcode",
-    "studium",
-    "pdf",
-    "markdown",
     "setup",
     "dotfiles",
     "statusline",

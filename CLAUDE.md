@@ -79,8 +79,8 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 - **Language split:** command bodies + all `description` frontmatter are **German** (the author's
   working language). Agent *instruction bodies* are written in **English**, with German *output
-  templates* (e.g. `## Aufgabe`, `**Gegeben:**`) since the produced files are for German study
-  material. Keep new commands German and new agents English-instructions/German-output unless asked otherwise.
+  templates* (e.g. `## Aufgabe`) since reports go to German users. Keep new commands German and
+  new agents English-instructions/German-output unless asked otherwise.
 - **Auftrag vor Rezept** (authoring-guide, since the Claude 5 pass on 2026-09-01): a command states
   the outcome and the inviolable rules; the model finds the way. Literal bash blocks only where an
   eval run proves the model fails without them (a comment names the reason). Few tool rounds,
@@ -165,6 +165,14 @@ Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
   github-pushes und beide Agents 0. Grundlast ~3,0k Token je Session (`claude plugin details`),
   davon ~1,4k die Beispielblöcke der zwei ruhenden Agents.
 
+**02.09. — Inventur nach Nutzung** (Prompt-Historie Dez. 2025–Sep. 2026, Transkripte seit 7.8.):
+Kern ist der Wissens-Loop (merken 235, finish 82, optimieren 31, finish-lite 27, destillieren 19,
+neudenken 10, claude-md 13 Modell-Aufrufe). Gestrichen: `einarbeiten` (16, zuletzt Juli),
+`github-pushes` (7, zuletzt Juli), Agent `pdf-to-markdown` (0 seit August, ~790 Token Grundlast,
+nicht mehr gebraucht). `wrapped` (5, nur August) in die Werkstatt (`commands/wrapped/`). Bleiben:
+`machine-setup` (Basis der Abonnenten, nächstes Optimier-Ziel), `neues-projekt` und `latexterm`
+unter Beobachtung bis November.
+
 ## HIER WEITERMACHEN
 
 - [ ] `/feedback` abschicken (Entwurf: Early Access für `plugin eval`); Wiedervorlage 15.09. prüft die Sperre.
@@ -173,8 +181,7 @@ Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
       - [x] `/optimieren neues-projekt` (01.09.: 97→79 Zeilen, Runner-Szenarien leer/vorhanden/nachruesten, 14/14 grün)
       - [x] `/optimieren destillieren` (02.09.: 75→49 Zeilen, Auftrag vor Rezept, Runner-Szenarien drift/gesund, 8/8 grün)
       - [x] `/optimieren einarbeiten` → gestrichen (02.09.: 0 Aufrufe in allen Transkripten seit 7.8., Zweck ohne Command erfüllt)
-      - [ ] `/optimieren pdf-to-markdown` (Beispielblöcke kürzen, ~790 Token Grundlast)
-      - [ ] `/optimieren machine-setup` (~620 Token Grundlast; per `skills:` vorladen statt beschreiben)
+      - [ ] `/optimieren machine-setup` (~620 Token Grundlast; per `skills:` vorladen statt beschreiben) — **nächste Session**
 - [ ] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.; Kontrolle 24.08. abends:
       alle 9 alten SHAs noch 200) — auf Antwort warten, dann erneut prüfen
       (`curl -o /dev/null -w '%{http_code}' https://github.com/MatsLuca/claude-config/commit/<sha>`),

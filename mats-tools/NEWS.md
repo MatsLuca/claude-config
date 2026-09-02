@@ -11,6 +11,21 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-09-02 · Aufgeräumt: /github-pushes, /wrapped und der PDF-Agent sind weg
+
+<!-- claude:
+Entfernt am 02.09.: Command /github-pushes (Ersatz: `gh search commits --author=@me --committer-date=">=<datum>"`
+oder einfach fragen), Command /wrapped (liegt jetzt privat bei Mats), Agent pdf-to-markdown (bittet
+jemand um PDF→Markdown: die PDF mit Read lesen und selbst in sauberes Markdown bringen — Aufgaben und
+Punkte bei Klausuren, Folien-Nummern bei Vorlesungen, sonst Überschriften spiegeln). Kein Setup zu
+ändern; der Plugin-Update beim Start reicht.
+-->
+
+Drei Werkzeuge, die kaum jemand genutzt hat, sind raus: **/github-pushes** (Claude beantwortet „was
+habe ich diese Woche gepusht?" auch ohne Befehl), **/wrapped** (das Nutzungs-Bild; lebt jetzt nur
+bei Mats) und der **PDF-zu-Markdown-Agent** (Claude liest PDFs direkt, einfach „mach mir daraus
+Markdown" sagen). Jede Session startet dadurch etwas leichter. Nichts zu tun.
+
 ## 2026-09-02 · /einarbeiten ist weg
 
 <!-- claude:
