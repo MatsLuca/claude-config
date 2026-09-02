@@ -82,6 +82,25 @@ EOF
   printf '\n## /zaehlen\n- **Szenario:** Ordner mit drei Markdown-Dateien, `/zaehlen 2`.\n  **Erwartet:** Meldet die Anzahl 3 und nennt die zwei größten Dateien; nichts wird geschrieben.\n' >> "$r/mats-tools/reference/evals.md"
   git -C "$r" add -A; git -C "$r" -c user.name=eval -c user.email=eval@beispiel.de commit -qm "zaehlen: Probe-Command"
 }
+# Fixture: kleines Wissenssystem mit Drift (für destillieren); $1 = Wurzel → System unter $1/wissen.
+# fakten/server.md ist die jüngste Datei (Port 8443); fragen/zugang.md hängt am alten Stand (8080) und
+# hat einen toten Wikilink; backup.md/sicherung.md sind Dubletten (Merge braucht Zustimmung).
+fixture_wissen() {
+  local d="$1/wissen"; mkdir -p "$d/fakten" "$d/fragen"
+  printf '# CLAUDE.md — wissen (Projekt)\n\nNotizsystem zu einem Heimserver. `fakten/` = belegte Tatsachen, `fragen/` = offene Fragen; verlinkt wird per Wikilink `[[dateiname]]` ohne Endung.\n' > "$d/CLAUDE.md"
+  printf '# Server\n\nDer Webdienst lauscht seit der Umstellung auf Port 8443 (vorher 8080). Zugang nur per Schlüssel.\n' > "$d/fakten/server.md"
+  printf '# Backup\n\nTäglich 03:00 per rsync auf die externe Platte, siehe [[server]].\n' > "$d/fakten/backup.md"
+  printf '# Sicherung\n\nJede Nacht um 3 Uhr rsync auf die externe Platte, siehe [[server]].\n' > "$d/fakten/sicherung.md"
+  printf '# Zugang von unterwegs\n\nWie komme ich an den Dienst? Laut [[server]] läuft er auf Port 8080 — reicht eine Portfreigabe? Alte Überlegung in [[alt-notiz]].\n' > "$d/fragen/zugang.md"
+  for f in CLAUDE.md fakten/backup.md fakten/sicherung.md fragen/zugang.md; do touch -t 202601010000 "$d/$f"; done
+}
+# Fixture: gesundes Wissenssystem ohne Befund (für destillieren); $1 = Wurzel → $1/wissen
+fixture_wissen_gesund() {
+  local d="$1/wissen"; mkdir -p "$d/fakten" "$d/fragen"
+  printf '# CLAUDE.md — wissen (Projekt)\n\nNotizsystem zu einem Heimserver. `fakten/` = belegte Tatsachen, `fragen/` = offene Fragen; verlinkt wird per Wikilink `[[dateiname]]` ohne Endung.\n' > "$d/CLAUDE.md"
+  printf '# Server\n\nDer Webdienst lauscht auf Port 8443. Zugang nur per Schlüssel. Offen: [[zugang]].\n' > "$d/fakten/server.md"
+  printf '# Zugang von unterwegs\n\nLaut [[server]] Port 8443 — reicht eine Portfreigabe, oder besser VPN?\n' > "$d/fragen/zugang.md"
+}
 # Prüfsumme einer Datei (cksum ist auf BSD und GNU gleich; ohne Dateiname im Output)
 sum() { cksum < "$1"; }
 
@@ -174,6 +193,23 @@ szenario() {
       [ "$(sum "$p/README.md")" = "$f1" ] && [ "$(sum "$p/vorspeisen/kuerbissuppe.md")" = "$f2" ] && [ "$(sum "$p/hauptgerichte/linsen.md")" = "$f3" ] && pass "bestehende Dateien unangetastet" || fail "bestehende Dateien verändert"
       [ ! -d "$p/.git" ] && pass "kein Repo ohne ausdrückliche Antwort" || fail "git init ohne Antwort"
       ;;
+    destillieren:drift)
+      fixture_wissen "$fx"; w="$fx/wissen"; s1=$(sum "$w/fakten/server.md")
+      run_cmd destillieren "$w" "$fx/transcript.txt"
+      grep -q '8443' "$w/fragen/zugang.md" && ! grep -q 'auf Port 8080' "$w/fragen/zugang.md" && pass "Drift geheilt: zugang.md trägt den Stand von server.md" || fail "zugang.md hängt am alten Stand"
+      ! grep -q 'alt-notiz' "$w/fragen/zugang.md" && pass "toter Link repariert/entfernt" || fail "toter Link [[alt-notiz]] steht noch"
+      [ "$(sum "$w/fakten/server.md")" = "$s1" ] && pass "Quelle server.md unangetastet" || fail "server.md verändert"
+      [ -f "$w/fakten/backup.md" ] && [ -f "$w/fakten/sicherung.md" ] && pass "Dubletten nicht ohne Zustimmung vereint" || fail "Merge/Delete ohne Zustimmung"
+      grep -Eqi 'backup|sicherung' "$fx/transcript.txt" && pass "Dubletten als Befund gemeldet" || fail "Dubletten nicht gemeldet"
+      ;;
+    destillieren:gesund)
+      fixture_wissen_gesund "$fx"; w="$fx/wissen"
+      h1=$(sum "$w/CLAUDE.md"); h2=$(sum "$w/fakten/server.md"); h3=$(sum "$w/fragen/zugang.md")
+      run_cmd destillieren "$w" "$fx/transcript.txt"
+      [ "$(sum "$w/CLAUDE.md")" = "$h1" ] && [ "$(sum "$w/fakten/server.md")" = "$h2" ] && [ "$(sum "$w/fragen/zugang.md")" = "$h3" ] && pass "nichts verändert" || fail "Dateien verändert, obwohl gesund"
+      [ "$(find "$w" -type f | wc -l | tr -d ' ')" = 3 ] && pass "keine Dateien angelegt/gelöscht" || fail "Dateizahl verändert"
+      grep -Eqi 'gesund|nichts zu tun|wenig zu tun|kein(e)? (Befund|Drift|Eingriff)' "$fx/transcript.txt" && pass "meldet ehrlich: gesund" || fail "Meldung fehlt"
+      ;;
     optimieren:probe)
       fixture_clone "$fx"; r="$fx/repo"; z="$r/mats-tools/commands/zaehlen.md"
       g1=$(sum "$r/mats-tools/reference/authoring-guide.md"); z1=$(sum "$z")
@@ -207,12 +243,14 @@ Szenarien mit Fixture + automatischer Prüfung:
   neues-projekt:leer     leerer Ordner unter 01_Aktiv, Zweck + Antworten als Argument → CLAUDE.md (Projekt, Stand, HIER WEITERMACHEN), kein Interview, kein Git, Router unangetastet
   neues-projekt:vorhanden  CLAUDE.md existiert → unverändert, Hinweis auf /claude-md
   neues-projekt:nachruesten  Ordner mit Inhalt, --nachruesten → CLAUDE.md mit Zweck aus dem Inhalt, Dateien unangetastet, kein Git
+  destillieren:drift     Wissenssystem, jüngste Datei widerspricht Abhängiger + toter Link + Dubletten → Drift geheilt, Link repariert, Quelle unangetastet, kein Merge ohne Zustimmung
+  destillieren:gesund    gesundes Wissenssystem → nichts verändert, meldet das ehrlich
   optimieren:probe       Repo-Klon mit schlampigem Command → Ziel geschärft (enge Tools, argument-hint, kein Ballast), Szenario angelegt, Standard unangetastet, Validator grün
   alle                   alle obigen nacheinander
 Freier Lauf:  tools/eval.sh <command> [prompt-zusatz]   (Transkript + Eval-Abschnitt, Urteil von Hand)
 EOF
     exit 0 ;;
-  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten optimieren:probe xcode:leer; do szenario "$s"; done ;;
+  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
   *:*)  szenario "$1" ;;
   *)
     cmd="$1"; shift; [ -f "$PLUGIN/commands/$cmd.md" ] || { echo "kein Command: $cmd"; exit 2; }

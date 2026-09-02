@@ -170,7 +170,7 @@ Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
 - [ ] Ritus fortsetzen, ein Ziel je Session, `/optimieren` macht den Ablauf selbst (Szenario anlegen,
       Eval vorher, schärfen, Eval nachher, Validator). Reihenfolge nach Nutzung, Erledigtes abhaken:
       - [x] `/optimieren neues-projekt` (01.09.: 97→79 Zeilen, Runner-Szenarien leer/vorhanden/nachruesten, 14/14 grün)
-      - [ ] `/optimieren destillieren`
+      - [x] `/optimieren destillieren` (02.09.: 75→49 Zeilen, Auftrag vor Rezept, Runner-Szenarien drift/gesund, 8/8 grün)
       - [ ] `/optimieren einarbeiten`
       - [ ] `/optimieren pdf-to-markdown` (Beispielblöcke kürzen, ~790 Token Grundlast)
       - [ ] `/optimieren machine-setup` (~620 Token Grundlast; per `skills:` vorladen statt beschreiben)

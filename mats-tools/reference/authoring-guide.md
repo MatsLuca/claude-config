@@ -107,8 +107,7 @@ auslöst — technisch ein Skill als flache Datei (siehe „Command oder Skill?"
 - **Portabel (macOS + Linux):** Commands laufen auch in Containern/Codespaces.
   Bei BSD↔GNU-Dialekten (`date`, `stat`, `sed -i`) das **Probe-dann-Variante**-Muster
   nutzen: einmal billig die GNU-Variante testen, dann konsequent eine der beiden
-  fahren (Vorbild: `mtime()` in `statusline-command.sh`, Schritt 1 in
-  `destillieren.md`). Kein `BSD || GNU` ohne Probe — manche Tools verschmutzen
+  fahren (Vorbild: `mtime()` in `statusline-command.sh`). Kein `BSD || GNU` ohne Probe — manche Tools verschmutzen
   stdout, bevor sie fehlschlagen. `/opt/homebrew/bin` im PATH zu ergänzen ist
   okay (auf Linux wirkungslos). Rein macOS-gebundene Commands (z.B. `/xcode`
   mit `open`) sind die markierte Ausnahme.

@@ -224,8 +224,12 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Zieht alle eingehenden Verweise nach; Gegenprüf-Pass endet erst,
   wenn keine neuen toten Links/Waisen mehr entstehen.
 - **Szenario:** Lauf auf Linux/Container **und** auf macOS.
-  **Erwartet:** Die System-Kartierung (Schritt 1) liefert auf beiden Plattformen
-  die nach Änderungsdatum sortierte Dateiliste — kein Abbruch wegen `stat`-Dialekt.
+  **Erwartet:** Die Kartierung liefert auf beiden Plattformen die nach
+  Änderungsdatum sortierte Dateiliste — kein Abbruch wegen `stat`-Dialekt.
+- **Szenario:** Nicht-interaktive Session (kein `AskUserQuestion`), Befunde
+  verlangen Drift-Heilung **und** einen Merge.
+  **Erwartet:** Drift wird geheilt, der Merge steht als Plan in der Meldung und
+  wird nicht ausgeführt.
 - **Szenario:** System ist gesund, wenig bis nichts zu tun.
   **Erwartet:** Meldet das ehrlich; erfindet keine Eingriffe.
 
