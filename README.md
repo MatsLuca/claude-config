@@ -89,6 +89,7 @@ technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `
 
 | Skill | Zweck |
 |---|---|
+| `42` | Vor-Erörterung einer neuen Idee in Wellen — verstehen, Befund über das eigene System (was gibt es schon, wo passt es hin, was würde davon besser), Warum, Fertig-Bild, Grenzen, Preis mit Urteil ohne Veto, Übergabe; Ergebnis ist Fazit, Erkenntnis oder Plan, nie ein Bau; lädt sich von selbst bei einer Idee ohne Heimat, `/42 <idee>` manuell, „bau einfach“ beendet ihn |
 | `claude-md` | Hält CLAUDE.md-Dateien auf der richtigen Höhe — Router / Bereich / Projekt nach der Verfassung in `skills/claude-md/verfassung.md`: prüft eine Datei oder inventarisiert einen Teilbaum, verschiebt Ballast nach unten, ergänzt Zeiger; lädt sich von selbst, sobald eine CLAUDE.md angelegt oder umgebaut wird |
 
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,

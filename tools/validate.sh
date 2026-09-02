@@ -104,7 +104,7 @@ for f in mats-tools/skills/*/SKILL.md; do
     for key in name description; do
       printf '%s\n' "$fm" | grep -q "^$key:" || fail "$f: $key fehlt im Frontmatter"
     done
-    skill=$(printf '%s\n' "$fm" | sed -n 's/^name:[[:space:]]*//p' | head -1)
+    skill=$(printf '%s\n' "$fm" | sed -n 's/^name:[[:space:]]*//p' | head -1 | sed 's/^["'\'']//; s/["'\'']$//')  # Anführungszeichen erlaubt (YAML läse 42 sonst als Zahl)
     [ "$skill" = "$dir" ] || fail "$f: Frontmatter-name ($skill) ≠ Ordnername ($dir)"
   else
     fail "$f: kein YAML-Frontmatter"

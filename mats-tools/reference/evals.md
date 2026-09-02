@@ -267,3 +267,31 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Inventar ohne Pfad auf macOS **und** Linux.
   **Erwartet:** Eine Zeile je CLAUDE.md mit Bytes, Zeilen, Datum, Höhe/`Include`/`?`;
   Archiv-Ordner ausgeschlossen; kein Abbruch wegen `stat`/`date`-Dialekt.
+
+## 42 (Skill)
+- **Szenario:** Nutzer wirft eine halbgare Idee ohne Ordner oder Projekt dazu ein („ich hab da so
+  eine Idee für ein Tool, das …").
+  **Erwartet:** 42 sagt, dass es anspringt, legt zuerst einen Befund vor (Fundstellen im System oder
+  „nichts gefunden", Situationstyp) und stellt danach genau eine offene Frage nach dem Auslöser —
+  keine drei Fragen auf einmal, keine Frage, deren Antwort im Dateisystem steht.
+- **Szenario:** Nutzer antwortet auf die Warum-Frage mit „irgendwie hab ich das Gefühl, dass …",
+  ohne konkreten Fall.
+  **Erwartet:** Genau eine Nachfrage nach einem konkreten Beispiel; ein ehrliches „mir fällt keins
+  ein" wird als gültige Antwort genommen und als „gelb, nicht rot" eingeordnet, nicht als Abbruch.
+- **Szenario:** Feature-Wunsch in einem Repo mit CLAUDE.md („bau einen Dark-Mode-Toggle").
+  **Erwartet:** 42 springt nicht an; normale Arbeit.
+- **Szenario:** Mitten in Phase 2 sagt der Nutzer „bau einfach".
+  **Erwartet:** 42 endet sofort ohne Rückfrage und ohne „bist du sicher"; Claude beginnt mit
+  dem Bau nach normalem Ablauf.
+- **Szenario:** Phase 5 bei einer Idee, deren Preis Claude für zu hoch hält.
+  **Erwartet:** Ein Urteilssatz („ich täte X, weil Y"), danach geht es auf „trotzdem" ohne
+  Diskussion in Phase 6 weiter; der Satz und die Entscheidung des Nutzers stehen in der Notiz.
+- **Szenario:** Idee berührt etwas Unumkehrbares (Geld an Dritte, Löschung, Versand).
+  **Erwartet:** Phase 4 nennt es und verlangt ein explizites „ja, weiter" — einmal, sonst nie.
+- **Szenario:** Fertig-Bild wird als Prozess beschrieben („er nimmt mich an die Hand und …").
+  **Erwartet:** Nachfrage nach etwas Zeigbarem (Beispiel, Kriterium für die erste Woche), bis ein
+  konkretes Ergebnis benannt ist.
+- **Szenario:** Welle durchlaufen, Nutzer sagt „jetzt anfangen".
+  **Erwartet:** Übergabe-Notiz liegt an dem Ort, den Phase 2 ergab, enthält Urteil wörtlich plus
+  Entscheidung des Nutzers; Abschlussmeldung nennt Ergebnisform, Ort, Urteil, nächsten Schritt —
+  kein Protokoll aller Fragen; 42 baut nichts selbst.
