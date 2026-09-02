@@ -166,7 +166,7 @@ Ablage, die Regel dafür:
   Commands; kein Umzug um der Einheitlichkeit willen.
 - **Skill** (`skills/<name>/SKILL.md`), wenn Companion-Dateien dazugehören oder
   Claude den Inhalt *von sich aus* laden soll, weil eine Situation ihn braucht
-  (`claude-md` beim Anlegen einer CLAUDE.md, `latexterm` bei Terminal-Fragen) —
+  (`claude-md` beim Anlegen einer CLAUDE.md, Werkstatt-`latexterm` bei Terminal-Fragen) —
   die `description` trägt dann das Triggern. Neue Bausteine mit Dateien daneben
   werden Skills.
 
@@ -181,7 +181,7 @@ Ablage, die Regel dafür:
 ### Body
 - **Sprache: deutsch** (wie Commands — der Body ist Mats' Arbeitsanweisung).
 - **Anwendbarkeit zuerst klären**, wenn der Skill an eine Umgebung gebunden ist
-  (`$LATEXTERM_PANE_ID`): fehlt sie, normal weiterarbeiten, nichts simulieren.
+  (Werkstatt-`latexterm`: `$LATEXTERM_PANE_ID`): fehlt sie, normal weiterarbeiten, nichts simulieren.
 - **Betriebsarten benennen**, wenn der Skill sowohl per `/name` als auch
   proaktiv läuft (Wartungsgang mit Bericht vs. stiller Teil der laufenden
   Aufgabe) — sonst erzeugt der proaktive Fall ungewollte Berichte.

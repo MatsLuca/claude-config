@@ -2,6 +2,15 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-09-02 abends — `latexterm` in die Werkstatt, `machine-setup` geschärft
+
+`latexterm` steuert eine App, die nur Mats hat — nach der Router-Regel Werkstatt (`skills/latexterm`,
+Evals und README dort). `machine-setup`: Description ohne Beispielblöcke (1373→~330 Zeichen), `tools:`
+gesetzt, awk-Fallback raus (`${CLAUDE_PLUGIN_ROOT}` expandiert im Agent-Body, headless belegt),
+Rückfrage-Regel für Subagenten; Guide-Abschnitt „Agents" entsprechend. Live-Lauf headless auf Mats'
+Mac vorher/nachher 8→7 Tool-Aufrufe, nichts verändert. Sandbox-HOME headless scheitert auf macOS am
+Keychain-Login — Agents bekommen deshalb kein Runner-Szenario.
+
 ## 2026-09-02 — Inventur nach Nutzung: drei Bausteine raus, einer in die Werkstatt
 
 Frage: Was sind die Peak-Werkzeuge, was hat nicht denselben Stellenwert? Beleg: Prompt-Historie

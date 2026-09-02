@@ -89,7 +89,6 @@ technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `
 
 | Skill | Zweck |
 |---|---|
-| `latexterm` | LatexTerm-Terminal von innen steuern (Kacheln auflisten/öffnen, Befehle/Prompts in andere Kacheln schicken, zoomen, fokussieren) — lädt sich von selbst, sobald es ums Terminal geht (Kachel, Pane, Split, zweite Session, „was kannst du mit dem Terminal"); auf Rechnern ohne LatexTerm inaktiv |
 | `claude-md` | Hält CLAUDE.md-Dateien auf der richtigen Höhe — Router / Bereich / Projekt nach der Verfassung in `skills/claude-md/verfassung.md`: prüft eine Datei oder inventarisiert einen Teilbaum, verschiebt Ballast nach unten, ergänzt Zeiger; lädt sich von selbst, sobald eine CLAUDE.md angelegt oder umgebaut wird |
 
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
@@ -175,7 +174,7 @@ claude-config/
     │   └── plugin.json           # Plugin-Manifest
     ├── commands/                 # Slash-Commands = Skills als flache Datei (*.md)
     ├── agents/                   # Subagents (*.md)
-    ├── skills/                   # Skills (latexterm, claude-md + dessen Verfassung)
+    ├── skills/                   # Skills (claude-md + dessen Verfassung)
     ├── hooks/                    # SessionStart-Hooks: Start-Timer (Dauer je Phase → Terminal + ~/.cache/mats-tools/start-timer.log) und NEWS.md-Einträge einmal zeigen
     ├── shell/start.sh            # Startzeile des claude()-Wrappers, ohne Netz (ändert sich per Plugin-Update; der Wrapper bleibt dünn)
     ├── shell/sync.sh             # Hintergrund-Sync: Plugin-Update + Klone aus ~/.config/mats-tools/sync-repos; --now (frisch), --after-push (/finish)

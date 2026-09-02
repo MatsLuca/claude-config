@@ -170,8 +170,8 @@ Kern ist der Wissens-Loop (merken 235, finish 82, optimieren 31, finish-lite 27,
 neudenken 10, claude-md 13 Modell-Aufrufe). Gestrichen: `einarbeiten` (16, zuletzt Juli),
 `github-pushes` (7, zuletzt Juli), Agent `pdf-to-markdown` (0 seit August, ~790 Token Grundlast,
 nicht mehr gebraucht). `wrapped` (5, nur August) in die Werkstatt (`commands/wrapped/`). Bleiben:
-`machine-setup` (Basis der Abonnenten, nächstes Optimier-Ziel), `neues-projekt` und `latexterm`
-unter Beobachtung bis November.
+`machine-setup` (Basis der Abonnenten, optimiert am 02.09.), `neues-projekt` unter Beobachtung bis
+November. `latexterm` am 02.09. in die Werkstatt (steuert eine App, die nur Mats hat).
 
 ## HIER WEITERMACHEN
 

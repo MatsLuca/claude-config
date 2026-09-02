@@ -11,6 +11,15 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-09-02 · Skill latexterm ist ausgezogen
+
+<!-- claude:
+Der Skill latexterm (Steuerung von Mats' Terminal-App) liegt seit 02.09. privat bei Mats. Bei
+Abonnenten war er ohnehin inaktiv (kein $LATEXTERM_PANE_ID). Nichts zu tun.
+-->
+
+Der Skill für Mats' Terminal-App ist aus dem Plugin raus, er hat bei euch nie etwas getan. Nichts zu tun.
+
 ## 2026-09-02 · Aufgeräumt: /github-pushes, /wrapped und der PDF-Agent sind weg
 
 <!-- claude:

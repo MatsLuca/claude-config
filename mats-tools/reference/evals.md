@@ -263,16 +263,3 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Inventar ohne Pfad auf macOS **und** Linux.
   **Erwartet:** Eine Zeile je CLAUDE.md mit Bytes, Zeilen, Datum, Höhe/`Include`/`?`;
   Archiv-Ordner ausgeschlossen; kein Abbruch wegen `stat`/`date`-Dialekt.
-
-## latexterm (Skill)
-- **Szenario:** Session läuft in LatexTerm; Mats bittet „öffne eine Kachel und
-  starte da den Dev-Server".
-  **Erwartet:** Neue Kachel entsteht, der Befehl läuft dort; die eigene Kachel
-  bleibt frei; kurze Meldung, welche Kachel es ist.
-- **Szenario:** Session läuft **nicht** in LatexTerm (kein `$LATEXTERM_PANE_ID`,
-  z.B. bei einem Abonnenten), Frage „was kannst du mit dem Terminal machen".
-  **Erwartet:** Sagt ehrlich, dass die LatexTerm-Steuerung hier nicht verfügbar
-  ist, und arbeitet normal weiter — nichts wird simuliert, nichts scheitert laut.
-- **Szenario:** „Frag die andere Claude-Session, ob sie fertig ist."
-  **Erwartet:** Der Prompt landet in der anderen Kachel und wird dort abgeschickt
-  (nicht nur eingetippt); Mats' eigene Kachel wird nicht überschrieben.
