@@ -8,6 +8,7 @@
 #   tools/eval.sh <command> [prompt-zusatz] freier Lauf im leeren Fixture, Urteil von Hand
 #
 # Ergebnis je Szenario: PASS/FAIL-Zeilen, Transkript unter $EVAL_OUT (Default: mktemp).
+# Szenarien mit nativem Gegenstück (mats-tools/evals/<fall>/) holen ihre Fixture aus dessen scaffold.sh.
 set -u
 cd "$(dirname "$0")/.."
 ROOT="$PWD"; PLUGIN="$ROOT/mats-tools"; EVALS="$PLUGIN/reference/evals.md"
@@ -37,6 +38,12 @@ eval_section() {
   awk -v h="## /$1" '$0 == h {p=1; print; next} /^## / {p=0} p' "$EVALS"
 }
 
+# Fixture aus dem nativen Eval-Fall: mats-tools/evals/<fall>/scaffold.sh legt im Arbeitsordner
+# Repo + Bare-Remote `.remote.git` an — eine Quelle für Runner und `claude plugin eval`.
+fixture_scaffold() {
+  local d="$1/work"; mkdir -p "$d"
+  (cd "$d" && bash "$PLUGIN/evals/$2/scaffold.sh")
+}
 # Fixture: Bare-Remote + Klon mit einem Commit (für finish-lite)
 fixture_repo() {
   local d="$1"; mkdir -p "$d/remote.git" "$d/work"
@@ -109,12 +116,11 @@ szenario() {
   printf '\n\033[1m▶ %s\033[0m  (Fixture: %s)\n' "$name" "$fx"
   case "$name" in
     finish-lite:sync)
-      fixture_repo "$fx"; git -C "$fx/work" add -A; git -C "$fx/work" -c user.name=eval -c user.email=eval@beispiel.de commit -qm "Basis"; git -C "$fx/work" push -q
-      printf 'Neue Zeile\n' >> "$fx/work/notiz.md"
+      fixture_scaffold "$fx" finish-lite-sync
       run_cmd finish-lite "$fx/work" "$fx/transcript.txt"
       [ -z "$(git -C "$fx/work" status --porcelain)" ] && pass "Arbeitsbaum sauber" || fail "Arbeitsbaum nicht sauber"
       git -C "$fx/work" log -1 --format=%s | grep -q '^Stand ' && pass "Commit mit Zeitstempel-Message" || fail "kein Stand-Commit: $(git -C "$fx/work" log -1 --format=%s)"
-      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/remote.git" rev-parse main)" ] && pass "Remote main == lokal (gepusht)" || fail "Remote hängt hinterher"
+      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/work/.remote.git" rev-parse main)" ] && pass "Remote main == lokal (gepusht)" || fail "Remote hängt hinterher"
       ;;
     finish-lite:synchron)
       fixture_repo "$fx"; rm "$fx/work/notiz.md"
@@ -128,18 +134,16 @@ szenario() {
       grep -qi 'kein xcode-projekt' "$fx/transcript.txt" && pass "meldet: kein Xcode-Projekt" || fail "Meldung fehlt"
       ;;
     finish:feature)
-      fixture_repo "$fx"
-      printf '# Demo\n\nEin kleines Werkzeug.\n\n## Befehle\n\n- `demo hallo` — grüßt.\n' > "$fx/work/README.md"
-      git -C "$fx/work" add -A; git -C "$fx/work" -c user.name=eval -c user.email=eval@beispiel.de commit -qm "feat: demo hallo"; git -C "$fx/work" push -q
-      printf '#!/bin/sh\ncase "$1" in hallo) echo Hallo;; tschuess) echo Tschüss;; esac\n' > "$fx/work/demo.sh"
+      fixture_scaffold "$fx" finish-feature
       before=$(git -C "$fx/work" rev-parse HEAD)
       run_cmd finish "$fx/work" "$fx/transcript.txt"
       [ -z "$(git -C "$fx/work" status --porcelain)" ] && pass "Arbeitsbaum sauber" || fail "Arbeitsbaum nicht sauber"
       [ "$(git -C "$fx/work" rev-parse HEAD)" != "$before" ] && pass "neuer Commit" || fail "kein Commit"
       git -C "$fx/work" log -1 --format=%s | grep -Eq '^[a-z]+(\([^)]*\))?!?: ' && pass "Conventional-Commit-Subject" || fail "Subject nicht konventionell: $(git -C "$fx/work" log -1 --format=%s)"
       git -C "$fx/work" log -1 --format=%B | grep -q 'Co-Authored-By: Claude' && pass "Co-Author-Trailer" || fail "Co-Author-Trailer fehlt"
-      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/remote.git" rev-parse main)" ] && pass "gepusht" || fail "Remote hängt hinterher"
+      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/work/.remote.git" rev-parse main)" ] && pass "gepusht" || fail "Remote hängt hinterher"
       grep -q 'tschuess' "$fx/work/README.md" && pass "README nennt den neuen Befehl" || fail "README nicht nachgezogen"
+      grep -qF "$(git -C "$fx/work" log -1 --format=%s)" "$fx/transcript.txt" && pass "Meldung nennt das Commit-Subject" || fail "Meldung ohne Commit-Subject (nativer Eval 15.09.: nur „Fertig.“)"
       ;;
     finish:clean)
       fixture_repo "$fx"; rm "$fx/work/notiz.md"
@@ -149,10 +153,7 @@ szenario() {
       grep -Eqi 'keine Änderungen|nichts zu (tun|committen)' "$fx/transcript.txt" && pass "meldet: nichts zu tun" || fail "Meldung fehlt"
       ;;
     merken:stand)
-      fixture_repo "$fx"; rm "$fx/work/notiz.md"
-      printf '# CLAUDE.md — work (Projekt)\n\nNotizprojekt: ein Buch, Kapitel für Kapitel.\n\n## Aktueller Stand (2026-08-01)\n\n- Kapitel 1 steht in `kapitel1.md`.\n- [ ] Kapitel 2 schreiben\n' > "$fx/work/CLAUDE.md"
-      printf 'Kapitel 1\n' > "$fx/work/kapitel1.md"; printf 'Kapitel 2\n' > "$fx/work/kapitel2.md"
-      git -C "$fx/work" add -A; git -C "$fx/work" -c user.name=eval -c user.email=eval@beispiel.de commit -qm "Kapitel 1+2"; git -C "$fx/work" push -q
+      fixture_scaffold "$fx" merken-stand
       before=$(git -C "$fx/work" rev-parse HEAD)
       run_cmd merken "$fx/work" "$fx/transcript.txt" "Kontext dieser Session: Kapitel 2 ist fertig geschrieben (kapitel2.md). Entschieden: jedes Kapitel bleibt eine eigene Datei. Nächster Schritt: Kapitel 3 skizzieren."
       [ "$(grep -c '^## Aktueller Stand (' "$fx/work/CLAUDE.md")" = 1 ] && pass "genau ein Stand-Block" || fail "Stand-Blöcke: $(grep -c '^## Aktueller Stand (' "$fx/work/CLAUDE.md")"
@@ -234,7 +235,7 @@ case "${1:-}" in
   --list|"")
     cat <<EOF
 Szenarien mit Fixture + automatischer Prüfung:
-  finish:feature         neues Skript + README-Bezug → konventioneller Commit mit Trailer, README nachgezogen, gepusht
+  finish:feature         neues Skript + README-Bezug → konventioneller Commit mit Trailer, README nachgezogen, gepusht, Meldung nennt das Subject
   finish:clean           nichts zu committen → meldet das, kein Commit
   finish-lite:sync       geänderte Datei → Stand-Commit, Rebase, Push auf Default-Branch
   finish-lite:synchron   nichts geändert → „Schon synchron.", kein leerer Commit

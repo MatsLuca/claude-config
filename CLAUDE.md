@@ -102,9 +102,10 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
 - **The loop is the point.** Behaviour evals run for real via `tools/eval.sh` (headless from the
   repo source, throwaway fixture, on-disk checks for finish, finish-lite, merken, xcode; costs
-  tokens, so not in CI). The native `claude plugin eval` (early access) will add the
-  with/without-plugin comparison and LLM-graded criteria, but has no on-disk grader — it
-  complements `eval.sh`, it does not replace it. **Ritual:** a new
+  tokens, so not in CI). The native `claude plugin eval` (cases in `mats-tools/evals/<case>/`,
+  sharing the fixtures via `scaffold.sh`) adds the with/without-plugin comparison and an LLM judge,
+  but has no on-disk grader — it is the instrument of `/neudenken` (does the block beat bare
+  Claude?), `eval.sh` the instrument of `/optimieren` (did the edit keep the outcome?). **Ritual:** a new
   model or a new Claude Code capability → `/neudenken` over this repo, then `/optimieren` per
   building block, with an `eval.sh` run before and after. A change that touches an eval's wording
   updates `evals.md` explicitly.
@@ -158,9 +159,15 @@ Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
   (Sicherung `~/.zshrc.bak-2026-09-01`).
 - **Geprüft und verworfen:** `${CLAUDE_SKILL_DIR}` in `allowed-tools` greift auf 2.1.257 für
   Plugin-Skills nicht (headless verweigert, blanket `Bash` läuft) — `claude-md` bleibt wie es ist.
-- **Natives `claude plugin eval`** ist Early Access (Org-Flag): Fälle = `prompt.md` + Grader,
-  Vergleichslauf ohne Plugin, LLM-Judge, kein Platten-Check. Feedback-Entwurf liegt in der
-  `/feedback`-Warteschlange; Wiedervorlage 15.09. macht den Selbsttest.
+- **Natives `claude plugin eval`** seit 15.09. frei (Selbsttest der Wiedervorlage). Drei Fälle unter
+  `mats-tools/evals/` (finish-feature, finish-lite-sync, merken-stand; Aufruf und Grenzen in
+  `reference/evals.md`). Erster Lauf: finish-lite 1,0 und merken 1,0 mit Plugin; nacktes Claude 0,5
+  (finish-lite: Rebase ohne Pull, Ein-Wort-Meldung; merken: keine HISTORIE.md). finish 0,5 in beiden
+  Fassungen — Arbeit korrekt, aber `/finish` meldete nur „Fertig." statt Commit-Message/Doku/Push
+  → am selben Tag per `/optimieren finish` behoben (Meldung als Beleg-Regel, Runner-Check „Meldung nennt
+  das Subject", nativer Grader `meldung`). `/neudenken` 15.09.: natives Eval ist Instrument von `/neudenken`
+  (Existenzfrage), nicht von `/optimieren` (Edit-Frage); Fixtures nur einmal in `evals/<fall>/scaffold.sh`,
+  `eval.sh` liest sie von dort.
 - Nutzung 7.8.–1.9. als Kompass: merken 87, finish-lite 33, claude-md/finish je 14; einarbeiten,
   github-pushes und beide Agents 0. Grundlast ~3,0k Token je Session (`claude plugin details`),
   davon ~1,4k die Beispielblöcke der zwei ruhenden Agents.
@@ -175,8 +182,8 @@ November. `latexterm` am 02.09. in die Werkstatt (steuert eine App, die nur Mats
 
 ## HIER WEITERMACHEN
 
-- [x] `/feedback` abgeschickt am 02.09. (Early Access für `plugin eval`, Receipt 7867cf1b). Sperre besteht,
-      Wiedervorlage 15.09. prüft erneut.
+- [x] `/feedback` abgeschickt am 02.09. (Early Access für `plugin eval`, Receipt 7867cf1b). Am 15.09.
+      frei — Selbsttest, drei Fälle, `/neudenken` und `/optimieren finish` am selben Tag (Stand-Block).
 - [ ] Ritus fortsetzen, ein Ziel je Session, `/optimieren` macht den Ablauf selbst (Szenario anlegen,
       Eval vorher, schärfen, Eval nachher, Validator). Reihenfolge nach Nutzung, Erledigtes abhaken:
       - [x] `/optimieren neues-projekt` (01.09.: 97→79 Zeilen, Runner-Szenarien leer/vorhanden/nachruesten, 14/14 grün)

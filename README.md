@@ -112,7 +112,10 @@ Der Kasten verbessert sich durch die Arbeit mit sich selbst:
   Baustein nennt Outcome und Regeln, den Weg findet das Modell; wörtliche Bash-Blöcke nur, wo
   ein Eval zeigt, dass es ohne sie scheitert. `tools/eval.sh` lässt Szenarien headless im
   Wegwerf-Fixture laufen und prüft das Ergebnis auf der Platte.
-- **Neu denken:** Neues Modell, neue Claude-Code-Fähigkeit → `/neudenken` über den Kasten.
+- **Neu denken:** Neues Modell, neue Claude-Code-Fähigkeit → `/neudenken` über den Kasten. Dazu
+  gehört der Vergleichslauf mit und ohne Plugin per nativem `claude plugin eval` (Fälle unter
+  `mats-tools/evals/`, gleiche Fixtures wie `eval.sh`): er zeigt, ob ein Baustein nacktes Claude
+  überhaupt schlägt.
 - **Absichern:** `tools/validate.sh` (lokal + GitHub Action bei jedem Push) prüft Manifeste,
   Frontmatter, README-Listing, Eval-Abdeckung, Plugin-Referenzen, Portabilität (BSD↔GNU),
   lässt `shell/setup.sh` real in einem Sandbox-HOME laufen und ruft lokal das native
@@ -166,6 +169,7 @@ claude-config/
 ├── tools/
 │   ├── validate.sh               # strukturelle Verifikation (lokal + CI)
 │   └── eval.sh                   # Verhaltens-Evals headless im Fixture (echte Tokens, nicht in CI)
+│                                 #   Fixtures aus mats-tools/evals/<fall>/scaffold.sh (auch für claude plugin eval)
 ├── .github/workflows/
 │   └── validate.yml              # führt validate.sh bei jedem Push/PR aus
 ├── .claude-plugin/

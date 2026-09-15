@@ -12,9 +12,26 @@ gültig; ändert sich das *Was*, wird der Eval bewusst mitgeändert — nie stil
 **Schreibweise (nativ-kompatibel):** *Szenario* = Ausgangslage + Aufruf, so konkret,
 dass daraus später ein Prompt mit Fixture wird; *Erwartet* = ein Kriterium, das ein Richter
 am Transkript oder an erzeugten Dateien prüfen kann. Was nur der Arbeitsbaum zeigt (Commit
-da, gepusht, Baum sauber), prüft `tools/eval.sh` auf der Platte. Claude Codes
-`claude plugin eval` (Early Access, Fälle = `prompt.md` + `graders/*.md`) ergänzt später den
-Vergleichslauf ohne Plugin und LLM-bewertete Kriterien — es ersetzt den Runner nicht.
+da, gepusht, Baum sauber), prüft `tools/eval.sh` auf der Platte. Claude Codes natives
+`claude plugin eval` (seit 15.09.2026 frei; Fälle unter `mats-tools/evals/<fall>/`: `case.yaml` mit
+`scaffold.sh`, `prompt.md`, `graders/*.md`) ergänzt den Vergleichslauf ohne Plugin, Regex-/Datei-Grader
+und einen LLM-Richter — es ersetzt den Runner nicht (kein Platten-Check auf Git-Zustand).
+
+```bash
+claude plugin eval ./mats-tools --scaffold --allow-tools Bash Edit Write --trust-plugin --no-publish   # aus der Repo-Wurzel
+```
+
+**Wann:** `tools/eval.sh` bei jedem `/optimieren`-Pass (vorher/nachher, Platte, billig). Das native Eval bei
+`/neudenken` über den Kasten — neues Modell oder Inventur — mit `--runs 3 --judge-model opus`: es beantwortet
+die Existenzfrage (schlägt der Baustein nacktes Claude?), nicht die Edit-Frage. Fixtures gibt es nur einmal:
+`evals/<fall>/scaffold.sh` speist beide Prüfwege.
+
+Grenzen (Stand 15.09.2026): Fälle mit `disable-model-invocation` (finish, finish-lite) brauchen den
+Slash-Aufruf als erste Prompt-Zeile — der Arm „ohne Plugin" bricht dann mit „Unknown command" ab, der
+Vergleich gegen nacktes Claude geht nur über eine Kopie des Prompts ohne Slash-Zeile. Der Slash-Aufruf
+zählt nicht als Skill-Tool-Aufruf (`tool_used: Skill` greift nur bei modellgewählten Skills wie merken).
+`--keep-temp` bewahrt die Transkripte (`tracePath` im `--json`); die `xcrun_db`-Fehler im Sandbox-Git
+sind Rauschen.
 
 **Loop:** Szenario ausführen → Verhalten beobachten → Abweichung als Befund in
 `/optimieren <ziel>` einspeisen → schärfen → erneut prüfen. `/optimieren` liest
@@ -45,7 +62,8 @@ beim Lesen des Transkripts direkt abhakbar sind.
   berücksichtigt; „Diff seit Push" = alles ab erstem Commit.
 - **Szenario:** Neues Feature mit sichtbarer Änderung, README existiert.
   **Erwartet:** README gezielt aktualisiert; Conventional-Commit-Message im Stil
-  der letzten Commits; Co-Author-Trailer gesetzt.
+  der letzten Commits; Co-Author-Trailer gesetzt; die Meldung nennt Commit-Subject,
+  Doku-Änderung und Push-Ergebnis (kein bloßes „Fertig.").
 - **Szenario:** Projekt ohne GitHub-Issues bzw. ohne `gh`/Remote.
   **Erwartet:** Issue-Schritt wird stumm übersprungen; kein Nachhaken, sonst
   unverändertes Verhalten.

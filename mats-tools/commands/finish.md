@@ -18,4 +18,4 @@ Du schließt die aktuelle Arbeit ab: Änderungen seit dem letzten Push verstehen
 
 ## Meldung
 
-Knapp: Commit-Message, aktualisierte Docs (falls), verlinkte, geschlossene oder kommentierte Issues (falls), Push-Ergebnis.
+Mats liest nur diese Meldung, nicht das Terminal — sie muss den Abschluss vollständig belegen: das Commit-Subject wörtlich (mit Kurz-Hash), welche Doku-Datei wie ergänzt wurde (falls), verlinkte, geschlossene oder kommentierte Issues (falls), Push-Ziel und -Ergebnis. Wenige Zeilen, keine Erklärung des Vorgehens; ein bloßes „Fertig." ist keine Meldung.

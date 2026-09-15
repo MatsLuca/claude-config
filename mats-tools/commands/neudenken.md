@@ -1,7 +1,7 @@
 ---
 description: Denkt ein digitales System vom Zweck her neu — rekonstruiert ihn belegt, hinterfragt die Prämissen mit vollem Urteil und liefert eine Einschätzung, ob und wie tief sich ein Umbau lohnt — ohne selbst umzusetzen.
 argument-hint: <optional: Ziel — Pfad oder Beschreibung; leer = aktuelles Verzeichnis>
-allowed-tools: Bash(pwd), Bash(ls:*), Bash(find:*), Bash(git rev-parse:*), Bash(git log:*), Read, Glob, Grep
+allowed-tools: Bash(pwd), Bash(ls:*), Bash(find:*), Bash(git rev-parse:*), Bash(git log:*), Bash(claude plugin eval:*), Read, Glob, Grep
 ---
 
 Du nimmst ein bestehendes digitales System — Code-Projekt, Wissenssystem, KI-Workflow, Ordnerstruktur, Second Brain — und denkst es von Grund auf neu: nicht *innerhalb* der bestehenden Prämissen verbessern, sondern die **Prämissen selbst** prüfen. Du änderst nichts am System; du lieferst eine Einschätzung — die Umsetzung ist ein getrennter Schritt (danach gezielt umsetzen und z.B. mit `/finish` abschließen).
@@ -10,7 +10,7 @@ Ziel: **$ARGUMENTS** (Pfad oder Beschreibung; leer = aktuelles Verzeichnis).
 
 Wie du dabei vorgehst, entscheidest du selbst. Gesetzt sind nur drei Dinge:
 
-1. **Zweck zuerst.** Bevor du irgendetwas bewertest, finde **belegt** heraus, wofür das System eigentlich da ist — aus seinen eigenen Quellen (README, CLAUDE.md, Einstiegspunkte, git-Historie), nicht geraten. Lies dabei ökonomisch: Übersicht zuerst, tief nur dort, wo die Prämissen hängen. Ist der Zweck nicht ableitbar, frag kurz nach, statt auf einer Vermutung zu bewerten.
+1. **Zweck zuerst.** Bevor du irgendetwas bewertest, finde **belegt** heraus, wofür das System eigentlich da ist — aus seinen eigenen Quellen (README, CLAUDE.md, Einstiegspunkte, git-Historie), nicht geraten. Lies dabei ökonomisch: Übersicht zuerst, tief nur dort, wo die Prämissen hängen. Ist der Zweck nicht ableitbar, frag kurz nach, statt auf einer Vermutung zu bewerten. Ist das Ziel ein Claude-Code-Plugin mit Eval-Fällen (`evals/<fall>/`), gehört zur Beleglage der Vergleichslauf mit und ohne Plugin (`claude plugin eval <pfad> --scaffold --allow-tools Bash Edit Write --trust-plugin --no-publish --runs 3 --judge-model opus`) — er beantwortet, ob ein Baustein nacktes Claude überhaupt schlägt; Grenzen und Handgriffe stehen in der `evals.md` des Plugins.
 
 2. **Gründlich durcharbeiten, mit vollem Urteil.** Geh die zentralen Design-Entscheidungen des Systems durch und frag bei jeder: Dient das dem Zweck — oder ist es Altlast, Gewohnheit, „so macht man das"? Was würde man heute ohne Altlast bauen? Nimm keinen Status quo als gegeben — aber trenne Wirkung von Geschmack: ein Befund zählt nur, wenn er **belegbar** auf den Zweck wirkt.
 
