@@ -2,6 +2,50 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-09-01 bis 15 — neudenken, Inventur, natives Eval (ersetzt am 2026-09-16)
+
+`/neudenken` mit Fable 5.1 (Anlass: neues Modell). Urteil: gesund, Umbau im Detail — am selben
+Abend umgesetzt (Befunde und Belege: `HISTORIE.md`):
+
+- **Prämisse gefallen:** Commands und Skills sind in Claude Code ein Mechanismus; das Modell
+  startet jeden Command über das Skill-Tool selbst. `disable-model-invocation: true` jetzt auf
+  `/finish`, `/finish-lite` (und `/claude-chats` in der Werkstatt) — headless geprüft: gesperrte
+  Bausteine verschwinden aus dem Skill-Angebot, `claude -p "/mats-tools:finish"` läuft weiter.
+- **Standard:** „Auftrag vor Rezept" im authoring-guide, Command-oder-Skill-Abschnitt neu, Flag in
+  der Checkliste; „markdown-rein" überall durch „ohne Konten/Maschinenzustand" ersetzt (Router,
+  Referenz, README).
+- **Geschärft:** `finish` 98→21, `finish-lite` 28→20, `merken` 66→30 Zeilen. Neue Runner-Szenarien
+  `finish:feature`, `finish:clean`, `merken:stand`; Baseline mit den alten Fassungen 13/13 grün,
+  nach dem Umbau 18/18 grün (finish:feature 6, finish:clean 2, finish-lite 5, merken 5); Transkripte zeigen dieselben Meldungen wie vorher, nur ohne den Umweg über den abgelehnten Einzeiler.
+- **Validator:** Check 8 ruft lokal `claude plugin validate` (ohne `--strict`, die fehlende Version
+  ist gewollt); CI hat kein `claude`, dort entfällt er.
+- **Wrapper:** Helfer im Managed Block ohne führenden Unterstrich (`mats_now_ms`, `mats_tools_dir`,
+  `mats_tools_timeout`) — Claude Codes Shell-Snapshot übernimmt `_`-Funktionen nicht, `claude` aus
+  einer Claude-Session heraus meldete „command not found". Mats' `~/.zshrc` gleich mit
+  (Sicherung `~/.zshrc.bak-2026-09-01`).
+- **Geprüft und verworfen:** `${CLAUDE_SKILL_DIR}` in `allowed-tools` greift auf 2.1.257 für
+  Plugin-Skills nicht (headless verweigert, blanket `Bash` läuft) — `claude-md` bleibt wie es ist.
+- **Natives `claude plugin eval`** seit 15.09. frei (Selbsttest der Wiedervorlage). Drei Fälle unter
+  `mats-tools/evals/` (finish-feature, finish-lite-sync, merken-stand; Aufruf und Grenzen in
+  `reference/evals.md`). Erster Lauf: finish-lite 1,0 und merken 1,0 mit Plugin; nacktes Claude 0,5
+  (finish-lite: Rebase ohne Pull, Ein-Wort-Meldung; merken: keine HISTORIE.md). finish 0,5 in beiden
+  Fassungen — Arbeit korrekt, aber `/finish` meldete nur „Fertig." statt Commit-Message/Doku/Push
+  → am selben Tag per `/optimieren finish` behoben (Meldung als Beleg-Regel, Runner-Check „Meldung nennt
+  das Subject", nativer Grader `meldung`). `/neudenken` 15.09.: natives Eval ist Instrument von `/neudenken`
+  (Existenzfrage), nicht von `/optimieren` (Edit-Frage); Fixtures nur einmal in `evals/<fall>/scaffold.sh`,
+  `eval.sh` liest sie von dort.
+- Nutzung 7.8.–1.9. als Kompass: merken 87, finish-lite 33, claude-md/finish je 14; einarbeiten,
+  github-pushes und beide Agents 0. Grundlast ~3,0k Token je Session (`claude plugin details`),
+  davon ~1,4k die Beispielblöcke der zwei ruhenden Agents.
+
+**02.09. — Inventur nach Nutzung** (Prompt-Historie Dez. 2025–Sep. 2026, Transkripte seit 7.8.):
+Kern ist der Wissens-Loop (merken 235, finish 82, optimieren 31, finish-lite 27, destillieren 19,
+neudenken 10, claude-md 13 Modell-Aufrufe). Gestrichen: `einarbeiten` (16, zuletzt Juli),
+`github-pushes` (7, zuletzt Juli), Agent `pdf-to-markdown` (0 seit August, ~790 Token Grundlast,
+nicht mehr gebraucht). `wrapped` (5, nur August) in die Werkstatt (`commands/wrapped/`). Bleiben:
+`machine-setup` (Basis der Abonnenten, optimiert am 02.09.), `neues-projekt` unter Beobachtung bis
+November. `latexterm` am 02.09. in die Werkstatt (steuert eine App, die nur Mats hat).
+
 ## 2026-09-02 abends — `latexterm` in die Werkstatt, `machine-setup` geschärft
 
 `latexterm` steuert eine App, die nur Mats hat — nach der Router-Regel Werkstatt (`skills/latexterm`,
