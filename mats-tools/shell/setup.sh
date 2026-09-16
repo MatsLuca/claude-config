@@ -246,6 +246,7 @@ else
       | .effortLevel $op \"high\"
       | .skipDangerousModePermissionPrompt $op true
       | .agentPushNotifEnabled $op true
+      | .env.DISABLE_AUTOUPDATER //= \"1\"
       | .statusLine //= {type:\"command\", command:\"sh \\\"\$HOME/.claude/statusline-command.sh\\\"\"}
       | .extraKnownMarketplaces[\"claude-config\"] //= {source:{source:\"github\", repo:\"MatsLuca/claude-config\"}}
       | .enabledPlugins[\"mats-tools@claude-config\"] //= true

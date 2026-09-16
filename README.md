@@ -133,6 +133,10 @@ Nach dem `machine-setup` passiert das sogar von selbst: der Agent installiert ei
 Shell-Wrapper, der das Plugin **im Hintergrund aktualisiert** (`shell/sync.sh`, höchstens alle
 10 Minuten) — der Start wartet nicht aufs Netz, das Update wirkt ab der nächsten Session. Wer es
 *jetzt* braucht (z. B. direkt nach einem Push): `frisch` = synchron syncen, dann `yolo`.
+Derselbe Sync hält auch **Claude Code selbst** aktuell — aber nur bei tragfähigem Netz (kurzer
+Versionsabgleich, dann Tempoprobe; unter 1 MB/s wird nichts geladen). Der eingebaute Auto-Updater
+ist dafür abgeschaltet (`DISABLE_AUTOUPDATER=1`), damit er in schlechtem WLAN nicht bei jedem Start
+„Auto-update failed" meldet. Aus: `MATS_CC_UPDATE=0`; Schwelle: `CC_MIN_SPEED` (Byte/s).
 Manuell braucht es nur, falls der Wrapper (noch) nicht eingerichtet ist:
 
 ```bash
@@ -182,7 +186,7 @@ claude-config/
     ├── skills/                   # Skills (claude-md + dessen Verfassung)
     ├── hooks/                    # SessionStart-Hooks: Start-Timer (Dauer je Phase → Terminal + ~/.cache/mats-tools/start-timer.log) und NEWS.md-Einträge einmal zeigen
     ├── shell/start.sh            # Startzeile des claude()-Wrappers, ohne Netz (ändert sich per Plugin-Update; der Wrapper bleibt dünn)
-    ├── shell/sync.sh             # Hintergrund-Sync: Plugin-Update + Klone aus ~/.config/mats-tools/sync-repos; --now (frisch), --after-push (/finish)
+    ├── shell/sync.sh             # Hintergrund-Sync: Claude Code (nur bei gutem Netz) + Plugin-Update + Klone aus ~/.config/mats-tools/sync-repos; --now (frisch), --after-push (/finish)
     ├── shell/setup.sh            # der Installer hinter machine-setup: Wrapper-Block, Status Line, settings.json, VS Code — idempotent, im Validator sandbox-getestet
     ├── NEWS.md                   # Nachrichten an alle Abonnenten (neuester Eintrag oben)
     ├── statusline/               # vendored Status-Line-Skript (vom machine-setup Agent installiert)

@@ -3,9 +3,10 @@
 # automatisch auf alle Maschinen. Muss POSIX-sh-kompatibel bleiben und darf nichts Langsames tun:
 # KEIN Netz — Netz macht shell/sync.sh im Hintergrund (Vertrag: MATS_TOOLS_DIR, MATS_TOOLS_FRISCH).
 #
-# Claude Code selbst hält sich über seinen eingebauten Auto-Updater aktuell (nachts im Hintergrund,
-# aktiv beim nächsten Start; `claude doctor` zeigt es). Ein eigener täglicher `claude update` stand
-# bis 2026-08-28 hier — gestrichen, er kostete bis zu 60 s beim ersten Start des Tages.
+# Claude Code selbst aktualisiert seit 2026-09-16 shell/sync.sh (Schritt 0, nur bei tragfähigem Netz);
+# der eingebaute Auto-Updater ist per DISABLE_AUTOUPDATER=1 aus, damit er in schlechtem WLAN nicht
+# „Auto-update failed" meldet. Ein synchroner `claude update` stand bis 2026-08-28 hier —
+# gestrichen, er kostete bis zu 60 s beim ersten Start des Tages.
 
 # Aktiver mats-tools-Ordner im Plugin-Cache: laut installed_plugins.json (user-scope);
 # Fallback: jüngster Versionsordner. (Ein Update berührt auch den alten Ordner — mtime allein
@@ -40,6 +41,10 @@ _mats_tools_alter() {
 
 # ── Startzeile ─────────────────────────────────────────────────────────────────────────
 _mt_upd=$(_mats_tools_alter || echo unbekannt)
+if [ -f "$HOME/.cache/mats-tools/claude-neu" ]; then
+  echo "🆕 Claude Code $(cat "$HOME/.cache/mats-tools/claude-neu") installiert — aktiv ab dieser Session."
+  rm -f "$HOME/.cache/mats-tools/claude-neu"
+fi
 if [ -f "$HOME/.cache/mats-tools/plugin-neu" ]; then
   echo "🆕 mats-tools $(cut -c1-7 "$HOME/.cache/mats-tools/plugin-neu") — erste Session mit dem Update."
   rm -f "$HOME/.cache/mats-tools/plugin-neu"

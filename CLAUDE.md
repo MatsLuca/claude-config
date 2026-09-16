@@ -43,6 +43,9 @@ Three nesting levels, each with its own manifest:
      installs; the wrapper in the rc file stays thin, the start line evolves here. **No network**
      here — `shell/sync.sh` does plugin update + clone pulls in the background (throttled 10 min,
      `--now` for the `frisch` alias, `--after-push` from `/finish`), effective next session.
+     Step 0 also updates Claude Code itself, gated on a speed probe (≥ 1 MB/s) so bad Wi-Fi
+     never starts a download; the built-in auto-updater is off (`DISABLE_AUTOUPDATER=1`,
+     merged by `setup.sh`).
    - `mats-tools/shell/setup.sh` → the deterministic installer behind `machine-setup` (managed
      rc block, status line, settings.json merge, VS Code tweaks). The agent only runs it and
      handles its markers (`WRAPPER_CONFLICT`, `STATUSLINE_DIFFERS`, …). Validator check 7 runs

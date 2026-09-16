@@ -11,6 +11,19 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-09-16 · Claude-Code-Update nur noch bei gutem Netz
+
+<!-- claude:
+sync.sh (Schritt 0) aktualisiert Claude Code jetzt selbst und nur, wenn eine Tempoprobe ≥ 1 MB/s
+zeigt. Damit der eingebaute Updater in schlechtem WLAN nicht mehr „Auto-update failed" meldet,
+setzt `machine-setup` (setup.sh) DISABLE_AUTOUPDATER=1 in settings.json — bei Abonnenten erst
+nach erneutem machine-setup; bis dahin ändert sich für sie nichts. Nichts selbständig umbauen.
+-->
+
+Der Sync-Wrapper hält jetzt auch Claude Code selbst aktuell — aber nur, wenn das Netz trägt.
+Wer die Meldung „Auto-update failed" im Café-WLAN leid ist: einmal `machine-setup` laufen
+lassen, das schaltet den eingebauten Updater ab (`DISABLE_AUTOUPDATER=1`).
+
 ## 2026-09-02 · Skill latexterm ist ausgezogen
 
 <!-- claude:
