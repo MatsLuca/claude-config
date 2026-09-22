@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "mats-tools",
-      "description": "Commands, Agents und Skills für Git-Workflow, Wissensarbeit, PDF→Markdown und Maschinen-Setup; Liste und Zweck je Baustein in der README des Repos.",
+      "description": "Mats' Werkzeugkasten für Claude Code — Commands, Agent und Skills für Git-Workflow, Wissensarbeit, CLAUDE.md-Pflege und Maschinen-Setup, plus der Loop (/optimieren, /neudenken), der sie schärft. Liste: README.md.",
       "author": {
         "name": "Mats Dagott"
       },

@@ -73,7 +73,7 @@ technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `
 | `/finish` | Änderungen seit letztem Push analysieren, README/CHANGELOG & zugehörige GitHub-Issues pflegen, committen & pushen — in einem Rutsch |
 | `/finish-lite` | Leichter /finish für Wissensprojekte: committen mit Zeitstempel-Message, auf den Default-Branch rebasen & dorthin pushen — ohne Analyse & Doku-Pflege; identisch auf Laptop und in Cloud-Sessions (Session-Branch landet direkt auf main) |
 | `/neues-projekt` | Aktuellen Ordner als Projekt einrichten: kurzes Interview, CLAUDE.md auf Projekt-Höhe, Zeiger in der Eltern-CLAUDE.md, optional Git/GitHub; `--nachruesten` für bestehende Ordner ohne CLAUDE.md; `--einordnen <Name>: <Zweck>` klärt erst den Ort im Ablagebaum (2–3 Kandidaten mit Begründung) und legt den Ordner dann selbst an |
-| `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems |
+| `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems; committet & pusht auf Zustimmung (holt vorher den Remote-Stand per Rebase), `/merken und pushen` stimmt gleich mit zu |
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
 | `/optimieren` | Einen Command, Agent, Skill oder eine Referenzdatei nach dem Authoring-Standard schärfen — mit Eval-Lauf vorher und nachher; ein fehlendes Runner-Szenario legt der Command selbst an |
 | `/destillieren` | Gewachsenes Wissenssystem pflegen: Drift (veraltete/widersprüchliche Querverweise) heilen, dann Redundanz verdichten & Ordnerstrukturen neu denken — strukturelle Eingriffe erst nach Plan-Zustimmung |

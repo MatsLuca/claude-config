@@ -35,7 +35,7 @@ Three nesting levels, each with its own manifest:
 
    - `mats-tools/hooks/hooks.json` → plugin hooks, both SessionStart: **start-timer**
      (`hooks/start-timer.sh`: Startdauer je Phase aus den Stempeln `MATS_START_T0`/`MATS_T_RC`/
-     `MATS_T_WRAP`/`MATS_T_EXEC`, still ins Log (Terminal-Zeile nur mit `MATS_START_TIMER_SHOW=1`), Log `~/.cache/mats-tools/start-timer.log`,
+     `MATS_T_WRAP`/`MATS_T_EXEC`, still ins Log (Terminal-Zeile und Modell-Kontext nur mit `MATS_START_TIMER_SHOW=1`), Log `~/.cache/mats-tools/start-timer.log`,
      `--tail`/`--self`) and the **news hook** (`hooks/news.sh` reads `mats-tools/NEWS.md`, shows unread entries once per machine
      as `systemMessage` + hands them to Claude as `additionalContext`). Writing to `NEWS.md`
      = messaging every subscriber at their next session start.
@@ -106,15 +106,16 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 - **The loop is the point.** Behaviour evals run for real via `tools/eval.sh` (headless from the
   repo source, throwaway fixture, on-disk checks for finish, finish-lite, merken, xcode; costs
   tokens, so not in CI). The native `claude plugin eval` (cases in `mats-tools/evals/<case>/`,
-  sharing the fixtures via `scaffold.sh`) adds the with/without-plugin comparison and an LLM judge,
-  but has no on-disk grader — it is the instrument of `/neudenken` (does the block beat bare
+  sharing the fixtures via `scaffold.sh`) adds the with/without-plugin comparison, regex/file graders
+  and an LLM judge, but cannot check git state (pushed? tree clean?) — it is the instrument of `/neudenken` (does the block beat bare
   Claude?), `eval.sh` the instrument of `/optimieren` (did the edit keep the outcome?). **Ritual:** a new
   model or a new Claude Code capability → `/neudenken` over this repo, then `/optimieren` per
   building block, with an `eval.sh` run before and after. A change that touches an eval's wording
   updates `evals.md` explicitly.
 - **Public repo, real subscribers.** Two friends pull this plugin automatically at every
-  launch; they are not programmers, trust Mats' setup, and one has rebuilt his Windows terminal
-  (own status panel, start output suppressed). Consequences: nothing private or third-party in
+  launch, but use it only rarely (Mats, 2026-09-22); they are not programmers, trust Mats' setup, and one has rebuilt his Windows terminal
+  (own status panel, start output suppressed). So: keep their setup from breaking, but build no
+  new subscriber-only features (the PowerShell block stays parked). Consequences: nothing private or third-party in
   tracked files — **examples never use real data** (no real addresses, institutions, domains, or
   names of third parties, not even "just as an illustration"; use Musterstraße/beispiel.de; lesson
   from the 2026-08-24 history rewrite). Anything private belongs in `claude-werkstatt`, not here.
@@ -139,25 +140,31 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 
 Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
 
-## Aktueller Stand (2026-09-16)
+## Aktueller Stand (2026-09-22)
 
-**Claude-Code-Update nur bei tragfähigem Netz** (Anlass: „✘ Auto-update failed · Run claude doctor"
-bei fast jedem Start in schlechtem WLAN). Befund: nicht die Installation, sondern das Netz — DNS-Aussetzer
-(`ENOTFOUND downloads.claude.ai`) und ein 210-MB-Download bei 180–650 KB/s, den jede offene Session
-parallel anstieß (vier Staging-Dateien gleichzeitig), bis der Updater in den Timeout lief.
+**`/neudenken` mit Opus 5.5** (erste Session hier mit dem Modell). Urteil: gesund, Umbau im Detail —
+am selben Abend umgesetzt. Mats: die zwei Abonnenten nutzen das Plugin nur selten → keine neuen
+Abonnenten-Features, ihr Setup nur nicht brechen.
 
-- `shell/sync.sh` Schritt 0 (`_cc_update`): Version per `readlink ~/.local/bin/claude` vs. `…/latest`
-  (5 s), dann 3-MB-Tempoprobe vom echten Binary; unter `CC_MIN_SPEED` (1 MB/s) nur Logzeile
-  „cc X wartet (Netz N KB/s)", sonst `claude install X` (max. 600 s), Marker `claude-neu` → Startzeile.
-  Nur native Install (`~/.local/share/claude/versions`); `MATS_CC_UPDATE=0` schaltet aus.
-- `setup.sh` merged `env.DISABLE_AUTOUPDATER="1"` (auf Mats' Mac am 16.09. direkt gesetzt).
-  `claude doctor` ignoriert `autoUpdates:false` in `~/.claude.json` bei nativer Install — nur die
-  Env-Variable wirkt.
-- NEWS-Eintrag 16.09.; README/CLAUDE.md-Zeilen. Validator grün, Lint sauber, Commit `e098629`.
-- Erster Live-Lauf: `sync(--now) cc 2.1.273 wartet (Netz 178 KB/s)` — kein Download, keine Meldung.
-- Noch nicht gesehen: der Erfolgsfall (Netz > 1 MB/s → Install → „🆕 Claude Code …" in der Startzeile).
-
-Vorheriger Block (01./02.09., neudenken + Inventur + natives Eval) in `HISTORIE.md`.
+- **Belege:** Nutzung seit 02.09. (merken 33× getippt + 24× vom Modell, finish 18, finish-lite 17,
+  42 3+10, claude-md 7; Werkstatt 50 Commits gegen 3 hier). Natives Eval mit/ohne Plugin (3,49 $):
+  finish-lite 0,25 → 0,75, merken 0,50 → 0,78, finish 0,87 → 1,0 — die Lücken mit Plugin waren
+  Grader-Fehler (unten). Doku-Abgleich 2.1.280: Marketplace-`autoUpdate` gibt es (opt-in, ersetzt nur
+  den Plugin-Teil von sync.sh), Function Hooks weiter hinter Flag (Mods bleiben Werkstatt),
+  Hintergrundprozesse aus SessionStart-Hooks fragil (Issue #43123 → der rc-Wrapper bleibt richtig).
+- **`/merken` + Git:** nach „ja, committen und pushen" (5 von 9 Folgeantworten seit 02.09.) pushte
+  Claude frei Hand, ohne Remote-Abgleich. Jetzt: auf Zustimmung nur eigene Dateien, `pull --rebase`
+  → Push, Konflikt → Abbruch, `--after-push`; `/merken und pushen` = Zustimmung vorab; Änderungen in
+  anderen Repos nennt das Angebot mit. Runner-Szenario `merken:push` vorher 3/5 (Push abgelehnt,
+  zweite Runde nötig), nachher 5/5; `merken:stand` 5/5, `finish-lite:sync` 3/3.
+- **Evals repariert:** `finish-lite-sync/stand-commit` prüfte den Aufruf statt das Ergebnis → Reflog
+  `.git/logs/HEAD`; `merken-stand/criteria` widersprach merkens eigener Regel (Entscheidung als
+  Konvention nach vorn) → beides zulässig; `stand-heute` hatte `2026-09` fest verdrahtet (wäre im
+  Oktober rot) → „datiert, nicht 2026-08-01". Nachher nativ: finish-lite 1,0 ×2, merken 1,0 ×3.
+- `marketplace.json` warb noch mit „PDF→Markdown" → wörtlich = plugin.json, Validator prüft das.
+- Start-Timer gibt Claude keinen Kontext mehr (~100 Token je Session) — nur Log, sichtbar mit
+  `MATS_START_TIMER_SHOW=1`.
+- `/neudenken` stützt sich bei Claude-Werkzeugen auch auf die echte Nutzung (history.jsonl, Transkripte).
 
 ## HIER WEITERMACHEN
 
@@ -169,10 +176,13 @@ Vorheriger Block (01./02.09., neudenken + Inventur + natives Eval) in `HISTORIE.
       - [x] `/optimieren destillieren` (02.09.: 75→49 Zeilen, Auftrag vor Rezept, Runner-Szenarien drift/gesund, 8/8 grün)
       - [x] `/optimieren einarbeiten` → gestrichen (02.09.: 0 Aufrufe in allen Transkripten seit 7.8., Zweck ohne Command erfüllt)
       - [x] `/optimieren machine-setup` (02.09.: Description 1373→~330 Zeichen ohne Beispielblöcke, `tools:` gesetzt, awk-Fallback raus — `${CLAUDE_PLUGIN_ROOT}` expandiert im Agent-Body nachweislich —, Rückfrage-Regel für Subagenten; Live-Lauf auf Mats' Mac vorher/nachher 8→7 Tool-Aufrufe, nichts verändert)
+      - [ ] `/optimieren 42` (13 Aufrufe seit 02.09., nie optimiert, ~310 Token Grundlast = größter Posten)
+      - [ ] danach die meistgenutzten Werkstatt-Skills: `gmail` (23 Modell-Aufrufe seit 02.09.), `erinnerungen` (17)
 - [x] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.): am 02.09. alle 9 alten SHAs 404,
       Anfragetext und beide Bundles in `9_Temp/` gelöscht.
 - [~] PowerShell-Block (`setup.sh`, Schritt 1W) — geparkt 02.09.: nur Syntax-geprüft, echter Windows-Lauf
-      erst wenn ein Abonnent den Agenten laufen lässt und Rückmeldung gibt; nichts vorab zu tun.
+      erst wenn ein Abonnent den Agenten laufen lässt und Rückmeldung gibt; nichts vorab zu tun (22.09.:
+      Abonnenten nutzen das Plugin selten — bleibt geparkt).
 - [ ] Erster echter Neu-Rechner (oder Wegwerf-Container): den `machine-setup`-Agenten einmal auf einer
       leeren Maschine sehen. Live gelaufen ist er bisher nur als Re-Run auf Mats' Mac (02.09., headless:
       Konflikt-Marker korrekt gedeutet, nichts überschrieben). Sandbox-HOME headless geht auf macOS nicht
@@ -181,8 +191,9 @@ Vorheriger Block (01./02.09., neudenken + Inventur + natives Eval) in `HISTORIE.
       4,5 KB über dem 4-KB-Budget; 30 von 46 CLAUDE.md haben keine Höhen-Kopfzeile; drei Projekt-Dateien
       über 280 Zeilen (LatexTerm, RT-B, japan-crew) und Projektarbeit mit 101 KB. Wartungsgänge per
       `/claude-md <pfad>`, eine Datei je Session.
-- [ ] Erfolgsfall von sync.sh Schritt 0 einmal im guten Netz prüfen (Log `~/.claude_plugin_sync.log`:
-      „cc NEU x.y.z", Startzeile „🆕 Claude Code"); danach die 0-Byte-Leiche `versions/2.1.273` weg,
-      falls der manuelle `claude install latest` vom 16.09. sie nicht ersetzt hat.
+- [x] Erfolgsfall von sync.sh Schritt 0: `cc NEU 2.1.274` (17.09.) bis 2.1.278 im Log, 2.1.280 installiert;
+      die 0-Byte-Leiche 2.1.273 ist weg (geprüft 22.09.).
+- [ ] Nur falls sync.sh ohnehin angefasst wird: den Plugin-Teil durch natives Marketplace-`autoUpdate`
+      (settings.json, via setup.sh) ersetzen — vorher prüfen, dass es den Start in schlechtem WLAN nicht bremst.
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents` → `/optimieren claude-md`; `inventar.sh`
       GNU-Zweig einmal im Container laufen lassen.

@@ -2,6 +2,24 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-09-16 — Claude-Code-Update nur bei tragfähigem Netz (ersetzt am 2026-09-22)
+
+**Claude-Code-Update nur bei tragfähigem Netz** (Anlass: „✘ Auto-update failed · Run claude doctor"
+bei fast jedem Start in schlechtem WLAN). Befund: nicht die Installation, sondern das Netz — DNS-Aussetzer
+(`ENOTFOUND downloads.claude.ai`) und ein 210-MB-Download bei 180–650 KB/s, den jede offene Session
+parallel anstieß (vier Staging-Dateien gleichzeitig), bis der Updater in den Timeout lief.
+
+- `shell/sync.sh` Schritt 0 (`_cc_update`): Version per `readlink ~/.local/bin/claude` vs. `…/latest`
+  (5 s), dann 3-MB-Tempoprobe vom echten Binary; unter `CC_MIN_SPEED` (1 MB/s) nur Logzeile
+  „cc X wartet (Netz N KB/s)", sonst `claude install X` (max. 600 s), Marker `claude-neu` → Startzeile.
+  Nur native Install (`~/.local/share/claude/versions`); `MATS_CC_UPDATE=0` schaltet aus.
+- `setup.sh` merged `env.DISABLE_AUTOUPDATER="1"` (auf Mats' Mac am 16.09. direkt gesetzt).
+  `claude doctor` ignoriert `autoUpdates:false` in `~/.claude.json` bei nativer Install — nur die
+  Env-Variable wirkt.
+- NEWS-Eintrag 16.09.; README/CLAUDE.md-Zeilen. Validator grün, Lint sauber, Commit `e098629`.
+- Erster Live-Lauf: `sync(--now) cc 2.1.273 wartet (Netz 178 KB/s)` — kein Download, keine Meldung.
+- Noch nicht gesehen: der Erfolgsfall (Netz > 1 MB/s → Install → „🆕 Claude Code …" in der Startzeile).
+
 ## 2026-09-01 bis 15 — neudenken, Inventur, natives Eval (ersetzt am 2026-09-16)
 
 `/neudenken` mit Fable 5.1 (Anlass: neues Modell). Urteil: gesund, Umbau im Detail — am selben

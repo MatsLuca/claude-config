@@ -60,6 +60,21 @@ else
   ok "plugin.json ohne version-Key (SHA-Versionierung intakt)"
 fi
 
+# Plugin-Beschreibung nur an einer Stelle pflegen: der Marketplace-Eintrag (das zeigt /plugin den
+# Abonnenten) muss wörtlich der plugin.json entsprechen — 22.09.: dort stand noch „PDF→Markdown".
+plugin_desc() {
+  if command -v jq >/dev/null 2>&1; then
+    jq -r "$2" "$1" 2>/dev/null
+  else
+    python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d["description"] if sys.argv[2]==".description" else next(p.get("description","") for p in d["plugins"] if p["name"]=="mats-tools"))' "$1" "$2" 2>/dev/null
+  fi
+}
+if [ "$(plugin_desc "$MARKET_JSON" '.plugins[] | select(.name=="mats-tools") | .description')" = "$(plugin_desc "$PLUGIN_JSON" '.description')" ]; then
+  ok "Plugin-Beschreibung in marketplace.json = plugin.json"
+else
+  fail "Plugin-Beschreibung weicht ab: marketplace.json (Eintrag mats-tools) ≠ plugin.json — gleichziehen"
+fi
+
 # ── 2 + 3. Commands: Frontmatter + Listing-Sync ───────────────────────────────
 for f in mats-tools/commands/*.md; do
   name=$(basename "$f" .md)

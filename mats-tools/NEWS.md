@@ -11,6 +11,12 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-09-22 · /merken kann gleich mit hochladen
+
+Wer nach `/merken` sowieso „ja, committen und pushen" sagt: `/merken und pushen` erledigt beides
+in einem Rutsch. Vorher holt es den Stand vom Server, damit nichts überschrieben wird — gibt es
+einen Konflikt, hält es an und sagt Bescheid.
+
 ## 2026-09-16 · Claude-Code-Update nur noch bei gutem Netz
 
 <!-- claude:

@@ -113,6 +113,11 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Repo erkannt.
   **Erwartet:** Committet **nicht** ungefragt — bietet Commit/Push an, wartet auf
   Zustimmung.
+- **Szenario:** Zustimmung steht im Aufruf (`/merken und pushen`), der Remote ist inzwischen
+  von anderswo weitergezogen, im Ordner liegt eine fremde ungetrackte Datei.
+  **Erwartet:** Nur die Stand-Dateien committet; der Remote-Commit ist hereingeholt, nicht
+  überschrieben, und es entsteht kein Merge-Commit; gepusht; die fremde Datei bleibt liegen.
+  Bei Konflikt: Abbruch mit einer Zeile Ursache, nie `--force`.
 
 ## /neues-projekt
 - **Szenario:** Leerer Ordner unter `4_Projekte/01_Aktiv`, Zweck als Argument.
@@ -221,6 +226,9 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Fragt kurz nach dem Ziel, statt auf einer geratenen Prämisse zu bewerten.
 - **Szenario:** System ist gesund, wenig bis nichts zu tun.
   **Erwartet:** Meldet das ehrlich; erfindet keine Eingriffe (kein blindes Aufblähen).
+- **Szenario:** Ziel ist ein Werkzeug für Claude (Plugin, Skills, Commands) mit Nutzungsspuren.
+  **Erwartet:** Befunde stützen sich auch auf die echte Nutzung (Aufrufe, Reaktionen des Nutzers
+  danach), nicht nur auf Code und Doku.
 
 ## machine-setup (Agent)
 - **Szenario:** Frischer Mac, kein vorheriger Managed-Block.

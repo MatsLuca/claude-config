@@ -162,6 +162,22 @@ szenario() {
       grep -q '2026-08-01' "$fx/work/HISTORIE.md" 2>/dev/null && pass "alter Stand in HISTORIE.md" || fail "HISTORIE.md fehlt oder ohne alten Stand"
       [ "$(git -C "$fx/work" rev-parse HEAD)" = "$before" ] && pass "kein ungefragter Commit" || fail "hat ungefragt committet"
       ;;
+    merken:push)
+      # Zustimmung steht schon im Aufruf; der Remote ist inzwischen von anderswo weitergezogen
+      # (Anlass 22.09.: nach „ja, committen und pushen" pushte Claude freihändig, ohne den Remote-Stand zu holen)
+      fixture_scaffold "$fx" merken-stand
+      git clone -q "$fx/work/.remote.git" "$fx/anderswo"
+      printf 'Idee von unterwegs\n' > "$fx/anderswo/unterwegs.md"
+      git -C "$fx/anderswo" add -A; git -C "$fx/anderswo" -c user.name=eval -c user.email=eval@beispiel.de commit -qm "Notiz von unterwegs"; git -C "$fx/anderswo" push -q origin main
+      fremd=$(git -C "$fx/anderswo" rev-parse HEAD); before=$(git -C "$fx/work" rev-parse HEAD)
+      printf 'halbfertig\n' > "$fx/work/entwurf.txt"
+      run_cmd merken "$fx/work" "$fx/transcript.txt" "und pushen. Kontext dieser Session: Kapitel 2 ist fertig geschrieben (kapitel2.md). Nächster Schritt: Kapitel 3 skizzieren."
+      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/work/.remote.git" rev-parse main)" ] && pass "gepusht (Remote main == lokal)" || fail "Remote hängt hinterher oder Push fehlt"
+      git -C "$fx/work" merge-base --is-ancestor "$fremd" HEAD && pass "fremder Remote-Commit hereingeholt, nicht überschrieben" || fail "Remote-Commit von anderswo fehlt"
+      [ "$(git -C "$fx/work" rev-list --merges "$before..HEAD" | wc -l | tr -d ' ')" = 0 ] && pass "lineare Historie (Rebase, kein Merge-Commit)" || fail "Merge-Commit entstanden"
+      [ "$(git -C "$fx/work" status --porcelain)" = "?? entwurf.txt" ] && pass "nur die Stand-Dateien committet, Fremdes bleibt liegen" || fail "Arbeitsbaum: $(git -C "$fx/work" status --porcelain | tr '\n' ' ')"
+      grep -qi 'kapitel 3' "$fx/work/CLAUDE.md" && pass "Stand festgehalten" || fail "Kapitel 3 fehlt in CLAUDE.md"
+      ;;
     neues-projekt:leer)
       fixture_tree "$fx"; p="$fx/Documents/4_Projekte/01_Aktiv/Notizzaehler"; mkdir -p "$p"
       r1=$(sum "$fx/Documents/CLAUDE.md"); r2=$(sum "$fx/Documents/4_Projekte/CLAUDE.md")
@@ -240,6 +256,7 @@ Szenarien mit Fixture + automatischer Prüfung:
   finish-lite:sync       geänderte Datei → Stand-Commit, Rebase, Push auf Default-Branch
   finish-lite:synchron   nichts geändert → „Schon synchron.", kein leerer Commit
   merken:stand           CLAUDE.md mit altem Stand-Block + Session-Kontext → ein neuer Stand, alter in HISTORIE.md, kein Commit
+  merken:push            wie stand, Zustimmung im Aufruf, Remote von anderswo weitergezogen → Stand committet, Remote hereingeholt (linear), gepusht, Fremdes bleibt liegen
   xcode:leer             leeres Verzeichnis → „kein Xcode-Projekt gefunden"
   neues-projekt:leer     leerer Ordner unter 01_Aktiv, Zweck + Antworten als Argument → CLAUDE.md (Projekt, Stand, HIER WEITERMACHEN), kein Interview, kein Git, Router unangetastet
   neues-projekt:vorhanden  CLAUDE.md existiert → unverändert, Hinweis auf /claude-md
@@ -251,7 +268,7 @@ Szenarien mit Fixture + automatischer Prüfung:
 Freier Lauf:  tools/eval.sh <command> [prompt-zusatz]   (Transkript + Eval-Abschnitt, Urteil von Hand)
 EOF
     exit 0 ;;
-  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
+  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand merken:push neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
   *:*)  szenario "$1" ;;
   *)
     cmd="$1"; shift; [ -f "$PLUGIN/commands/$cmd.md" ] || { echo "kein Command: $cmd"; exit 2; }

@@ -1,6 +1,7 @@
 ---
 description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrelevanten Kontextdateien fest — und erntet dabei Zweck & gewachsene Konventionen des Systems.
-allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Read, Edit, Write, AskUserQuestion
+argument-hint: <optional: „und pushen" = Zustimmung zu Commit + Push vorab>
+allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git status:*), Bash(git add:*), Bash(git commit:*), Bash(git pull:*), Bash(git rebase:*), Bash(git push:*), Bash(git branch:*), Bash(sh:*), Read, Edit, Write, AskUserQuestion
 ---
 
 Du hältst den Arbeitsstand dieser Session in den Kontextdateien des Projekts fest, damit der Chat verlassen werden kann, ohne dass Kontext verloren geht — in jeder Umgebung (Studium, Notizen, Recherche, Schreibprojekte, Code). Kein Programmier-/Git-Abschluss, dafür gibt es `/finish`. Erst billige Übersicht (Ordner, Markdown-Dateien, Repo ja/nein), dann gezielt schreiben.
@@ -23,8 +24,9 @@ Aus dem Verlauf nur, was für ein Weitermachen morgen zählt — der Future-Du s
 - `Edit` für Bestehendes, `Write` nur für Neues. Stil, Überschriftenebenen, Sprache und Ton der Datei wahren; Gültiges nicht überschreiben, Veraltetes aktualisieren statt duplizieren.
 - **Genau ein datierter Stand-Block.** Was du dabei ersetzt, wandert 1:1 nach `HISTORIE.md` im selben Ordner (neueste zuerst; anlegen, falls sie fehlt) — nie als „Vorheriger Stand" in der CLAUDE.md stehen lassen.
 - Offenes als Checkliste (`- [ ]`), damit der nächste Einstieg sofort sichtbar ist.
-- **Git nur anbieten.** Im Repo nicht ungefragt committen: am Ende kurz anbieten („Soll ich die Doku-Änderung committen (und pushen)?") und erst auf Zustimmung nur die geänderten Dateien committen — Message `docs: Stand festgehalten (/merken)` mit dem Trailer `Co-Authored-By: Claude <noreply@anthropic.com>`; pushen nur, wenn gewünscht. Kein Repo → kein Angebot.
+- **Git nur mit Zustimmung.** Im Repo nicht ungefragt committen: am Ende kurz anbieten („Soll ich committen und pushen?") — hat die Session auch in anderen Repos Änderungen hinterlassen, diese im selben Satz nennen. Steht die Zustimmung schon im Aufruf (`/merken und pushen`), ohne Rückfrage weiter. Kein Repo → kein Angebot.
+- **Auf Zustimmung** nur die Dateien committen, die du geändert hast (bzw. die genannten) — Message `docs: Stand festgehalten (/merken)` mit dem Trailer `Co-Authored-By: Claude <noreply@anthropic.com>`. Pushen heißt: erst `git pull --rebase`, dann `git push`; bei Konflikt `git rebase --abort`, Ursache in einer Zeile, stoppen — Konflikte in Wissensdateien entscheidet Mats; nie `--force`. Danach `sh "${CLAUDE_PLUGIN_ROOT}/shell/sync.sh" --after-push` (zieht nur im Marketplace-Repo von `mats-tools` den Plugin-Cache nach, sonst still).
 
 ## Meldung
 
-Welche Datei(en) aktualisiert oder angelegt; 2–3 Stichpunkte, was festgehalten ist und was als nächster Schritt notiert steht. Dann kann das Fenster zu.
+Welche Datei(en) aktualisiert oder angelegt; 2–3 Stichpunkte, was festgehalten ist und was als nächster Schritt notiert steht; bei Git eine Zeile Commit/Push-Ergebnis. Dann kann das Fenster zu.
