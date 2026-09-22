@@ -75,7 +75,7 @@ technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `
 | `/neues-projekt` | Aktuellen Ordner als Projekt einrichten: kurzes Interview, CLAUDE.md auf Projekt-Höhe, Zeiger in der Eltern-CLAUDE.md, optional Git/GitHub; `--nachruesten` für bestehende Ordner ohne CLAUDE.md; `--einordnen <Name>: <Zweck>` klärt erst den Ort im Ablagebaum (2–3 Kandidaten mit Begründung) und legt den Ordner dann selbst an |
 | `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems; committet & pusht auf Zustimmung (holt vorher den Remote-Stand per Rebase), `/merken und pushen` stimmt gleich mit zu |
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
-| `/optimieren` | Einen Command, Agent, Skill oder eine Referenzdatei nach dem Authoring-Standard schärfen — mit Eval-Lauf vorher und nachher; ein fehlendes Runner-Szenario legt der Command selbst an |
+| `/optimieren` | Einen Command, Agent, Skill oder eine Referenzdatei nach dem Authoring-Standard schärfen — mit Eval-Lauf vorher und nachher; ein fehlendes Runner-Szenario (Commands) oder einen nativen Eval-Fall (Skills) legt der Command selbst an, Befunde auch aus echten Läufen |
 | `/destillieren` | Gewachsenes Wissenssystem pflegen: Drift (veraltete/widersprüchliche Querverweise) heilen, dann Redundanz verdichten & Ordnerstrukturen neu denken — strukturelle Eingriffe erst nach Plan-Zustimmung |
 | `/neudenken` | Ein digitales System vom Zweck her neu denken: Ziele belegt rekonstruieren, Prämissen mit vollem Urteil hinterfragen und einschätzen, ob und wie tief sich ein Umbau lohnt — ohne selbst umzusetzen |
 
@@ -111,7 +111,8 @@ Der Kasten verbessert sich durch die Arbeit mit sich selbst:
   Umsetzung nie an alten Details scheitert. Seit Claude 5 gilt **Auftrag vor Rezept**: ein
   Baustein nennt Outcome und Regeln, den Weg findet das Modell; wörtliche Bash-Blöcke nur, wo
   ein Eval zeigt, dass es ohne sie scheitert. `tools/eval.sh` lässt Szenarien headless im
-  Wegwerf-Fixture laufen und prüft das Ergebnis auf der Platte.
+  Wegwerf-Fixture laufen und prüft das Ergebnis auf der Platte; Skills, die der Runner nicht
+  auslösen kann, belegt ein nativer Fall unter `mats-tools/evals/`.
 - **Neu denken:** Neues Modell, neue Claude-Code-Fähigkeit → `/neudenken` über den Kasten. Dazu
   gehört der Vergleichslauf mit und ohne Plugin per nativem `claude plugin eval` (Fälle unter
   `mats-tools/evals/`, gleiche Fixtures wie `eval.sh`): er zeigt, ob ein Baustein nacktes Claude

@@ -21,7 +21,11 @@ und einen LLM-Richter — es ersetzt den Runner nicht (kein Platten-Check auf Gi
 claude plugin eval ./mats-tools --scaffold --allow-tools Bash Edit Write --trust-plugin --no-publish   # aus der Repo-Wurzel
 ```
 
-**Wann:** `tools/eval.sh` bei jedem `/optimieren`-Pass (vorher/nachher, Platte, billig). Das native Eval bei
+**Wann:** `tools/eval.sh` bei jedem `/optimieren`-Pass über einen Command (vorher/nachher, Platte, billig).
+Bei einem Skill ist der native Fall das Vorher/Nachher-Instrument von `/optimieren` — der Runner kann Skills
+nicht headless auslösen: `claude plugin eval ./mats-tools --case <fall> --scaffold --allow-tools Bash Edit Write
+--trust-plugin --no-publish --runs 3 --judge-model opus --ablation none` (nur der Arm mit Plugin; `--case` wirkt
+einmal, mehrere Fälle per Glob wie `'42-*'`). Das native Eval mit Ablation (Standard) bei
 `/neudenken` über den Kasten — neues Modell oder Inventur — mit `--runs 3 --judge-model opus`: es beantwortet
 die Existenzfrage (schlägt der Baustein nacktes Claude?), nicht die Edit-Frage. Fixtures gibt es nur einmal:
 `evals/<fall>/scaffold.sh` speist beide Prüfwege.
@@ -169,6 +173,9 @@ beim Lesen des Transkripts direkt abhakbar sind.
   Ein Ziel, dessen Szenario nach dem Umbau rot ist, wird nicht als fertig gemeldet.
 - **Szenario (Dogfood):** `/optimieren optimieren`.
   **Erwartet:** Kann sich selbst gegen den Standard prüfen.
+- **Szenario:** Plugin-Skill als Ziel (z.B. `/optimieren 42`).
+  **Erwartet:** Beleg vorher und nachher über einen nativen Fall (angelegt, falls er fehlt), nicht nur
+  durch Lesen; die Befunde stützen sich auch auf echte Läufe des Skills, wo es welche gibt.
 - **Szenario (Meta):** `/optimieren authoring-guide`.
   **Erwartet:** Erkennt den Standard selbst als Ziel; prüft ihn gegen seinen
   Zweck und die aktuellen Upstream-Best-Practices (nicht gegen sich selbst);

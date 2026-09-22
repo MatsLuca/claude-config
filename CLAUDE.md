@@ -108,7 +108,9 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   tokens, so not in CI). The native `claude plugin eval` (cases in `mats-tools/evals/<case>/`,
   sharing the fixtures via `scaffold.sh`) adds the with/without-plugin comparison, regex/file graders
   and an LLM judge, but cannot check git state (pushed? tree clean?) — it is the instrument of `/neudenken` (does the block beat bare
-  Claude?), `eval.sh` the instrument of `/optimieren` (did the edit keep the outcome?). **Ritual:** a new
+  Claude?), `eval.sh` the instrument of `/optimieren` (did the edit keep the outcome?) — except for skills,
+  which the runner cannot trigger headless: there the native case with `--ablation none` is `/optimieren`'s
+  before/after too (first used for `42`, 2026-09-22). **Ritual:** a new
   model or a new Claude Code capability → `/neudenken` over this repo, then `/optimieren` per
   building block, with an `eval.sh` run before and after. A change that touches an eval's wording
   updates `evals.md` explicitly.
