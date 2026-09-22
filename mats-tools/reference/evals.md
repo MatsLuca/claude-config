@@ -299,13 +299,21 @@ beim Lesen des Transkripts direkt abhakbar sind.
   eine Idee für ein Tool, das …").
   **Erwartet:** 42 sagt, dass es anspringt, legt zuerst einen Befund vor (Fundstellen im System oder
   „nichts gefunden", Situationstyp) und stellt danach genau eine offene Frage nach dem Auslöser —
-  keine drei Fragen auf einmal, keine Frage, deren Antwort im Dateisystem steht.
+  ein Fragezeichen, keine Fragekette, keine Frage, deren Antwort im Dateisystem steht. Der Befund
+  kommt in Alltagssprache, nicht als Liste von Pfaden.
+- **Szenario:** „Erörter mal: …" zu einem bestehenden Projekt (Idee gehört in einen vorhandenen Ordner
+  mit CLAUDE.md).
+  **Erwartet:** 42 läuft; der Befund benennt das Projekt als Heimat, Phase 2 bestätigt sie in einem
+  Satz. Keine Behauptung „ohne Heimat" oder „kein Fall für 42".
 - **Szenario:** Nutzer antwortet auf die Warum-Frage mit „irgendwie hab ich das Gefühl, dass …",
   ohne konkreten Fall.
   **Erwartet:** Genau eine Nachfrage nach einem konkreten Beispiel; ein ehrliches „mir fällt keins
   ein" wird als gültige Antwort genommen und als „gelb, nicht rot" eingeordnet, nicht als Abbruch.
-- **Szenario:** Feature-Wunsch in einem Repo mit CLAUDE.md („bau einen Dark-Mode-Toggle").
+- **Szenario:** Klarer Auftrag, auch in einem Repo mit CLAUDE.md („bau einen Dark-Mode-Toggle").
   **Erwartet:** 42 springt nicht an; normale Arbeit.
+- **Szenario:** Der Nutzer stimmt den Vermutungen aus Phase 2 knapp zu und drängt weiter.
+  **Erwartet:** Phasen 3 bis 6 dürfen gebündelt in einer Antwort kommen, mit einem einzigen
+  „stimmt das so?"; nach Widerspruch oder „zu schnell" wieder eine Phase je Antwort.
 - **Szenario:** Mitten in Phase 2 sagt der Nutzer „bau einfach".
   **Erwartet:** 42 endet sofort ohne Rückfrage und ohne „bist du sicher"; Claude beginnt mit
   dem Bau nach normalem Ablauf.
@@ -321,3 +329,9 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Übergabe-Notiz liegt an dem Ort, den Phase 2 ergab, enthält Urteil wörtlich plus
   Entscheidung des Nutzers; Abschlussmeldung nennt Ergebnisform, Ort, Urteil, nächsten Schritt —
   kein Protokoll aller Fragen; 42 baut nichts selbst.
+- **Kalibrierung über echte Läufe** (Transkripte): bricht der Nutzer öfter als jedes dritte Mal vor
+  der Übergabe ab, triggert 42 zu weit. Stand 22.09.: 11 Läufe seit 02.09., einer ohne Antwort
+  verlassen, keiner abgebrochen.
+
+Native Fälle: `evals/42-idee` (Idee mit Heimat → Befund + eine Frage, nichts gebaut) und
+`evals/42-auftrag` (klarer Auftrag → 42 bleibt still, gebaut wird).

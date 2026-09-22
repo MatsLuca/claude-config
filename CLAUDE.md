@@ -176,7 +176,7 @@ Abonnenten-Features, ihr Setup nur nicht brechen.
       - [x] `/optimieren destillieren` (02.09.: 75→49 Zeilen, Auftrag vor Rezept, Runner-Szenarien drift/gesund, 8/8 grün)
       - [x] `/optimieren einarbeiten` → gestrichen (02.09.: 0 Aufrufe in allen Transkripten seit 7.8., Zweck ohne Command erfüllt)
       - [x] `/optimieren machine-setup` (02.09.: Description 1373→~330 Zeichen ohne Beispielblöcke, `tools:` gesetzt, awk-Fallback raus — `${CLAUDE_PLUGIN_ROOT}` expandiert im Agent-Body nachweislich —, Rückfrage-Regel für Subagenten; Live-Lauf auf Mats' Mac vorher/nachher 8→7 Tool-Aufrufe, nichts verändert)
-      - [ ] `/optimieren 42` (13 Aufrufe seit 02.09., nie optimiert, ~310 Token Grundlast = größter Posten)
+      - [x] `/optimieren 42` (22.09.: Auslöser = Erörtern statt Auftrag, auch mit Heimat; eine Frage je Antwort; Alltagssprache; Bündeln erlaubt; native Fälle `42-idee` 0,5→1,0 ×3, `42-auftrag` 3/3)
       - [ ] danach die meistgenutzten Werkstatt-Skills: `gmail` (23 Modell-Aufrufe seit 02.09.), `erinnerungen` (17)
 - [x] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.): am 02.09. alle 9 alten SHAs 404,
       Anfragetext und beide Bundles in `9_Temp/` gelöscht.
