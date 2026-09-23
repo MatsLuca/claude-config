@@ -13,11 +13,21 @@ input=$(cat)
 # Schalter, `key=0|1`, `lines=1|2`. Fehlt die Datei = alles an, zweizeilig. Wird
 # gelesen, nicht gesourct — aus einer Konfigdatei läuft hier kein Code. Claude Code
 # rendert alle `refreshInterval` Sekunden neu, damit greift ein Umschalten live.
+# `style=linie` (Standard: `farbig`) schaltet auf eine Akzentfarbe statt einer
+# Farbe je Messwert um — Werte in normaler Vordergrundfarbe, Beschriftungen/
+# Trenner/Symbole gedimmt, Mini-Balken in der einen Akzentfarbe, Rot bleibt
+# Alarm (>=85% bzw. Git-Rückstand). `accent=<256-color-code>` wählt die
+# Akzentfarbe im Linie-Modus (Standard 51 = Cyan); ohne Wirkung im Farbig-Modus.
 O_DIR=1; O_GIT=1; O_MODEL=1; O_EFFORT=1; O_TIMER=1; O_CTX=1; O_LIMITS=1
 O_FABLE=1; O_COST=1; O_MONTH=1; O_EARN=1; O_LOKAL=1; O_LINES=2
+O_STYLE=farbig; O_ACCENT=51
 conf="$HOME/.claude/statusline.conf"
 if [ -f "$conf" ]; then
   while IFS='=' read -r k v; do
+    case "$k" in
+      style) case "$v" in linie|farbig) O_STYLE=$v ;; esac; continue ;;
+      accent) case "$v" in *[!0-9]*|'') continue ;; esac; O_ACCENT=$v; continue ;;
+    esac
     case "$v" in 0|1|2) ;; *) continue ;; esac
     case "$k" in
       dir) O_DIR=$v ;;     git) O_GIT=$v ;;       model) O_MODEL=$v ;;
@@ -67,11 +77,21 @@ ALERT='\033[1;38;5;196m' # bold red  -> critical override (>=85%)
 MODEL_C='\033[1;36m'     # bold cyan -> model name
 DIM='\033[2m'
 RST='\033[0m'
+ACCENT_C="\033[38;5;${O_ACCENT}m"  # linie-Modus: einzige Akzentfarbe (Mini-Balken)
+
+# style=linie: eine Akzentfarbe statt einer Farbe je Messwert. Balkenfarben
+# (über hue()) werden zur Akzentfarbe, reine Textfarben (Branch, Diff-Zahlen,
+# Kosten, Zeit, Modell) fallen auf die normale Vordergrundfarbe (''); Rot bleibt
+# Alarm (>=85%, Git-Rückstand — beide weiterhin über $ALERT, unverändert).
+if [ "$O_STYLE" = linie ]; then
+  CTX_C="$ACCENT_C"; H5_C="$ACCENT_C"; D7_C="$ACCENT_C"; FAB_C="$ACCENT_C"
+  GIT_C=''; DIFF_C=''; DEL_C=''; COST_C=''; TIME_C=''; MODEL_C=''
+fi
 
 # strip all color when the terminal can't be trusted with it (output stays readable)
 if [ "$COLOR" = 0 ]; then
   CTX_C=''; H5_C=''; D7_C=''; FAB_C=''; GIT_C=''; DIFF_C=''; DEL_C=''
-  COST_C=''; TIME_C=''; ALERT=''; MODEL_C=''; DIM=''; RST=''
+  COST_C=''; TIME_C=''; ALERT=''; MODEL_C=''; DIM=''; RST=''; ACCENT_C=''
 fi
 
 # portable file mtime (epoch): detect stat variant once, then never mix them.
@@ -85,6 +105,12 @@ fi
 
 # pick identity color, or red alert when value is critical
 hue() { if [ "$1" -ge 85 ]; then printf '%b' "$ALERT"; else printf '%b' "$2"; fi; }
+
+# text color for a value that also has a bar (hue()'d) next to it: same alert
+# threshold as hue(), but style=linie drops the non-alert case to normal
+# foreground instead of the identity color (the bar keeps the accent color via
+# hue()); style=farbig keeps text == bar color as before ($2 = identity color).
+valc() { if [ "$1" -ge 85 ]; then printf '%b' "$ALERT"; elif [ "$O_STYLE" = linie ]; then printf '%b' ''; else printf '%b' "$2"; fi; }
 
 # compact "time until" from a unix epoch -> e.g. 2h13m, 45m, 5d3h
 reltime() {
@@ -120,8 +146,8 @@ if [ "$O_CTX" = 0 ]; then
   :
 elif [ -n "$used" ]; then
   used_int=$(printf '%.0f' "$used")
-  c=$(hue "$used_int" "$CTX_C")
-  ctx_str="${DIM}ctx${RST} $(bar "$used_int" "$c") ${c}${used_int}%${RST}"
+  c=$(hue "$used_int" "$CTX_C"); tc=$(valc "$used_int" "$CTX_C")
+  ctx_str="${DIM}ctx${RST} $(bar "$used_int" "$c") ${tc}${used_int}%${RST}"
 else
   empty_bar=""; i=0; while [ "$i" -lt 8 ]; do empty_bar="${empty_bar}${G_EMPTY}"; i=$((i+1)); done
   ctx_str="${DIM}ctx ${empty_bar} --${RST}"
@@ -135,14 +161,14 @@ week_rst=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 limits_str=""
 [ "$O_LIMITS" = 0 ] && five_pct="" && week_pct=""
 if [ -n "$five_pct" ]; then
-  v=$(printf '%.0f' "$five_pct"); c=$(hue "$v" "$H5_C")
+  v=$(printf '%.0f' "$five_pct"); c=$(hue "$v" "$H5_C"); tc=$(valc "$v" "$H5_C")
   r=""; [ -n "$five_rst" ] && r=" ${DIM}${G_REL}$(reltime "$five_rst")${RST}"
-  limits_str="${sep}${DIM}5h${RST} ${c}${v}%${RST}${r}"
+  limits_str="${sep}${DIM}5h${RST} ${tc}${v}%${RST}${r}"
 fi
 if [ -n "$week_pct" ]; then
-  v=$(printf '%.0f' "$week_pct"); c=$(hue "$v" "$D7_C")
+  v=$(printf '%.0f' "$week_pct"); c=$(hue "$v" "$D7_C"); tc=$(valc "$v" "$D7_C")
   r=""; [ -n "$week_rst" ] && r=" ${DIM}${G_REL}$(reltime "$week_rst")${RST}"
-  limits_str="${limits_str}  ${DIM}7d${RST} ${c}${v}%${RST}${r}"
+  limits_str="${limits_str}  ${DIM}7d${RST} ${tc}${v}%${RST}${r}"
 fi
 
 # --- Fable-Wochenlimit (eigener Zähler, nicht Teil von seven_day) -------------
@@ -186,8 +212,8 @@ if [ "$O_FABLE" = 1 ] && [ -s "$fable_cache" ]; then
     && fable_pct=$(jq -r '.lim.percent // empty' "$fable_cache" 2>/dev/null)
 fi
 if [ -n "$fable_pct" ]; then
-  v=$(printf '%.0f' "$fable_pct"); c=$(hue "$v" "$FAB_C")
-  limits_str="${limits_str}  ${DIM}F5${RST} ${c}${v}%${RST}"
+  v=$(printf '%.0f' "$fable_pct"); c=$(hue "$v" "$FAB_C"); tc=$(valc "$v" "$FAB_C")
+  limits_str="${limits_str}  ${DIM}F5${RST} ${tc}${v}%${RST}"
 fi
 
 # --- session cost (Anthropic-Token diese Session, in EUR) --------------------
@@ -282,7 +308,7 @@ if [ "$O_GIT" = 1 ] && [ -n "$cwd" ] && git -C "$cwd" rev-parse --is-inside-work
     untracked=$(git -C "$cwd" ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
     files=${files:-0}; ins=${ins:-0}; del=${del:-0}; untracked=${untracked:-0}
 
-    [ "$behind" -gt 0 ] && git_str="${git_str} ${DEL_C}${G_DOWN}${behind}${RST}"
+    [ "$behind" -gt 0 ] && git_str="${git_str} ${ALERT}${G_DOWN}${behind}${RST}"
 
     if [ "$files" -eq 0 ] && [ "$untracked" -eq 0 ]; then
       [ "$behind" -eq 0 ] && git_str="${git_str} ${DIM}${G_OK} synced${RST}"
