@@ -23,7 +23,7 @@ input=$(cat)
 # `alarm=#rrggbb` ersetzt das Alarm-Rot — Alarm steht dann als gefüllte Zelle
 # (invertiert), damit er sich von einer roten Akzentfarbe unterscheidet.
 O_DIR=1; O_GIT=1; O_MODEL=1; O_EFFORT=1; O_TIMER=1; O_CTX=1; O_LIMITS=1
-O_FABLE=1; O_COST=1; O_MONTH=1; O_EARN=1; O_LOKAL=1; O_LINES=2
+O_FABLE=1; O_COST=1; O_MONTH=1; O_LOKAL=1; O_LINES=2
 O_STYLE=farbig; O_ACCENT=51; O_WAIT=''; O_ALARM=''
 conf="$HOME/.claude/statusline.conf"
 if [ -f "$conf" ]; then
@@ -40,7 +40,7 @@ if [ -f "$conf" ]; then
       dir) O_DIR=$v ;;     git) O_GIT=$v ;;       model) O_MODEL=$v ;;
       effort) O_EFFORT=$v ;; timer) O_TIMER=$v ;; ctx) O_CTX=$v ;;
       limits) O_LIMITS=$v ;; fable) O_FABLE=$v ;; cost) O_COST=$v ;;
-      month) O_MONTH=$v ;; earn) O_EARN=$v ;;    lines) O_LINES=$v ;;
+      month) O_MONTH=$v ;;    lines) O_LINES=$v ;;
       lokal) O_LOKAL=$v ;;
     esac
   done < "$conf"
