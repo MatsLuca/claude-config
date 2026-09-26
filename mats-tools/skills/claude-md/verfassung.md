@@ -157,6 +157,11 @@ langsam veränderlich, steht vorn)
   unter HIER WEITERMACHEN.
 - **Archiv** (`8_Archive`, `_Archiv_`-Präfix): keine CLAUDE.md nötig; eine vorhandene
   wird nicht gepflegt.
+- **Abgelegtes Brett** (`_brett/` im Projekt, Terminal-Arbeitsfläche als Datei: `brett.json`, angeheftete
+  Skizzen `*.scratch.json` + gleichnamige `*.png`): gehört zum Projekt, keine eigene CLAUDE.md. Die Projekt-CLAUDE.md
+  trägt eine Zeiger-Zeile darauf (Skizzen als PNG lesen, Brett fortsetzen) und den offenen Punkt unter
+  HIER WEITERMACHEN — eine frische Session muss ohne das Brett weiterkommen. Arbeitsdateien liegen nicht in
+  `_brett/`, sondern in normalen Projektordnern.
 
 ## Meta-Pflege
 
