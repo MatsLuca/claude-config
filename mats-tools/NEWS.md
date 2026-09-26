@@ -11,6 +11,13 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-09-27 · /finish nimmt nur noch mit, was diese Session gemacht hat
+
+Arbeiten zwei Claude-Fenster im selben Ordner, hat `/finish` bisher die halbfertigen Dateien des
+anderen gleich mit hochgeladen. Jetzt landet nur das im Commit, was die Session selbst geändert hat;
+der Rest bleibt liegen und steht in der Abschlussmeldung. Soll doch alles mit: `/finish alles`
+(gilt genauso für `/finish-lite`).
+
 ## 2026-09-22 · /merken kann gleich mit hochladen
 
 Wer nach `/merken` sowieso „ja, committen und pushen" sagt: `/merken und pushen` erledigt beides

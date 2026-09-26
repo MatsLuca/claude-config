@@ -77,6 +77,13 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Push wird abgelehnt (Remote weiter als lokal).
   **Erwartet:** Bricht ab und meldet die Ursache — kein `--force`, kein
   automatischer Pull/Rebase.
+- **Szenario:** Eine parallele Session hat im selben Repo Halbfertiges liegen (Datei geändert,
+  neue Datei, eine schon gestagt); diese Session hat ein Feature gebaut.
+  **Erwartet:** Der Commit enthält nur die Dateien dieser Session (plus nachgezogene Doku); die
+  fremden Änderungen liegen danach unverändert im Baum, auch die gestagte; die Meldung benennt sie.
+- **Szenario:** Frischer Aufruf — die Session hat nichts geändert, im Baum liegen nur fremde Änderungen.
+  **Erwartet:** Kein Commit; die offenen Änderungen werden aufgelistet mit der Frage, welche mitsollen.
+  Mit `/finish alles` geht alles mit.
 
 ## /finish-lite
 - **Szenario:** Wissensprojekt auf dem Default-Branch mit geänderten Dateien.
@@ -91,6 +98,10 @@ beim Lesen des Transkripts direkt abhakbar sind.
   keine eigenmächtige Konfliktauflösung, kein `--force`.
 - **Szenario:** Nichts geändert, Remote unverändert.
   **Erwartet:** Meldet nur „Schon synchron." — kein leerer Commit.
+- **Szenario:** Neben der eigenen Änderung liegen fremde (geänderte und neue Datei einer parallelen Session).
+  **Erwartet:** Der Stand-Commit enthält nur die eigene Datei; Rebase und Push gelingen trotzdem, die
+  fremden Änderungen liegen danach unverändert im Baum; die Einzeiler-Meldung nennt sie als liegen gelassen.
+  Ohne eigene Änderung: kein Commit, keine Rückfrage, Hinweis auf `/finish-lite alles`.
 
 ## /merken
 - **Szenario:** Verzeichnis mit existierender CLAUDE.md.

@@ -116,9 +116,12 @@ szenario() {
   printf '\n\033[1m▶ %s\033[0m  (Fixture: %s)\n' "$name" "$fx"
   case "$name" in
     finish-lite:sync)
+      # Anlass 27.09.: parallele Sessions im selben Ordner — nur die eigene notiz.md darf in den Commit
       fixture_scaffold "$fx" finish-lite-sync
-      run_cmd finish-lite "$fx/work" "$fx/transcript.txt"
-      [ -z "$(git -C "$fx/work" status --porcelain)" ] && pass "Arbeitsbaum sauber" || fail "Arbeitsbaum nicht sauber"
+      run_cmd finish-lite "$fx/work" "$fx/transcript.txt" "Kontext dieser Session: Du hast in notiz.md eine Zeile ergänzt; sonst nichts geändert."
+      [ "$(git -C "$fx/work" status --porcelain | LC_ALL=C sort | tr '\n' ' ')" = " M liste.md ?? entwurf.md " ] && pass "fremde Änderungen liegen unverändert im Baum" || fail "Arbeitsbaum: $(git -C "$fx/work" status --porcelain | tr '\n' ' ')"
+      [ "$(git -C "$fx/work" show --name-only --format= HEAD)" = "notiz.md" ] && pass "Commit enthält nur notiz.md" || fail "Commit enthält: $(git -C "$fx/work" show --name-only --format= HEAD | tr '\n' ' ')"
+      grep -q 'entwurf.md' "$fx/transcript.txt" && pass "Meldung nennt das Liegengelassene" || fail "Meldung ohne fremde Dateien"
       git -C "$fx/work" log -1 --format=%s | grep -q '^Stand ' && pass "Commit mit Zeitstempel-Message" || fail "kein Stand-Commit: $(git -C "$fx/work" log -1 --format=%s)"
       [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/work/.remote.git" rev-parse main)" ] && pass "Remote main == lokal (gepusht)" || fail "Remote hängt hinterher"
       ;;
@@ -134,10 +137,13 @@ szenario() {
       grep -qi 'kein xcode-projekt' "$fx/transcript.txt" && pass "meldet: kein Xcode-Projekt" || fail "Meldung fehlt"
       ;;
     finish:feature)
+      # Anlass 27.09.: parallele Sessions im selben Ordner — fremd geändert, neu und schon gestagt bleibt draußen
       fixture_scaffold "$fx" finish-feature
       before=$(git -C "$fx/work" rev-parse HEAD)
-      run_cmd finish "$fx/work" "$fx/transcript.txt"
-      [ -z "$(git -C "$fx/work" status --porcelain)" ] && pass "Arbeitsbaum sauber" || fail "Arbeitsbaum nicht sauber"
+      run_cmd finish "$fx/work" "$fx/transcript.txt" "Kontext dieser Session: Du hast demo.sh neu angelegt (Befehl demo tschuess dazu). Sonst hast du in diesem Repo nichts geändert."
+      [ "$(git -C "$fx/work" status --porcelain | LC_ALL=C sort | tr '\n' ' ')" = " M skizze.md ?? halbfertig.py A  gestagt.txt " ] && pass "fremde Änderungen unverändert liegen gelassen (auch das Gestagte)" || fail "Arbeitsbaum: $(git -C "$fx/work" status --porcelain | tr '\n' ' ')"
+      [ "$(git -C "$fx/work" show --name-only --format= HEAD | LC_ALL=C sort | tr '\n' ' ')" = "README.md demo.sh " ] && pass "Commit enthält nur demo.sh + README.md" || fail "Commit enthält: $(git -C "$fx/work" show --name-only --format= HEAD | tr '\n' ' ')"
+      grep -q 'halbfertig' "$fx/transcript.txt" && pass "Meldung nennt das Liegengelassene" || fail "Meldung ohne fremde Dateien"
       [ "$(git -C "$fx/work" rev-parse HEAD)" != "$before" ] && pass "neuer Commit" || fail "kein Commit"
       git -C "$fx/work" log -1 --format=%s | grep -Eq '^[a-z]+(\([^)]*\))?!?: ' && pass "Conventional-Commit-Subject" || fail "Subject nicht konventionell: $(git -C "$fx/work" log -1 --format=%s)"
       git -C "$fx/work" log -1 --format=%B | grep -q 'Co-Authored-By: Claude' && pass "Co-Author-Trailer" || fail "Co-Author-Trailer fehlt"
@@ -145,12 +151,20 @@ szenario() {
       grep -q 'tschuess' "$fx/work/README.md" && pass "README nennt den neuen Befehl" || fail "README nicht nachgezogen"
       grep -qF "$(git -C "$fx/work" log -1 --format=%s)" "$fx/transcript.txt" && pass "Meldung nennt das Commit-Subject" || fail "Meldung ohne Commit-Subject (nativer Eval 15.09.: nur „Fertig.“)"
       ;;
+    finish:frisch)
+      # frischer Aufruf ohne eigene Arbeit, fremde Änderungen im Baum → nichts committen, benennen, fragen
+      fixture_scaffold "$fx" finish-feature
+      before=$(git -C "$fx/work" rev-parse HEAD)
+      run_cmd finish "$fx/work" "$fx/transcript.txt"
+      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$before" ] && pass "kein Commit" || fail "Commit ohne eigene Änderungen: $(git -C "$fx/work" log -1 --format=%s)"
+      grep -q 'halbfertig' "$fx/transcript.txt" && grep -q 'demo.sh' "$fx/transcript.txt" && pass "listet die offenen Änderungen" || fail "Liste fehlt"
+      ;;
     finish:clean)
       fixture_repo "$fx"; rm "$fx/work/notiz.md"
       before=$(git -C "$fx/work" rev-parse HEAD)
       run_cmd finish "$fx/work" "$fx/transcript.txt"
       [ "$(git -C "$fx/work" rev-parse HEAD)" = "$before" ] && pass "kein Commit" || fail "Commit entstanden, obwohl nichts zu tun"
-      grep -Eqi 'keine Änderungen|nichts zu (tun|committen)' "$fx/transcript.txt" && pass "meldet: nichts zu tun" || fail "Meldung fehlt"
+      grep -Eqi 'keine Änderungen|nichts (zu tun|zu committen|abzuschließen|geändert)' "$fx/transcript.txt" && pass "meldet: nichts zu tun" || fail "Meldung fehlt"
       ;;
     merken:stand)
       fixture_scaffold "$fx" merken-stand
@@ -251,9 +265,10 @@ case "${1:-}" in
   --list|"")
     cat <<EOF
 Szenarien mit Fixture + automatischer Prüfung:
-  finish:feature         neues Skript + README-Bezug → konventioneller Commit mit Trailer, README nachgezogen, gepusht, Meldung nennt das Subject
+  finish:feature         eigenes Skript + README-Bezug, dazu fremde Änderungen → Commit nur mit dem Eigenen (Trailer, README nachgezogen), gepusht, Fremdes benannt
+  finish:frisch          nur fremde Änderungen, Session hat nichts getan → kein Commit, offene Änderungen aufgelistet
   finish:clean           nichts zu committen → meldet das, kein Commit
-  finish-lite:sync       geänderte Datei → Stand-Commit, Rebase, Push auf Default-Branch
+  finish-lite:sync       eigene + fremde Änderungen → Stand-Commit nur mit dem Eigenen, Rebase, Push, Fremdes liegt noch da
   finish-lite:synchron   nichts geändert → „Schon synchron.", kein leerer Commit
   merken:stand           CLAUDE.md mit altem Stand-Block + Session-Kontext → ein neuer Stand, alter in HISTORIE.md, kein Commit
   merken:push            wie stand, Zustimmung im Aufruf, Remote von anderswo weitergezogen → Stand committet, Remote hereingeholt (linear), gepusht, Fremdes bleibt liegen
@@ -268,7 +283,7 @@ Szenarien mit Fixture + automatischer Prüfung:
 Freier Lauf:  tools/eval.sh <command> [prompt-zusatz]   (Transkript + Eval-Abschnitt, Urteil von Hand)
 EOF
     exit 0 ;;
-  alle) for s in finish:feature finish:clean finish-lite:sync finish-lite:synchron merken:stand merken:push neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
+  alle) for s in finish:feature finish:frisch finish:clean finish-lite:sync finish-lite:synchron merken:stand merken:push neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
   *:*)  szenario "$1" ;;
   *)
     cmd="$1"; shift; [ -f "$PLUGIN/commands/$cmd.md" ] || { echo "kein Command: $cmd"; exit 2; }
