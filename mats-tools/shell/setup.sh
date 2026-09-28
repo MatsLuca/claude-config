@@ -229,7 +229,7 @@ else
   # Default-Keys, die auf einer frischen Maschine gesetzt werden; bestehende andere Werte melden.
   diffs=$(CUR="$(cat "$S" 2>/dev/null || echo "{}")" jq -rn '
     ($ENV.CUR | fromjson) as $cur
-    | {model:"opus", effortLevel:"high", skipDangerousModePermissionPrompt:true, agentPushNotifEnabled:true}
+    | {model:"opus", effortLevel:"medium", skipDangerousModePermissionPrompt:true, agentPushNotifEnabled:true}
     | to_entries[] | select($cur[.key] != null and $cur[.key] != .value) | "\(.key)=\($cur[.key])"' 2>/dev/null)
   if [ -n "$diffs" ] && [ "$FORCE_SET" = 0 ]; then
     say "SETTINGS_DIFFERS: $(printf '%s' "$diffs" | tr '\n' ' ') — Default-Keys nicht überschrieben (Rest gemerged)"
@@ -243,7 +243,7 @@ else
     tmp=$(mktemp)
     jq "
       .model $op \"opus\"
-      | .effortLevel $op \"high\"
+      | .effortLevel $op \"medium\"
       | .skipDangerousModePermissionPrompt $op true
       | .agentPushNotifEnabled $op true
       | .env.DISABLE_AUTOUPDATER //= \"1\"
