@@ -63,15 +63,14 @@ irm https://raw.githubusercontent.com/MatsLuca/claude-config/master/bootstrap.ps
 ## 🧰 Was drin ist
 
 Ein Plugin, `mats-tools` — Commands für den Alltag, Agents für die schwere Arbeit. Commands sind
-technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `/finish` und
-`/finish-lite` (`disable-model-invocation`) — die laufen nur, wenn du sie tippst:
+technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `/finish`
+(`disable-model-invocation`) — das läuft nur, wenn du es tippst:
 
 ### ⚡ Commands
 
 | Command | Zweck |
 |---|---|
-| `/finish` | Die Änderungen dieser Session seit letztem Push analysieren, README/CHANGELOG & zugehörige GitHub-Issues pflegen, committen & pushen — in einem Rutsch; Halbfertiges paralleler Sessions bleibt liegen und wird benannt (`/finish alles` nimmt es mit) |
-| `/finish-lite` | Leichter /finish für Wissensprojekte: die Änderungen dieser Session committen mit Zeitstempel-Message, auf den Default-Branch rebasen & dorthin pushen — ohne Analyse & Doku-Pflege; identisch auf Laptop und in Cloud-Sessions (Session-Branch landet direkt auf main) |
+| `/finish` | Die Änderungen dieser Session analysieren, README/CHANGELOG & zugehörige GitHub-Issues pflegen (nur wenn betroffen), committen & pushen — in einem Rutsch; Halbfertiges paralleler Sessions bleibt liegen und wird benannt (`/finish alles` nimmt es mit). Im Worktree bringt es den Branch zurück in sein Ziel und räumt auf (Anlegen: `reference/worktrees.md`). In Wissensprojekten (Repo ohne Code) läuft es von selbst knapp: Zeitstempel-Commit, keine Analyse, keine Rückfrage (`knapp`/`voll` erzwingt) |
 | `/neues-projekt` | Aktuellen Ordner als Projekt einrichten: kurzes Interview, CLAUDE.md auf Projekt-Höhe, Zeiger in der Eltern-CLAUDE.md, optional Git/GitHub; `--nachruesten` für bestehende Ordner ohne CLAUDE.md; `--einordnen <Name>: <Zweck>` klärt erst den Ort im Ablagebaum (2–3 Kandidaten mit Begründung) und legt den Ordner dann selbst an |
 | `/merken` | Session-Stand in CLAUDE.md / Kontextdateien festhalten — erntet dabei Zweck & gewachsene Konventionen des Wissenssystems; committet & pusht auf Zustimmung (holt vorher den Remote-Stand per Rebase), `/merken und pushen` stimmt gleich mit zu |
 | `/xcode` | Xcode-Projekt aus dem aktuellen Verzeichnis öffnen |
@@ -93,7 +92,7 @@ technisch Skills als flache Datei; Claude darf sie auch selbst starten, außer `
 | `claude-md` | Hält CLAUDE.md-Dateien auf der richtigen Höhe — Router / Bereich / Projekt nach der Verfassung in `skills/claude-md/verfassung.md`: prüft eine Datei oder inventarisiert einen Teilbaum, verschiebt Ballast nach unten, ergänzt Zeiger; lädt sich von selbst, sobald eine CLAUDE.md angelegt oder umgebaut wird |
 
 Der Authoring-Standard und die Eval-Szenarien, gegen die `/optimieren` prüft,
-liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`).
+liegen in `mats-tools/reference/` (`authoring-guide.md`, `evals.md`, `worktrees.md`).
 
 
 ---

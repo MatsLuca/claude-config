@@ -27,7 +27,7 @@ Three nesting levels, each with its own manifest:
    - `mats-tools/commands/*.md` → slash-commands (filename = command name, so `finish.md` → `/finish`).
      Technically skills as flat files: Claude Code merged commands into skills (2026), so the
      model can start them via the Skill tool too — `disable-model-invocation: true` marks the ones
-     only the user may start (`/finish`, `/finish-lite`).
+     only the user may start (`/finish`; `/finish-lite` merged into `/finish knapp` on 2026-10-07).
    - `mats-tools/agents/*.md` → subagents (the `name:` field in frontmatter is the agent id).
    - `mats-tools/skills/<name>/SKILL.md` → skills (user-invocable *and* model-triggered via
      `description`); companion files live next to the SKILL.md (e.g. `claude-md/verfassung.md`,
@@ -88,7 +88,7 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
   the outcome and the inviolable rules; the model finds the way. Literal bash blocks only where an
   eval run proves the model fails without them (a comment names the reason). Few tool rounds,
   independent calls in parallel — no mandated one-liners: compound `&&`/`$(…)` commands collide
-  with narrowed `allowed-tools`, and the model splits them anyway. `finish`, `finish-lite`, `merken`
+  with narrowed `allowed-tools`, and the model splits them anyway. `finish`, `merken`
   are the reference implementations; `neues-projekt` and `destillieren` followed on 2026-09-01/02.
   `einarbeiten` was removed on 2026-09-02 (16 uses, all in June/July 2026, none since; the model
   does it unprompted, `claude-md` governs the target file).
@@ -104,7 +104,7 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 - The authoring standard (`mats-tools/reference/authoring-guide.md`) is itself an optimizable
   target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
 - **The loop is the point.** Behaviour evals run for real via `tools/eval.sh` (headless from the
-  repo source, throwaway fixture, on-disk checks for finish, finish-lite, merken, xcode; costs
+  repo source, throwaway fixture, on-disk checks for finish, merken, xcode; costs
   tokens, so not in CI). The native `claude plugin eval` (cases in `mats-tools/evals/<case>/`,
   sharing the fixtures via `scaffold.sh`) adds the with/without-plugin comparison, regex/file graders
   and an LLM judge, but cannot check git state (pushed? tree clean?) — it is the instrument of `/neudenken` (does the block beat bare

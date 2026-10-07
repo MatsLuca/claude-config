@@ -30,7 +30,7 @@ einmal, mehrere Fälle per Glob wie `'42-*'`). Das native Eval mit Ablation (Sta
 die Existenzfrage (schlägt der Baustein nacktes Claude?), nicht die Edit-Frage. Fixtures gibt es nur einmal:
 `evals/<fall>/scaffold.sh` speist beide Prüfwege.
 
-Grenzen (Stand 15.09.2026): Fälle mit `disable-model-invocation` (finish, finish-lite) brauchen den
+Grenzen (Stand 15.09.2026): Fälle mit `disable-model-invocation` (finish) brauchen den
 Slash-Aufruf als erste Prompt-Zeile — der Arm „ohne Plugin" bricht dann mit „Unknown command" ab, der
 Vergleich gegen nacktes Claude geht nur über eine Kopie des Prompts ohne Slash-Zeile. Der Slash-Aufruf
 zählt nicht als Skill-Tool-Aufruf (`tool_used: Skill` greift nur bei modellgewählten Skills wie merken).
@@ -74,9 +74,29 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Offenes Issue, das die Änderung erledigt.
   **Erwartet:** `Closes #<N>` landet in der Commit-Message (auto-close beim Push);
   Issue-Kommentar nur als Angebot, nicht ungefragt geschrieben.
-- **Szenario:** Push wird abgelehnt (Remote weiter als lokal).
-  **Erwartet:** Bricht ab und meldet die Ursache — kein `--force`, kein
-  automatischer Pull/Rebase.
+- **Szenario:** Push auf dem Default-Branch wird abgelehnt (Remote weiter als lokal).
+  **Erwartet:** Holt den Remote-Stand per Rebase herein (fremde offene Änderungen liegen danach
+  unverändert da) und pusht erneut; bei Konflikt Rebase abgebrochen, Ursache in einer Zeile — kein `--force`.
+  Vor dem ersten Push wird nichts gezogen.
+- **Szenario:** Worktree mit `finishInto main` (Rezept `reference/worktrees.md`), eigene Änderung dort,
+  origin/main inzwischen weiter, im Hauptordner eine fremde offene Änderung an einer anderen Datei.
+  **Erwartet:** Die Änderung liegt danach auf main (lokal und Remote), samt dem Remote-Commit, lineare
+  Historie; die fremde Änderung im Hauptordner ist unberührt, der Hauptordner steht weiter auf main;
+  Worktree und Branch sind entfernt; die Meldung sagt, dass das Brett zu kann.
+- **Szenario:** Wie oben, aber im Worktree liegt eine ignorierte `.env` (nur dort).
+  **Erwartet:** Arbeit trotzdem nach main gebracht; Worktree samt `.env` bleibt stehen, die Meldung nennt
+  die Datei und fragt, ob sie weg darf. Nur Build-/Cache-Reste hätten das Aufräumen nicht aufgehalten.
+- **Szenario:** Wie oben, aber die fremde offene Änderung im Hauptordner betrifft dieselbe Datei.
+  **Erwartet:** Anhalten, ohne etwas zu überschreiben: main ohne die Worktree-Arbeit, fremde Änderung
+  unversehrt, Worktree und Branch stehen noch (eigene Arbeit dort committet), die Meldung nennt die Datei.
+- **Szenario:** Eigener Branch ohne `finishInto` (z. B. ein langlebiger Themen-Branch).
+  **Erwartet:** Nur dieser Branch wird gepusht (ohne Upstream mit `-u`), nichts gemergt oder rebased;
+  steht er in einem Worktree, fragt die Meldung, ob er nach main soll.
+- **Szenario:** Worktree ohne `finishInto` (von Claude Code selbst angelegt), Aufruf `/finish nach main`.
+  **Erwartet:** Ziel nachgetragen und im selben Lauf zurückgebracht wie mit Rezept: Änderung auf main
+  (lokal und Remote), fremde Änderung im Hauptordner unberührt, Worktree entfernt.
+- **Szenario:** Worktree-Branch enthält Commits, die nicht aus dieser Arbeit stammen (abgezweigt von anderswo).
+  **Erwartet:** Stopp vor dem Vorspulen mit der Commit-Liste; main unverändert.
 - **Szenario:** Eine parallele Session hat im selben Repo Halbfertiges liegen (Datei geändert,
   neue Datei, eine schon gestagt); diese Session hat ein Feature gebaut.
   **Erwartet:** Der Commit enthält nur die Dateien dieser Session (plus nachgezogene Doku); die
@@ -85,23 +105,22 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Kein Commit; die offenen Änderungen werden aufgelistet mit der Frage, welche mitsollen.
   Mit `/finish alles` geht alles mit.
 
-## /finish-lite
+### Knapp-Lage (früher `/finish-lite`, seit 2026-10-07 in `/finish`): Wissensprojekt ohne Code → von selbst knapp; Code-Repo bleibt voll, auch bei reiner Doku-Änderung; `knapp`/`voll` erzwingt
 - **Szenario:** Wissensprojekt auf dem Default-Branch mit geänderten Dateien.
-  **Erwartet:** Genau ein Commit mit Zeitstempel-Message, Remote-Stand
-  hereingeholt, Push auf den Default-Branch; Einzeiler-Meldung. Keine
-  Diff-Analyse, keine README/CHANGELOG-Pflege, keine Rückfrage.
-- **Szenario:** Cloud-Session auf einem Session-Branch (`claude/…`).
-  **Erwartet:** Die Änderungen landen direkt auf dem Default-Branch — kein PR,
-  kein Branch-Wechsel nötig.
+  **Erwartet:** Genau ein Commit mit Zeitstempel-Message, Push auf den Default-Branch (Remote-Stand nur
+  bei Ablehnung hereingeholt); Einzeiler-Meldung. Keine Diff-Analyse, keine README/CHANGELOG-Pflege, keine Rückfrage.
+- **Szenario:** Cloud-Session (`CLAUDE_CODE_REMOTE`) auf einem Session-Branch (`claude/…`).
+  **Erwartet:** Die Änderungen landen direkt auf dem Default-Branch — kein PR, kein Branch-Wechsel nötig;
+  blockt die Umgebung, landen sie auf einem neuen Branch und die Meldung sagt das.
 - **Szenario:** Rebase-Konflikt in einer Wissensdatei.
   **Erwartet:** Rebase abgebrochen, Baum wieder sauber, Ursache in einer Zeile;
   keine eigenmächtige Konfliktauflösung, kein `--force`.
 - **Szenario:** Nichts geändert, Remote unverändert.
-  **Erwartet:** Meldet nur „Schon synchron." — kein leerer Commit.
+  **Erwartet:** Meldet nur „Schon synchron." (oder gleichwertig) — kein leerer Commit.
 - **Szenario:** Neben der eigenen Änderung liegen fremde (geänderte und neue Datei einer parallelen Session).
-  **Erwartet:** Der Stand-Commit enthält nur die eigene Datei; Rebase und Push gelingen trotzdem, die
-  fremden Änderungen liegen danach unverändert im Baum; die Einzeiler-Meldung nennt sie als liegen gelassen.
-  Ohne eigene Änderung: kein Commit, keine Rückfrage, Hinweis auf `/finish-lite alles`.
+  **Erwartet:** Der Stand-Commit enthält nur die eigene Datei; Push gelingt, die fremden Änderungen liegen
+  danach unverändert im Baum; die Einzeiler-Meldung nennt sie als liegen gelassen.
+  Ohne eigene Änderung: kein Commit, keine Rückfrage, Hinweis auf `/finish knapp alles`.
 
 ## /merken
 - **Szenario:** Verzeichnis mit existierender CLAUDE.md.

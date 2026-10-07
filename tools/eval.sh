@@ -44,7 +44,7 @@ fixture_scaffold() {
   local d="$1/work"; mkdir -p "$d"
   (cd "$d" && bash "$PLUGIN/evals/$2/scaffold.sh")
 }
-# Fixture: Bare-Remote + Klon mit einem Commit (für finish-lite)
+# Fixture: Bare-Remote + Klon mit einem Commit (für finish knapp)
 fixture_repo() {
   local d="$1"; mkdir -p "$d/remote.git" "$d/work"
   git -C "$d/remote.git" init -q --bare -b main
@@ -54,6 +54,27 @@ fixture_repo() {
   git -C "$d/work" push -q -u origin main
   git -C "$d/remote.git" symbolic-ref HEAD refs/heads/main
   printf 'Notiz\n' > "$d/work/notiz.md"
+}
+
+# Fixture: Repo + Bare-Remote + Worktree nach reference/worktrees.md (für finish:worktree*); $1 = Wurzel →
+# Hauptordner $1/repo (fremde offene Änderung an liste.md), Worktree $1/repo_wt/thema mit eigener offener
+# Änderung an thema.md; dazu ein Commit von anderswo auf origin/main, den der Rückweg hereinholen muss.
+fixture_worktree() {
+  local d="$1"
+  git init -q --bare -b main "$d/remote.git"
+  git init -q -b main "$d/repo"; git -C "$d/repo" config user.name eval; git -C "$d/repo" config user.email eval@beispiel.de
+  printf 'Liste\n' > "$d/repo/liste.md"; printf 'Thema\n' > "$d/repo/thema.md"
+  git -C "$d/repo" add -A; git -C "$d/repo" commit -qm "Basis"
+  git -C "$d/repo" remote add origin "$d/remote.git"; git -C "$d/repo" push -q -u origin main
+  git -C "$d/repo" remote set-head origin main
+  git -C "$d/repo" worktree add -q ../repo_wt/thema -b thema main
+  git -C "$d/repo" config branch.thema.finishInto main
+  git -C "$d/repo" config branch.thema.finishBase "$(git -C "$d/repo" rev-parse main)"
+  git clone -q "$d/remote.git" "$d/anderswo"
+  printf 'von anderswo\n' > "$d/anderswo/anderswo.md"
+  git -C "$d/anderswo" add -A; git -C "$d/anderswo" -c user.name=eval -c user.email=eval@beispiel.de commit -qm "anderswo"; git -C "$d/anderswo" push -q origin main
+  printf -- '- halber Punkt\n' >> "$d/repo/liste.md"          # parallele Session im Hauptordner
+  printf 'Neue Zeile aus dem Worktree\n' >> "$d/repo_wt/thema/thema.md"   # eigene Arbeit
 }
 
 # Fixture: Mini-Ablagebaum mit zwei Router-CLAUDE.md (für neues-projekt); $1 = Wurzel
@@ -115,22 +136,62 @@ szenario() {
   local name="$1" fx="$OUT/$1"; mkdir -p "$fx"
   printf '\n\033[1m▶ %s\033[0m  (Fixture: %s)\n' "$name" "$fx"
   case "$name" in
-    finish-lite:sync)
+    finish:knapp)
       # Anlass 27.09.: parallele Sessions im selben Ordner — nur die eigene notiz.md darf in den Commit
-      fixture_scaffold "$fx" finish-lite-sync
-      run_cmd finish-lite "$fx/work" "$fx/transcript.txt" "Kontext dieser Session: Du hast in notiz.md eine Zeile ergänzt; sonst nichts geändert."
+      fixture_scaffold "$fx" finish-knapp-sync
+      run_cmd finish "$fx/work" "$fx/transcript.txt" "Kontext dieser Session: Du hast in notiz.md eine Zeile ergänzt; sonst nichts geändert."
       [ "$(git -C "$fx/work" status --porcelain | LC_ALL=C sort | tr '\n' ' ')" = " M liste.md ?? entwurf.md " ] && pass "fremde Änderungen liegen unverändert im Baum" || fail "Arbeitsbaum: $(git -C "$fx/work" status --porcelain | tr '\n' ' ')"
       [ "$(git -C "$fx/work" show --name-only --format= HEAD)" = "notiz.md" ] && pass "Commit enthält nur notiz.md" || fail "Commit enthält: $(git -C "$fx/work" show --name-only --format= HEAD | tr '\n' ' ')"
       grep -q 'entwurf.md' "$fx/transcript.txt" && pass "Meldung nennt das Liegengelassene" || fail "Meldung ohne fremde Dateien"
       git -C "$fx/work" log -1 --format=%s | grep -q '^Stand ' && pass "Commit mit Zeitstempel-Message" || fail "kein Stand-Commit: $(git -C "$fx/work" log -1 --format=%s)"
       [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/work/.remote.git" rev-parse main)" ] && pass "Remote main == lokal (gepusht)" || fail "Remote hängt hinterher"
       ;;
-    finish-lite:synchron)
+    finish:knapp-synchron)
       fixture_repo "$fx"; rm "$fx/work/notiz.md"
       before=$(git -C "$fx/work" rev-parse HEAD)
-      run_cmd finish-lite "$fx/work" "$fx/transcript.txt"
+      run_cmd finish "$fx/work" "$fx/transcript.txt"
       [ "$(git -C "$fx/work" rev-parse HEAD)" = "$before" ] && pass "kein leerer Commit" || fail "Commit entstanden, obwohl nichts zu tun"
       grep -qi 'synchron' "$fx/transcript.txt" && pass "meldet „Schon synchron“" || fail "Meldung fehlt"
+      ;;
+    finish:worktree)
+      # Anlass 07.10.: Worktree zurück nach main — Fremdes im Hauptordner bleibt, Remote-Commit kommt mit, Worktree weg
+      fixture_worktree "$fx"; fremd=$(git -C "$fx/anderswo" rev-parse HEAD)
+      run_cmd finish "$fx/repo_wt/thema" "$fx/transcript.txt" "Kontext dieser Session: Du arbeitest im Worktree und hast in thema.md eine Zeile ergänzt; sonst nichts geändert."
+      grep -q 'aus dem Worktree' "$fx/repo/thema.md" && pass "Änderung liegt im Hauptordner auf main" || fail "thema.md im Hauptordner ohne die Worktree-Zeile"
+      [ "$(git -C "$fx/repo" rev-parse main)" = "$(git -C "$fx/remote.git" rev-parse main)" ] && pass "main gepusht (Remote == lokal)" || fail "Remote main hängt hinterher"
+      git -C "$fx/repo" merge-base --is-ancestor "$fremd" main && pass "Commit von anderswo hereingeholt" || fail "Commit von anderswo fehlt"
+      [ "$(git -C "$fx/repo" rev-list --merges main | wc -l | tr -d ' ')" = 0 ] && pass "lineare Historie" || fail "Merge-Commit entstanden"
+      [ "$(git -C "$fx/repo" status --porcelain)" = " M liste.md" ] && pass "fremde Änderung im Hauptordner unberührt" || fail "Hauptordner: $(git -C "$fx/repo" status --porcelain | tr '\n' ' ')"
+      [ ! -d "$fx/repo_wt/thema" ] && pass "Worktree entfernt" || fail "Worktree-Ordner steht noch"
+      git -C "$fx/repo" rev-parse -q --verify refs/heads/thema >/dev/null && fail "Branch thema steht noch" || pass "Branch thema gelöscht"
+      [ "$(git -C "$fx/repo" rev-parse --abbrev-ref HEAD)" = main ] && pass "Hauptordner steht weiter auf main" || fail "Hauptordner auf $(git -C "$fx/repo" rev-parse --abbrev-ref HEAD)"
+      ;;
+    finish:worktree-ohne-ziel)
+      # Worktree ohne finishInto (z. B. von Claude Code selbst angelegt) + „nach main" → Ziel nachgetragen, zurückgebracht
+      fixture_worktree "$fx"; git -C "$fx/repo" config --unset branch.thema.finishInto; git -C "$fx/repo" config --unset branch.thema.finishBase
+      run_cmd finish "$fx/repo_wt/thema" "$fx/transcript.txt" "nach main — Kontext dieser Session: Du arbeitest im Worktree und hast in thema.md eine Zeile ergänzt; sonst nichts geändert."
+      grep -q 'aus dem Worktree' "$fx/repo/thema.md" && pass "Änderung liegt im Hauptordner auf main" || fail "nicht zurückgebracht"
+      [ "$(git -C "$fx/repo" rev-parse main)" = "$(git -C "$fx/remote.git" rev-parse main)" ] && pass "main gepusht" || fail "Remote main hängt hinterher"
+      [ "$(git -C "$fx/repo" status --porcelain)" = " M liste.md" ] && pass "fremde Änderung im Hauptordner unberührt" || fail "Hauptordner: $(git -C "$fx/repo" status --porcelain | tr '\n' ' ')"
+      [ ! -d "$fx/repo_wt/thema" ] && pass "Worktree entfernt" || fail "Worktree-Ordner steht noch"
+      ;;
+    finish:worktree-env)
+      # ignorierte .env nur im Worktree → zurückbringen ja, aufräumen nein (remove würde sie still löschen)
+      fixture_worktree "$fx"; printf '.env\n' > "$fx/repo/.git/info/exclude"; printf 'TOKEN=geheim\n' > "$fx/repo_wt/thema/.env"
+      run_cmd finish "$fx/repo_wt/thema" "$fx/transcript.txt" "Kontext dieser Session: Du arbeitest im Worktree und hast in thema.md eine Zeile ergänzt; sonst nichts geändert."
+      grep -q 'aus dem Worktree' "$fx/repo/thema.md" && pass "Änderung liegt im Hauptordner auf main" || fail "nicht zurückgebracht"
+      [ -f "$fx/repo_wt/thema/.env" ] && pass ".env noch da, Worktree steht" || fail ".env gelöscht"
+      grep -q '\.env' "$fx/transcript.txt" && pass "Meldung nennt .env" || fail "Meldung ohne .env"
+      ;;
+    finish:worktree-fremd)
+      # dieselbe Datei ist im Hauptordner fremd in Arbeit → anhalten, nichts überschreiben, Worktree bleibt
+      fixture_worktree "$fx"; printf 'fremd an thema\n' >> "$fx/repo/thema.md"
+      run_cmd finish "$fx/repo_wt/thema" "$fx/transcript.txt" "Kontext dieser Session: Du arbeitest im Worktree und hast in thema.md eine Zeile ergänzt; sonst nichts geändert."
+      grep -q 'fremd an thema' "$fx/repo/thema.md" && pass "fremde Änderung an thema.md unversehrt" || fail "fremde Änderung überschrieben"
+      git -C "$fx/repo" show main:thema.md | grep -q 'aus dem Worktree' && fail "Worktree-Arbeit trotz Überschneidung in main" || pass "main ohne die Worktree-Arbeit"
+      [ -d "$fx/repo_wt/thema" ] && pass "Worktree steht noch" || fail "Worktree entfernt"
+      git -C "$fx/repo_wt/thema" log -1 --format=%B 2>/dev/null | grep -q 'Co-Authored-By' && pass "eigene Arbeit im Worktree committet" || fail "eigene Arbeit nicht committet"
+      grep -q 'thema.md' "$fx/transcript.txt" && pass "Meldung nennt die Datei" || fail "Meldung ohne Datei"
       ;;
     xcode:leer)
       run_cmd xcode "$fx" "$fx/transcript.txt"
@@ -164,7 +225,7 @@ szenario() {
       before=$(git -C "$fx/work" rev-parse HEAD)
       run_cmd finish "$fx/work" "$fx/transcript.txt"
       [ "$(git -C "$fx/work" rev-parse HEAD)" = "$before" ] && pass "kein Commit" || fail "Commit entstanden, obwohl nichts zu tun"
-      grep -Eqi 'keine Änderungen|nichts (zu tun|zu committen|abzuschließen|geändert)' "$fx/transcript.txt" && pass "meldet: nichts zu tun" || fail "Meldung fehlt"
+      grep -Eqi 'keine Änderungen|nichts (zu tun|zu committen|abzuschließen|geändert)|schon synchron' "$fx/transcript.txt" && pass "meldet: nichts zu tun" || fail "Meldung fehlt"
       ;;
     merken:stand)
       fixture_scaffold "$fx" merken-stand
@@ -268,8 +329,12 @@ Szenarien mit Fixture + automatischer Prüfung:
   finish:feature         eigenes Skript + README-Bezug, dazu fremde Änderungen → Commit nur mit dem Eigenen (Trailer, README nachgezogen), gepusht, Fremdes benannt
   finish:frisch          nur fremde Änderungen, Session hat nichts getan → kein Commit, offene Änderungen aufgelistet
   finish:clean           nichts zu committen → meldet das, kein Commit
-  finish-lite:sync       eigene + fremde Änderungen → Stand-Commit nur mit dem Eigenen, Rebase, Push, Fremdes liegt noch da
-  finish-lite:synchron   nichts geändert → „Schon synchron.", kein leerer Commit
+  finish:knapp           nur Notiz geändert (von selbst knapp): eigene + fremde Änderungen → Stand-Commit nur mit dem Eigenen, Rebase, Push, Fremdes liegt noch da
+  finish:worktree        Worktree mit Ziel main, Remote weiter, Fremdes im Hauptordner → zurückgebracht, gepusht, Worktree + Branch weg
+  finish:worktree-ohne-ziel  Worktree ohne finishInto, Aufruf mit „nach main" → Ziel nachgetragen, zurückgebracht
+  finish:worktree-env    ignorierte .env im Worktree → zurückgebracht, aber Worktree bleibt, .env genannt
+  finish:worktree-fremd  dieselbe Datei im Hauptordner fremd offen → Stopp, nichts überschrieben, Worktree bleibt
+  finish:knapp-synchron  nichts geändert → „Schon synchron.", kein leerer Commit
   merken:stand           CLAUDE.md mit altem Stand-Block + Session-Kontext → ein neuer Stand, alter in HISTORIE.md, kein Commit
   merken:push            wie stand, Zustimmung im Aufruf, Remote von anderswo weitergezogen → Stand committet, Remote hereingeholt (linear), gepusht, Fremdes bleibt liegen
   xcode:leer             leeres Verzeichnis → „kein Xcode-Projekt gefunden"
@@ -283,7 +348,7 @@ Szenarien mit Fixture + automatischer Prüfung:
 Freier Lauf:  tools/eval.sh <command> [prompt-zusatz]   (Transkript + Eval-Abschnitt, Urteil von Hand)
 EOF
     exit 0 ;;
-  alle) for s in finish:feature finish:frisch finish:clean finish-lite:sync finish-lite:synchron merken:stand merken:push neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
+  alle) for s in finish:feature finish:frisch finish:clean finish:worktree finish:worktree-ohne-ziel finish:worktree-env finish:worktree-fremd finish:knapp finish:knapp-synchron merken:stand merken:push neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
   *:*)  szenario "$1" ;;
   *)
     cmd="$1"; shift; [ -f "$PLUGIN/commands/$cmd.md" ] || { echo "kein Command: $cmd"; exit 2; }

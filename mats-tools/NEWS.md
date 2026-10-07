@@ -11,6 +11,14 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-10-07 · /finish kann Worktrees, /finish-lite steckt jetzt in /finish
+
+Wer zwei Claude-Fenster am selben Projekt hat, kann eines in einem eigenen Ordner arbeiten lassen
+(„Worktree", Anleitung in `reference/worktrees.md`). `/finish` dort bringt die Arbeit danach selbst
+zurück und räumt den Ordner weg; bei Überschneidungen hält es an, ohne etwas zu verlieren. `/finish-lite`
+gibt es nicht mehr: `/finish` merkt selbst, wenn ein Projekt nur aus Notizen besteht, und schließt dann genauso knapp ab. Neu: der Stand vom Server wird nur
+noch geholt, wenn der Upload abgelehnt wird.
+
 ## 2026-09-27 · /finish nimmt nur noch mit, was diese Session gemacht hat
 
 Arbeiten zwei Claude-Fenster im selben Ordner, hat `/finish` bisher die halbfertigen Dateien des
