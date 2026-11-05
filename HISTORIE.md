@@ -262,7 +262,7 @@ Infrastruktur/Shell, Privacy/Doku) + Umsetzung der Befunde:
 - [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents`, Budgets/Kopfzeilen prüfen →
   `/optimieren claude-md`.
 - [ ] `inventar.sh` GNU-Zweig einmal im Container laufen lassen.
-- [ ] `~/Documents/9_Temp/welle*-bak/` (≈200 KB) löschen, wenn nichts vermisst wird.
+- [x] `~/Documents/9_Temp/welle*-bak/` (≈200 KB) löschen, wenn nichts vermisst wird. (gelöscht 2026-11-05)
 
 ## Stand bis 2026-08-23
 
@@ -315,4 +315,4 @@ Infrastruktur/Shell, Privacy/Doku) + Umsetzung der Befunde:
 - [ ] Wiedervorlage 2026-11-22: run `inventar.sh ~/Documents`, check budgets/height headers, feed
   findings into `/optimieren claude-md` (Meta-Pflege section of the Verfassung).
 - [ ] `inventar.sh` GNU branch (Linux) only statically checked — run once in a container.
-- [ ] `~/Documents/9_Temp/welle*-bak/` (≈200 KB wave backups) can go once nothing is missed.
+- [x] `~/Documents/9_Temp/welle*-bak/` (≈200 KB wave backups) can go once nothing is missed. (deleted 2026-11-05)
