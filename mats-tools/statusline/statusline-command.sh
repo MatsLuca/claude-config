@@ -243,6 +243,21 @@ if [ -n "$fable_pct" ]; then
   limits_str="${limits_str}  ${DIM}F5${RST} ${tc}${v}%${RST}"
 fi
 
+# --- Limit-Log (Abo-Statistik) -----------------------------------------------
+# Hängt max. 1x/min eine Zeile an ~/.claude/limit-log/<Monat>.tsv an, unabhängig
+# davon, ob die Anzeige an ist: epoch, 5h-%, 5h-Reset, 7d-%, 7d-Reset, Fable-%.
+# Auswertung: statusline/limit-stats.sh (reicht ein kleineres Abo?). Nur lokal.
+if [ -n "$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')" ]; then
+  lim_log="$HOME/.claude/limit-log/$(date +%Y-%m).tsv"
+  if [ $(( $(date +%s) - $(mtime "$lim_log") )) -ge 60 ]; then
+    mkdir -p "${lim_log%/*}" 2>/dev/null
+    echo "$input" | jq -r --arg f "${fable_pct:-}" '[(now|floor),
+        .rate_limits.five_hour.used_percentage, (.rate_limits.five_hour.resets_at // ""),
+        (.rate_limits.seven_day.used_percentage // ""), (.rate_limits.seven_day.resets_at // ""),
+        $f] | @tsv' >> "$lim_log" 2>/dev/null
+  fi
+fi
+
 # --- session cost (Anthropic-Token diese Session, in EUR) --------------------
 cost_raw=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 cost_str=""
