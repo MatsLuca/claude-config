@@ -95,7 +95,7 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 - **Portability (macOS + Linux):** commands must also work in containers/Codespaces. For
   BSD↔GNU dialect splits (`date`, `stat`, `sed -i`) use the probe-then-variant pattern
   (cheap GNU probe once, then stick to one dialect — see `mtime()` in
-  `statusline/statusline-command.sh`). Inherently macOS-bound commands (`/xcode`) are the
+  `statusline/statusline-command.sh`). Inherently macOS-bound commands (e.g. using `open`) are the
   marked exception. The validator's portability lint guards against regressions.
 - **Evals describe outcomes, not implementation** (`mats-tools/reference/evals.md`): they pin
   observable behavior, never internal markers or specific tool calls — so a better
@@ -104,7 +104,7 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 - The authoring standard (`mats-tools/reference/authoring-guide.md`) is itself an optimizable
   target (`/optimieren authoring-guide`) — see its "Meta-Pflege" section.
 - **The loop is the point.** Behaviour evals run for real via `tools/eval.sh` (headless from the
-  repo source, throwaway fixture, on-disk checks for finish, merken, xcode; costs
+  repo source, throwaway fixture, on-disk checks for finish, merken, neues-projekt, destillieren; costs
   tokens, so not in CI). The native `claude plugin eval` (cases in `mats-tools/evals/<case>/`,
   sharing the fixtures via `scaffold.sh`) adds the with/without-plugin comparison, regex/file graders
   and an LLM judge, but cannot check git state (pushed? tree clean?) — it is the instrument of `/neudenken` (does the block beat bare
@@ -140,7 +140,7 @@ manual version bumps. Do not add a `version` key unless the user explicitly want
 /plugin update mats-tools@claude-config
 ```
 
-Then invoke the command (`/finish`, `/xcode`, …) or trigger the agent to verify behavior.
+Then invoke the command (`/finish`, `/merken`, …) or trigger the agent to verify behavior.
 
 ## Aktueller Stand (2026-09-22)
 

@@ -2,6 +2,13 @@
 
 Ersetzte Stand-Blöcke aus der CLAUDE.md, neueste zuerst (geschrieben von `/merken`).
 
+## 2026-11-10 — `/xcode` gestrichen
+
+Apples offizielles Plugin `xcode@claude-plugins-official` (Xcode 27) ist installiert: MCP für Build, Build-Log,
+Diagnosen, Tests, Previews und Apple-Doku gegen ein Xcode ohne Fenster. `/xcode` öffnete nur das Projekt in der
+Xcode-Oberfläche — dafür reicht `open <projekt>.xcodeproj`; seit Juni drei Aufrufe. Mit Mats' Zustimmung raus,
+samt Eval-Szenario `xcode:leer`.
+
 ## 2026-09-16 — Claude-Code-Update nur bei tragfähigem Netz (ersetzt am 2026-09-22)
 
 **Claude-Code-Update nur bei tragfähigem Netz** (Anlass: „✘ Auto-update failed · Run claude doctor"

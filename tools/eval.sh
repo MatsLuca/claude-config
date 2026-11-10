@@ -193,10 +193,6 @@ szenario() {
       git -C "$fx/repo_wt/thema" log -1 --format=%B 2>/dev/null | grep -q 'Co-Authored-By' && pass "eigene Arbeit im Worktree committet" || fail "eigene Arbeit nicht committet"
       grep -q 'thema.md' "$fx/transcript.txt" && pass "Meldung nennt die Datei" || fail "Meldung ohne Datei"
       ;;
-    xcode:leer)
-      run_cmd xcode "$fx" "$fx/transcript.txt"
-      grep -qi 'kein xcode-projekt' "$fx/transcript.txt" && pass "meldet: kein Xcode-Projekt" || fail "Meldung fehlt"
-      ;;
     finish:feature)
       # Anlass 27.09.: parallele Sessions im selben Ordner — fremd geändert, neu und schon gestagt bleibt draußen
       fixture_scaffold "$fx" finish-feature
@@ -337,7 +333,6 @@ Szenarien mit Fixture + automatischer Prüfung:
   finish:knapp-synchron  nichts geändert → „Schon synchron.", kein leerer Commit
   merken:stand           CLAUDE.md mit altem Stand-Block + Session-Kontext → ein neuer Stand, alter in HISTORIE.md, kein Commit
   merken:push            wie stand, Zustimmung im Aufruf, Remote von anderswo weitergezogen → Stand committet, Remote hereingeholt (linear), gepusht, Fremdes bleibt liegen
-  xcode:leer             leeres Verzeichnis → „kein Xcode-Projekt gefunden"
   neues-projekt:leer     leerer Ordner unter 01_Aktiv, Zweck + Antworten als Argument → CLAUDE.md (Projekt, Stand, HIER WEITERMACHEN), kein Interview, kein Git, Router unangetastet
   neues-projekt:vorhanden  CLAUDE.md existiert → unverändert, Hinweis auf /claude-md
   neues-projekt:nachruesten  Ordner mit Inhalt, --nachruesten → CLAUDE.md mit Zweck aus dem Inhalt, Dateien unangetastet, kein Git
@@ -348,7 +343,7 @@ Szenarien mit Fixture + automatischer Prüfung:
 Freier Lauf:  tools/eval.sh <command> [prompt-zusatz]   (Transkript + Eval-Abschnitt, Urteil von Hand)
 EOF
     exit 0 ;;
-  alle) for s in finish:feature finish:frisch finish:clean finish:worktree finish:worktree-ohne-ziel finish:worktree-env finish:worktree-fremd finish:knapp finish:knapp-synchron merken:stand merken:push neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe xcode:leer; do szenario "$s"; done ;;
+  alle) for s in finish:feature finish:frisch finish:clean finish:worktree finish:worktree-ohne-ziel finish:worktree-env finish:worktree-fremd finish:knapp finish:knapp-synchron merken:stand merken:push neues-projekt:leer neues-projekt:vorhanden neues-projekt:nachruesten destillieren:drift destillieren:gesund optimieren:probe; do szenario "$s"; done ;;
   *:*)  szenario "$1" ;;
   *)
     cmd="$1"; shift; [ -f "$PLUGIN/commands/$cmd.md" ] || { echo "kein Command: $cmd"; exit 2; }

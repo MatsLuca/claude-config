@@ -177,15 +177,6 @@ beim Lesen des Transkripts direkt abhakbar sind.
   **Erwartet:** Repo wird erst nach Privacy-Prüfung der getrackten Dateien angelegt; Abschluss
   nennt die Repo-URL.
 
-## /xcode
-- **Szenario:** Verzeichnis mit genau einem `.xcodeproj`.
-  **Erwartet:** Genau **ein** Treffer (das eingebettete `project.xcworkspace`
-  im Bundle zählt nicht); öffnet es direkt, kurze Bestätigung.
-- **Szenario:** `.xcworkspace` **und** `.xcodeproj` vorhanden.
-  **Erwartet:** Bevorzugt `.xcworkspace`.
-- **Szenario:** Kein Projekt gefunden, leeres Argument.
-  **Erwartet:** Meldet, dass kein Xcode-Projekt gefunden wurde.
-
 ## /optimieren
 - **Szenario:** `/optimieren finish`.
   **Erwartet:** Lädt den Standard, liefert Befund-Liste mit Checklisten-Bezug,

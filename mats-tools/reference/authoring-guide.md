@@ -109,8 +109,8 @@ auslöst — technisch ein Skill als flache Datei (siehe „Command oder Skill?"
   nutzen: einmal billig die GNU-Variante testen, dann konsequent eine der beiden
   fahren (Vorbild: `mtime()` in `statusline-command.sh`). Kein `BSD || GNU` ohne Probe — manche Tools verschmutzen
   stdout, bevor sie fehlschlagen. `/opt/homebrew/bin` im PATH zu ergänzen ist
-  okay (auf Linux wirkungslos). Rein macOS-gebundene Commands (z.B. `/xcode`
-  mit `open`) sind die markierte Ausnahme.
+  okay (auf Linux wirkungslos). Rein macOS-gebundene Commands (z.B. mit `open`)
+  sind die markierte Ausnahme.
 - **Abschlussmeldung:** knapp halten — was getan wurde, keine langen
   Erklärungen außer bei Auffälligkeiten.
 
