@@ -15,6 +15,8 @@ installed) calls the native `claude plugin validate` — run it after any change
 commands/agents/manifests (CI runs it on every push via `.github/workflows/validate.yml`). Behavior is verified against the outcome-level scenarios
 in `mats-tools/reference/evals.md` — interactively or headless (see the Loop section there).
 
+**Zuständigkeit (seit 2026-11-11, Fable-5.2-Prompting-Guide):** This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it.
+
 ## Architecture
 
 Three nesting levels, each with its own manifest:
