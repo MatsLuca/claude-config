@@ -186,7 +186,14 @@ Abonnenten-Features, ihr Setup nur nicht brechen.
             Subagent, vier Wege je Ast, Fragen an Dritte als Ausgang, gebaut wird auf „jetzt“ in derselben Session; Fragenpool
             `fragen.md` gestrichen (in den Transkripten einmal gelesen). Belege: 8 Modell-Starts seit Oktober, getippt nur im
             September. Native Fälle ×3 vorher → nachher: `42-idee` 1/3 → 3/3, `42-gross` 0/3 → 3/3, `42-jetzt` 1/3 → 3/3,
-            `42-auftrag` 3/3 → 3/3. Beobachten: erster echter Lauf mit großem Vorhaben.
+            `42-auftrag` 3/3 → 3/3.
+      - [ ] **42 neu** (Abnahme Nutzung, bis 03.12.): gemessen ist nur headless. Offen ist der erste echte Lauf an einem
+            großen Vorhaben — kommt nach dem Befund die Etappenliste, dann eine Frage je Antwort? — und ein Lauf, in dem
+            mitten im Gespräch ein Fakt fehlt (sucht ein Subagent, ohne dass die Erörterung wartet?). Der Skill hat 114
+            Zeilen; kürzen nur mit Eval-Beleg (`--case '42-*'`, ein Durchgang kostet rund 2,50 $).
+      - [x] Authoring-Standard (19.11.): zwei neue Prinzipien (Umgebung als Quelle, Ziel nennen statt verbieten), No-op-Test
+            geschärft. Aus demselben Vergleich nicht übernommen, bei Bedarf prüfen: Fertig-Kriterium mit Anspruch („jede …
+            erfasst") und das Verstecken späterer Schritte gegen vorzeitiges Abhaken.
       - [ ] danach die meistgenutzten Werkstatt-Skills: `gmail` (23 Modell-Aufrufe seit 02.09.), `erinnerungen` (17)
 - [x] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.): am 02.09. alle 9 alten SHAs 404,
       Anfragetext und beide Bundles in `9_Temp/` gelöscht.
