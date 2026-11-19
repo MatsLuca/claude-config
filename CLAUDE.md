@@ -181,6 +181,12 @@ Abonnenten-Features, ihr Setup nur nicht brechen.
       - [x] `/optimieren einarbeiten` → gestrichen (02.09.: 0 Aufrufe in allen Transkripten seit 7.8., Zweck ohne Command erfüllt)
       - [x] `/optimieren machine-setup` (02.09.: Description 1373→~330 Zeichen ohne Beispielblöcke, `tools:` gesetzt, awk-Fallback raus — `${CLAUDE_PLUGIN_ROOT}` expandiert im Agent-Body nachweislich —, Rückfrage-Regel für Subagenten; Live-Lauf auf Mats' Mac vorher/nachher 8→7 Tool-Aufrufe, nichts verändert)
       - [x] `/optimieren 42` (22.09.: Auslöser = Erörtern statt Auftrag, auch mit Heimat; eine Frage je Antwort; Alltagssprache; Bündeln erlaubt; native Fälle `42-idee` 0,5→1,0 ×3, `42-auftrag` 3/3)
+      - [x] `/neudenken 42` (19.11., Anstoß: Vergleich mit einer öffentlichen Sammlung von Interview-Skills): Entscheidungsbaum mit
+            sechs Pflichtästen statt fester Phasen, Tiefe nach Größe (klein gebündelt, groß in Etappen mit Liste), Fakten per
+            Subagent, vier Wege je Ast, Fragen an Dritte als Ausgang, gebaut wird auf „jetzt“ in derselben Session; Fragenpool
+            `fragen.md` gestrichen (in den Transkripten einmal gelesen). Belege: 8 Modell-Starts seit Oktober, getippt nur im
+            September. Native Fälle ×3 vorher → nachher: `42-idee` 1/3 → 3/3, `42-gross` 0/3 → 3/3, `42-jetzt` 1/3 → 3/3,
+            `42-auftrag` 3/3 → 3/3. Beobachten: erster echter Lauf mit großem Vorhaben.
       - [ ] danach die meistgenutzten Werkstatt-Skills: `gmail` (23 Modell-Aufrufe seit 02.09.), `erinnerungen` (17)
 - [x] GitHub-Support-Ticket „purge cached sensitive data" (eingereicht 24.08.): am 02.09. alle 9 alten SHAs 404,
       Anfragetext und beide Bundles in `9_Temp/` gelöscht.

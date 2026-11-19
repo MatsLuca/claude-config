@@ -1,102 +1,114 @@
 ---
 name: "42"
-description: Vor-Erörterung einer Idee oder geplanten Aktion — erst ein Befund über das eigene System (was gibt es schon, wo gehört es hin), dann in kurzen Wellen bis zu Preis und Urteil; Ergebnis ist Fazit, Erkenntnis oder Plan mit Notiz, nie ein Bau. Laden, sobald jemand eine Idee erörtern will statt einen Auftrag zu geben („ich hab da eine Idee", „erörter mal …", „lass uns mal über X nachdenken", „sollte ich …?", halbgare Notiz) — auch zu einem bestehenden Projekt — oder per /42 <idee>. Nicht bei klaren Aufträgen („bau X"); sofort beenden bei „bau einfach" oder „ohne 42".
+description: Erörtert eine Idee, Entscheidung oder ein Vorhaben, bevor gebaut wird — erst ein Befund über das eigene System (was gibt es schon, wo gehört es hin), dann die offenen Entscheidungen, bis nichts mehr still angenommen ist; endet mit Urteil und Notiz, gebaut wird erst auf „jetzt". Laden, sobald jemand erörtern will statt beauftragen („lass uns erörtern", „ich hab da eine Idee", „sollte ich …?", „interview mich dazu", halbgare Notiz) — auch zu einem bestehenden Projekt — oder per /42 <idee>. Nicht bei klaren Aufträgen („bau X"); „bau einfach" oder „ohne 42" beendet sofort.
 ---
 
-# 42 — Vor-Erörterung in Wellen
+# 42 — Erörtern, bevor gebaut wird
 
-Zweck: ein Ausgleicher. An guten Tagen bringt der Nutzer Kontext, Detail und Struktur selbst mit,
-an müden nicht. 42 liefert beides unabhängig von der Tagesform und kitzelt aus einer halbgaren
-Idee das heraus, was drinsteckt: eine Synergie, die sonst übersehen würde, eine neue Idee, ein
-Fazit. **Der Wert liegt im Befund (Phase 0 und 2), nicht im Fragenkatalog** — die Fragen sind
-das Gerüst, der Befund das Fleisch. Fragenpools je Phase: `${CLAUDE_PLUGIN_ROOT}/skills/42/fragen.md`.
+Zweck: ein Ausgleicher. An guten Tagen bringt der Nutzer Kontext und Struktur selbst mit, an
+müden nicht; 42 liefert beides unabhängig von der Tagesform. **Der Wert liegt im Befund** — was
+es schon gibt, was das für die Idee heißt, was daraus noch werden kann. Die Fragen sind das Gerüst.
 
-## Betriebsarten
+Springt 42 von selbst an: in einem Halbsatz sagen, dass erst erörtert wird.
 
-**`/42 <idee>`**: die volle Welle, Bericht am Ende.
-**Proaktiv**: sobald der Nutzer eine Idee erörtern will statt einen Auftrag zu geben — mit oder
-ohne Heimat im System; ob es eine gibt, klärt erst Phase 0. Kurz sagen, dass 42 läuft, ohne den
-Befund vorwegzunehmen. Ein Auftrag („bau X") ist kein Fall für 42, auch wenn er groß ist.
-**Abbruch**: „bau einfach", „ohne 42" oder gleichwertig beendet 42 sofort, ohne Rückfrage,
-ohne „bist du sicher". Der Nutzer entscheidet, wie lang er es aushält.
+## Regeln
 
-## Unverletzliche Regeln
+- **Befund zuerst.** Vor der ersten Frage lesen, was nachschlagbar ist (Ordner, Repos,
+  CLAUDE.md-Dateien, Notizen, Memory, Chat-Archiv), und vorlegen: was existiert schon halb — im
+  eigenen System und, wo es naheliegt, fertig draußen —, wo gehört die Idee hin, welche Art ist
+  sie (Werkzeug · Projekt · Feature · Vorgang mit Außenwelt · Ordnung · Entscheidung). Ist unklar,
+  was gemeint ist, erst klären, bis „du meinst also X" stimmt. Die erste Frage steht in derselben
+  Antwort. *(Fertig: Art und Heimat benannt, drei Fundstellen oder ein ehrliches „nichts gefunden".)*
+- **Fakten sucht Claude, Entscheidungen trifft der Nutzer.** Taucht mitten im Lauf eine
+  Faktenfrage auf, sucht ein Subagent im Hintergrund; nur die Äste dahinter warten, der Rest
+  läuft weiter.
+- **Vermutung, wo Recherche der Input ist** — „Ich vermute X. Stimmt das?", so gestellt, dass
+  „ja" sie annimmt. **Offen, wo der Kopf des Nutzers der Input ist** (Auslöser, Fertig-Bild):
+  ohne Optionen, eine Frage je Antwort, ein Fragezeichen. Ein Wort ist eine gültige Antwort.
+- **Bündeln, sobald die Vermutungen tragen** (knappes Ja, Drängen): alle entscheidbaren in
+  einer Antwort, mit einem einzigen „stimmt das so?". Nach Widerspruch oder „zu schnell" wieder
+  einzeln.
+- **Was der Prompt schon beantwortet, wird zurückgespiegelt** („Auslöser war also X — stimmt?"),
+  und es geht an der ersten offenen Stelle weiter.
+- **Konkret.** Der letzte Fall schlägt „wie oft", ein Beispiel schlägt eine Beschreibung.
+- **Alltagssprache.** Der Befund sagt, was es gibt und was das heißt; Pfade und Technik stehen
+  in der Notiz.
+- **Begriffe schärfen.** Ein unscharfes oder doppelt belegtes Wort sofort klären („meinst du A
+  oder B?"). Hat das System eine Begriffsliste, gilt sie; ein neu geklärtes Wort kommt hinein.
+- **Gebaut wird auf „jetzt".** Bis dahin entstehen Befund, Skizze und Notiz. Sagt der Nutzer
+  „jetzt", „bau" oder „mach", baut dieselbe Session weiter — die Notiz ist ihr Auftrag, ein
+  zweites Ja braucht es nicht. Nur Unumkehrbares oder Außenwirksames (Geld, Versand an Dritte,
+  Löschung) verlangt einmal ein ausdrückliches „ja, weiter".
+- **Abbruch.** „Bau einfach" oder „ohne 42" beendet 42 sofort und ohne Rückfrage.
 
-- **Nie bauen.** 42 endet mit einem Ergebnis auf dem Tisch; Umsetzung ist ein anderer Schritt,
-  meist ein anderes Werkzeug (Ausgänge unten).
-- **Nie fragen, was nachschlagbar ist.** Ordner, Repos, CLAUDE.md-Dateien, Notizen, Memory,
-  Chat-Archiv (falls vorhanden, z. B. `/claude-chats`) werden gelesen, nicht erfragt.
-- **Eine Frage je Antwort** — ein Fragezeichen, keine Kette: „Wann hast du dir das zuletzt
-  gewünscht?" und Schluss; „… und wo warst du da gerade?" hängt schon die zweite an.
-  Je Phase die Kernfrage, dann höchstens zwei Nachfragen, nur bei drei Auslösern: Widerspruch zum
-  Befund, Unschärfe-Wörter („irgendwie", „eigentlich", „mal schauen") oder eine Antwort unter
-  einem Satz — dann als Vermutung, die auffüllt, nicht als neue offene Frage. Ein Wort ist eine
-  gültige Antwort.
-- **Vermutung statt Frage, wo Recherche der Input ist** (Phasen 2, 4, 5, 6): „Ich vermute X.
-  Stimmt das?" — korrigieren ist billiger als formulieren, und die Vermutung zeigt, was falsch
-  verstanden wurde. **Offen fragen, wo der Kopf des Nutzers der Input ist** (Phasen 1, 3):
-  keine Optionen vorgeben, sie würden die Antwort verbiegen.
-- **Konkret statt Prinzip.** „Wann war das letzte Mal" schlägt „wie oft"; Beispiele schlagen
-  Beschreibungen.
-- **Alltagssprache.** 42 gleicht müde Tage aus: der Befund sagt, was es schon gibt und was das
-  für die Idee heißt — Pfade, Zeilennummern und Technik gehören in die Notiz, nicht in die Antwort.
-- **Urteilspflicht ohne Veto.** Phase 5 endet mit einem Satz, was Claude täte und warum. Der
-  Satz stoppt nie den Fluss; „trotzdem" reicht, und es geht weiter. Das Urteil steht in der
-  Übergabe-Notiz, damit später prüfbar ist, wer öfter recht hatte.
-- **Einmal stoppen dürfen**: berührt die Idee etwas Unumkehrbares oder Außenwirksames (Geld,
-  Versand an Dritte, Löschung), verlangt Phase 4 ein explizites „ja, weiter". Sonst nie.
-- **Was der Prompt schon beantwortet, wird nicht gefragt**, sondern als Vermutung zurückgespiegelt
-  („Auslöser war also X, Fertig-Bild Y — stimmt?"); die Welle springt zur ersten offenen Stelle.
-  Ein nackter Einzeiler und ein ausformulierter Absatz sind beide gültiger Input.
+## Der Baum
 
-## Die Wellen
+Eine Idee ist ein Baum offener Entscheidungen. **Entscheidbar** ist ein Ast, dessen
+Voraussetzungen stehen: gefragt wird Entscheidbares, der Rest wartet. Jede Antwort verschiebt
+den Baum — neu ansehen, was jetzt entscheidbar ist, weiter.
 
-Reihenfolge ist Regel: jede Phase braucht die vorige. Gewichtung: **0 und 2 tragen**, 3 bis 6
-bleiben dünn. Die Phasen sind Fertig-Kriterien, keine Runden: tragen die Vermutungen (der Nutzer
-stimmt knapp zu oder drängt weiter), dürfen 3 bis 6 gebündelt in einer Antwort kommen, mit einem
-einzigen „stimmt das so?"; nach Widerspruch oder „zu schnell" wieder eine Phase je Antwort.
-Fertig-Kriterium je Phase in Klammern.
+Sechs **Pflichtäste** hat jede Idee; dazu kommen ihre eigenen (bei einem Paket für andere etwa:
+was sie bekommen, was verborgen bleibt, wie es zu ihnen kommt).
 
-0. **Verstehen, dann Befund** (keine Fragen aus dem Pool). Erst prüfen, ob die Idee semantisch
-   trägt; wenn nicht, elementare Rückfragen, bis „du meinst also X" möglich ist. Dann Befund
-   über das System: was existiert schon halb, wo würde es hingehören, welcher Situationstyp
-   (Werkzeug · Projekt · Feature · Vorgang mit Außenwelt · Ordnung · Entscheidung). Befund
-   vorlegen — ohne eigene Rückfrage, korrigieren darf der Nutzer immer —, in derselben Antwort
-   die Frage von Phase 1. *(Fertig: Typ und Heimat benannt, drei Fundstellen oder „nichts gefunden".)*
-1. **Warum** (offen). Auslöser als Moment, nicht als Prinzip. *(Fertig: ein Auslöser oder das
-   ehrliche „kein konkreter, nur ein Gefühl" — beides ist eine Antwort.)*
-2. **Wo im System, dann Synergie** (Vermutung). Erste Hälfte: Typ und Ort bestätigen, Verhältnis
-   zum Bestehenden — steht die Heimat seit Phase 0 fest, reicht ein Satz. Zweite Hälfte, divergent: was im System würde davon besser, was könnte
-   daraus noch werden. *(Fertig: Ort steht, mindestens eine Synergie oder „keine" benannt.)*
-3. **Fertig-Bild** (offen). Ein echtes Beispiel: das geht rein, das kommt raus. Ein Prozess ist
-   kein Fertig-Bild; nachfragen, bis etwas Zeigbares da ist. *(Fertig: ein Beispiel + ein
-   Kriterium für die erste Woche.)*
+1. **Warum** (offen). Der Auslöser als Moment. *(Fertig: ein Auslöser oder das ehrliche „nur ein
+   Gefühl" — beides ist eine Antwort.)*
+2. **Ort und Synergie** (Vermutung). Ersetzt, erweitert oder steht daneben; was im System davon
+   besser würde, was daraus noch werden könnte. *(Fertig: Ort steht, eine Synergie oder „keine".)*
+3. **Fertig-Bild** (offen). Ein echtes Beispiel: das geht rein, das kommt raus. *(Fertig: etwas
+   Zeigbares und ein Kriterium für die erste Woche.)*
 4. **Grenzen und Rückweg** (Vermutung). Unumkehrbares, Daten, Regelkonflikte, Rückweg.
    *(Fertig: Liste vorgelegt, bestätigt oder ergänzt.)*
-5. **Preis** (Vermutung, endet mit dem Urteilssatz). Größe in Abend / Wochenende / Monat, was
-   bei Nichtstun passiert, was es verdrängt, wo es ausufert. *(Fertig: Größe bestätigt, Urteil
-   gesagt, Nutzer hat getragen oder „trotzdem" gesagt.)*
-6. **Übergabe** (Vermutung). Ergebnisform, nächster Schritt mit Werkzeug, Ort der Notiz,
-   Wiedervorlage, was bewusst offen bleibt. *(Fertig: Notiz geschrieben, Nutzer hat „jetzt"
-   oder „parken bis <Datum>" gesagt.)*
+5. **Preis** (Vermutung). Was es verdrängt, was es dauerhaft an Pflege kostet, wo es ausufert,
+   was bei Nichtstun passiert. Größe in Bauschritten, die je eine Session schafft.
+   *(Fertig: bestätigt, Urteil gesagt.)*
+6. **Übergabe** (Vermutung). Ergebnisform, nächster Schritt, Ort der Notiz, wer gefragt oder
+   informiert werden muss. *(Fertig: Notiz geschrieben, Nutzer sagt „jetzt" oder „parken bis <Datum>".)*
 
-## Ergebnis und Ausgänge
+**Tiefe nach Größe.** Kleine Idee (ein Baustein, ein Ort): Befund und Warum, danach die übrigen
+Äste gebündelt. Große Idee (mehrere Bausteine, mehrere Sessions, andere Menschen betroffen) oder
+„interview mich": zuerst die **Etappen** als nummerierte Liste zeigen — die Äste dieser Idee in
+der Reihenfolge ihrer Abhängigkeit —, dann eine Etappe je Antwort. Jede schließt mit „Etappe n
+steht: …" in einem Satz, bevor die nächste beginnt.
 
-Drei Ergebnisformen, entschieden in Phase 5/6: **Fazit** zur Idee (auch „lass es"),
-**Erkenntnis** (Synergie, mentaler Shift), **Umsetzungsplan**. Die Übergabe-Notiz ist knapp
-und lebt an dem Ort, den Phase 2 ergab (sonst cwd): Idee in einem Satz · Typ und Ort · Befund
-und Synergien · Fertig-Bild · Grenzen · Preis und **Urteil** (wörtlich, plus was der Nutzer
-entschied) · nächster Schritt · bewusst offen.
+**Vier Wege, einen Ast zu klären:**
+- **Gespräch** — der Standard.
+- **Recherche** — Claude oder ein Subagent; das Ergebnis kommt als Nachtrag zum Befund.
+- **Zeigen** — wo „wie soll es aussehen oder sich anfühlen" die Frage ist: eine Wegwerf-Skizze
+  vorlegen (Seite, Bild, Beispielausgabe) und darauf reagieren lassen.
+- **Handgriff** — was nur der Nutzer kann (Zugang, Gerät, Anruf): als kurze Liste mitgeben.
 
-Ausgänge, wo vorhanden — 42 endet dort, wo sie beginnen:
-- Werkzeug bauen → `plugin-dev` als Referenz, `/optimieren` als Maßstab
-- Projekt anlegen / Ort klären → `/neues-projekt --einordnen`, Skill `claude-md`
-- Feature in Code → Plan-Mode oder `feature-dev`
-- System hinterfragen / entschlacken → `/neudenken`, `/destillieren`
-- Frist → Termin oder Wiedervorlage des Nutzers
-- Entscheidung ohne Bau → Fazit in der Notiz, fertig
+Hängt ein Ast am Wissen eines Dritten, spricht der für sich selbst: die Fragen an ihn sammeln
+und als Fragebogen oder Nachrichtenentwurf mitgeben — das Wichtigste zuerst, je Frage eine
+Sache, ein Satz Kontext vorweg. Der Ast steht bis zur Antwort als „noch nicht entscheidbar" in
+der Notiz.
+
+**Fertig** ist die Erörterung, wenn jeder Ast entschieden, bewusst draußen oder als noch nicht
+entscheidbar benannt ist — nichts ist still angenommen.
+
+## Urteil
+
+Vor der Übergabe ein Satz, was Claude täte und warum: trägt die Idee, gibt es sie schon, passt
+sie zum Bestehenden. Der Satz stoppt nie den Fluss; „trotzdem" reicht, und es geht weiter. Will
+der Nutzer mehr, als Claude vorschlägt, gilt sein Umfang — Claude nennt dann die Reihenfolge, in
+der es am sichersten gelingt. Das Urteil steht wörtlich in der Notiz, damit später prüfbar ist,
+wer öfter recht hatte.
+
+## Notiz und Ausgänge
+
+Die Notiz ist knapp und lebt an dem Ort, den Ast 2 ergab (sonst cwd): Idee in einem Satz · Art
+und Ort · Befund und Synergien · Fertig-Bild · Entscheidungen, je eine Zeile · Grenzen · Preis
+und **Urteil** (wörtlich, plus was der Nutzer entschied) · nächster Schritt · noch nicht
+entscheidbar (woran es hängt) · bewusst draußen. Bei einer großen Idee ist sie die Karte für
+die folgenden Sessions.
+
+Ergebnisformen: **Fazit** (auch „lass es"), **Erkenntnis** (Synergie, neuer Blick), **Plan**.
+Ausgänge, wo vorhanden:
+- „jetzt" → dieselbe Session baut, die Notiz ist der Auftrag
+- „parken bis <Datum>" → Termin oder Wiedervorlage des Nutzers
+- Fragen an Dritte → Fragebogen oder Nachrichtenentwurf
+- Projekt anlegen, Ort klären → `/neues-projekt --einordnen`, Skill `claude-md`
+- System hinterfragen, entschlacken → `/neudenken`, `/destillieren`
 
 ## Abschluss
 
-Melde: Ergebnisform, Ort der Notiz, Urteil in einem Satz, nächster Schritt. Kein Protokoll der
-Fragen.
+Melde: Ergebnisform, Ort der Notiz, Urteil in einem Satz, nächster Schritt.

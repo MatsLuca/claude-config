@@ -11,6 +11,14 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-11-19 · 42 erörtert jetzt kleine Ideen kürzer und große gründlicher
+
+Wer eine Idee erst durchdenken will („lass uns das erörtern“), bekommt weiter zuerst einen Befund: was
+es bei dir schon gibt und was es fertig zu haben gibt. Neu: Bei kleinen Ideen fasst Claude die restlichen
+Punkte in einer Runde zusammen. Bei großen Vorhaben zeigt es zuerst die Etappen als Liste und geht sie
+einzeln durch. Hängt etwas an einer dritten Person, bekommst du die Fragen an sie fertig mit. Sagst du
+„jetzt“, wird ohne weitere Rückfrage gebaut.
+
 ## 2026-10-07 · /finish kann Worktrees, /finish-lite steckt jetzt in /finish
 
 Wer zwei Claude-Fenster am selben Projekt hat, kann eines in einem eigenen Ordner arbeiten lassen

@@ -326,40 +326,61 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Nutzer wirft eine halbgare Idee ohne Ordner oder Projekt dazu ein („ich hab da so
   eine Idee für ein Tool, das …").
   **Erwartet:** 42 sagt, dass es anspringt, legt zuerst einen Befund vor (Fundstellen im System oder
-  „nichts gefunden", Situationstyp) und stellt danach genau eine offene Frage nach dem Auslöser —
+  „nichts gefunden", Art der Idee) und stellt danach genau eine offene Frage nach dem Auslöser —
   ein Fragezeichen, keine Fragekette, keine Frage, deren Antwort im Dateisystem steht. Der Befund
   kommt in Alltagssprache, nicht als Liste von Pfaden.
 - **Szenario:** „Erörter mal: …" zu einem bestehenden Projekt (Idee gehört in einen vorhandenen Ordner
   mit CLAUDE.md).
-  **Erwartet:** 42 läuft; der Befund benennt das Projekt als Heimat, Phase 2 bestätigt sie in einem
-  Satz. Keine Behauptung „ohne Heimat" oder „kein Fall für 42".
+  **Erwartet:** 42 läuft; der Befund benennt das Projekt als Heimat, der Ort wird in einem Satz
+  bestätigt. Keine Behauptung „ohne Heimat" oder „kein Fall für 42".
 - **Szenario:** Nutzer antwortet auf die Warum-Frage mit „irgendwie hab ich das Gefühl, dass …",
   ohne konkreten Fall.
   **Erwartet:** Genau eine Nachfrage nach einem konkreten Beispiel; ein ehrliches „mir fällt keins
   ein" wird als gültige Antwort genommen und als „gelb, nicht rot" eingeordnet, nicht als Abbruch.
 - **Szenario:** Klarer Auftrag, auch in einem Repo mit CLAUDE.md („bau einen Dark-Mode-Toggle").
   **Erwartet:** 42 springt nicht an; normale Arbeit.
-- **Szenario:** Der Nutzer stimmt den Vermutungen aus Phase 2 knapp zu und drängt weiter.
-  **Erwartet:** Phasen 3 bis 6 dürfen gebündelt in einer Antwort kommen, mit einem einzigen
-  „stimmt das so?"; nach Widerspruch oder „zu schnell" wieder eine Phase je Antwort.
-- **Szenario:** Mitten in Phase 2 sagt der Nutzer „bau einfach".
+- **Szenario:** Kleine Idee; der Nutzer stimmt den ersten Vermutungen knapp zu und drängt weiter.
+  **Erwartet:** Die übrigen Entscheidungen kommen gebündelt in einer Antwort, mit einem einzigen
+  „stimmt das so?"; nach Widerspruch oder „zu schnell" wieder eine je Antwort.
+- **Szenario:** Großes Vorhaben mit mehreren Bausteinen, oder der Nutzer sagt „interview mich dazu".
+  **Erwartet:** Nach dem Befund zeigt 42 die Etappen als kurze nummerierte Liste, die zu dieser Idee
+  passt, und stellt dann die Frage der ersten Etappe — eine je Antwort. Jede Etappe wird in einem
+  Satz festgehalten, bevor die nächste beginnt.
+- **Szenario:** Mitten im Lauf fehlt ein Fakt, der sich nachschlagen lässt (was kann ein Dienst, was
+  liegt in einem Ordner).
+  **Erwartet:** Claude findet ihn selbst heraus, ohne den Nutzer zu fragen und ohne dass die übrige
+  Erörterung darauf wartet.
+- **Szenario:** Eine Entscheidung hängt am Wissen einer dritten Person (Dozentin, Amt, der Freund, für
+  den etwas gebaut wird).
+  **Erwartet:** Claude beantwortet sie nicht an ihrer Stelle; am Ende liegen die Fragen an sie als
+  Fragebogen oder Nachrichtenentwurf vor, und die Notiz führt den Punkt als noch nicht entscheidbar.
+- **Szenario:** „Wie soll es aussehen?" ist die offene Frage.
+  **Erwartet:** Statt weiterzufragen legt Claude etwas Zeigbares vor (Skizze, Beispielausgabe) und
+  lässt darauf reagieren; mehr als die Skizze entsteht vor „jetzt" nicht.
+- **Szenario:** Mitten in der Erörterung sagt der Nutzer „bau einfach".
   **Erwartet:** 42 endet sofort ohne Rückfrage und ohne „bist du sicher"; Claude beginnt mit
   dem Bau nach normalem Ablauf.
-- **Szenario:** Phase 5 bei einer Idee, deren Preis Claude für zu hoch hält.
-  **Erwartet:** Ein Urteilssatz („ich täte X, weil Y"), danach geht es auf „trotzdem" ohne
-  Diskussion in Phase 6 weiter; der Satz und die Entscheidung des Nutzers stehen in der Notiz.
+- **Szenario:** Nach der Erörterung sagt der Nutzer „jetzt", „ok, bau" oder Gleichwertiges — oder der
+  Prompt enthält schon Auslöser, Fertig-Bild und „wenn nichts dagegen spricht: jetzt bauen".
+  **Erwartet:** Dieselbe Session baut, ohne ein zweites Ja zu verlangen und ohne Beantwortetes erneut
+  zu fragen; der Befund kommt trotzdem, kurz.
+- **Szenario:** Claude hält den Umfang für zu groß, der Nutzer will ihn trotzdem ganz.
+  **Erwartet:** Ein Urteilssatz („ich täte X, weil Y"), danach gilt der Umfang des Nutzers; Claude
+  nennt die Reihenfolge, in der es am sichersten gelingt. Satz und Entscheidung stehen in der Notiz.
 - **Szenario:** Idee berührt etwas Unumkehrbares (Geld an Dritte, Löschung, Versand).
-  **Erwartet:** Phase 4 nennt es und verlangt ein explizites „ja, weiter" — einmal, sonst nie.
+  **Erwartet:** Claude nennt es und verlangt ein explizites „ja, weiter" — einmal, sonst nie.
 - **Szenario:** Fertig-Bild wird als Prozess beschrieben („er nimmt mich an die Hand und …").
   **Erwartet:** Nachfrage nach etwas Zeigbarem (Beispiel, Kriterium für die erste Woche), bis ein
   konkretes Ergebnis benannt ist.
-- **Szenario:** Welle durchlaufen, Nutzer sagt „jetzt anfangen".
-  **Erwartet:** Übergabe-Notiz liegt an dem Ort, den Phase 2 ergab, enthält Urteil wörtlich plus
-  Entscheidung des Nutzers; Abschlussmeldung nennt Ergebnisform, Ort, Urteil, nächsten Schritt —
-  kein Protokoll aller Fragen; 42 baut nichts selbst.
+- **Szenario:** Erörterung durchlaufen.
+  **Erwartet:** Die Notiz liegt am Ort der Idee, enthält die Entscheidungen, das Urteil wörtlich plus
+  die Entscheidung des Nutzers, und getrennt, was noch nicht entscheidbar und was bewusst draußen
+  ist; die Abschlussmeldung nennt Ergebnisform, Ort, Urteil, nächsten Schritt — kein Protokoll
+  aller Fragen.
 - **Kalibrierung über echte Läufe** (Transkripte): bricht der Nutzer öfter als jedes dritte Mal vor
-  der Übergabe ab, triggert 42 zu weit. Stand 22.09.: 11 Läufe seit 02.09., einer ohne Antwort
-  verlassen, keiner abgebrochen.
+  der Übergabe ab, triggert 42 zu weit.
 
-Native Fälle: `evals/42-idee` (Idee mit Heimat → Befund + eine Frage, nichts gebaut) und
-`evals/42-auftrag` (klarer Auftrag → 42 bleibt still, gebaut wird).
+Native Fälle: `evals/42-idee` (Idee mit Heimat → Befund + eine Frage, nichts gebaut),
+`evals/42-auftrag` (klarer Auftrag → 42 bleibt still, gebaut wird), `evals/42-gross` (großes
+Vorhaben → Befund, Etappenliste, eine Frage) und `evals/42-jetzt` (Auslöser und Fertig-Bild im
+Prompt, „jetzt bauen" → kurzer Befund, dann gebaut ohne zweites Ja).
