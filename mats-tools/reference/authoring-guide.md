@@ -28,11 +28,22 @@ Gelten für Commands, Agents **und** Skills.
 - **Knapp ist König.** Jeder Satz teilt sich das Kontextfenster mit allem
   anderen. Nur Kontext aufnehmen, den Claude *nicht* schon hat. Der Test pro
   Satz: *Ändert er das Verhalten gegenüber dem Default?* Wenn nein, ist er ein
-  No-op — raus damit, auch wenn er „richtig" klingt. Triviales weglassen.
+  No-op — raus damit, auch wenn er „richtig" klingt. Der ganze Satz geht,
+  nicht einzelne Wörter. Der Default gehört dem Modell, nicht dem Leser: im
+  Streitfall entscheidet ein Lauf, keine Debatte. Triviales weglassen.
 - **Eine Quelle pro Bedeutung.** Jede Aussage lebt an *einer* autoritativen
   Stelle; anderswo nur darauf verweisen, nicht neu formulieren. Dieselbe
   Botschaft mehrfach ausbuchstabiert kostet Tokens und Pflege und bläht ihre
   Wichtigkeit über ihren echten Rang.
+- **Die Umgebung ist auch eine Quelle.** Was ein Blick liefert (Skripte im
+  Manifest, Konfiguration, Ordnerbild, `--help`), ist im Baustein nur ein
+  Cache — und der veraltet. Hinein gehört, was Hinsehen nicht findet: die
+  ungeschriebene Konvention, der Grund einer Entscheidung, die Falle. Ein
+  Cache lohnt nur, wo das Nachsehen teuer ist.
+- **Ziel nennen statt verbieten.** Ein Verbot holt das verbotene Verhalten in
+  den Kontext und macht es verfügbarer. Das Zielverhalten sagen („einzeilige
+  Kommentare"), dann fällt das andere gar nicht. Ein Verbot bleibt als harte
+  Leitplanke am schmalen Grat (kein `--force`) — mit dem Ziel daneben.
 - **Leitwörter statt Umschreibungen.** Wo ein im Pretraining verankertes Wort
   ein ganzes Verhalten trägt (`tight`, „grün/rot", „Frische-Check"), es als
   *einen* Token setzen und wiederholen, statt die Idee mehrfach zu umschreiben —
@@ -267,6 +278,10 @@ Beim Optimieren eines Commands/Agents/Skills abhaken:
       das Verhalten ggü. dem Default?).
 - [ ] Konsistente Begriffe; jede Bedeutung nur an einer Quelle (keine
       Duplikation). Keine zeit-sensitiven Infos.
+- [ ] Nichts nachgeschrieben, was die Umgebung per Blick liefert (Skripte,
+      Konfiguration, `--help`); drin steht, was Hinsehen nicht findet.
+- [ ] Ziele positiv gesagt; Verbote nur als Leitplanke am schmalen Grat, mit
+      dem Ziel daneben.
 - [ ] Leitwörter genutzt, wo ein Wort ein Verhalten trägt (statt es zu umschreiben).
 - [ ] Token-effizient: Übersicht zuerst, voller Inhalt nur bei Bedarf; wenige
       Runden, parallel — kein Pflicht-Einzeiler.
