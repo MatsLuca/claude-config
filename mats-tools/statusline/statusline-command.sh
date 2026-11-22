@@ -46,6 +46,17 @@ if [ -f "$conf" ]; then
   done < "$conf"
 fi
 
+# --- Fremd-Endpoint -----------------------------------------------------------
+# Läuft die Session gegen etwas anderes als Anthropic (ANTHROPIC_BASE_URL: Ollama, ein
+# Gateway), gelten weder die Abo-Limits noch Claude Codes Kostenschätzung — fremde Preise
+# kennt es nicht. Dann: Limits, Fable-Abfrage und Kostensegment aus, und nichts davon ins
+# Monats-Log. Wer die echten Zahlen hat, liefert sein Segment über STATUSLINE_EXTRA (unten).
+FREMD=0
+case "${ANTHROPIC_BASE_URL:-}" in
+  ''|*api.anthropic.com*) ;;
+  *) FREMD=1; O_LIMITS=0; O_FABLE=0; O_COST=0; O_MONTH=0 ;;
+esac
+
 model=$(echo "$input" | jq -r '.model.display_name // "Unknown"')
 effort=$(echo "$input" | jq -r '.effort.level // empty')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
@@ -264,7 +275,7 @@ cost_str=""
 # Monats-Log immer pflegen (sonst fehlen der Summe die Sessions mit ausgeblendeter Anzeige)
 session_id=$(echo "$input" | jq -r '.session_id // empty')
 logdir="$HOME/.claude/cost-log/$(date +%Y-%m)"
-if [ -n "$cost_raw" ] && [ -n "$session_id" ]; then
+if [ "$FREMD" = 0 ] && [ -n "$cost_raw" ] && [ -n "$session_id" ]; then
   mkdir -p "$logdir" 2>/dev/null
   echo "$cost_raw" > "$logdir/$session_id" 2>/dev/null
 fi
@@ -394,10 +405,20 @@ case "${ANTHROPIC_BASE_URL:-}" in *11434*)
   fi
 ;; esac
 
+# --- Zusatz-Segment (STATUSLINE_EXTRA) ---------------------------------------
+# Ein Befehl aus der Umgebung der Session: bekommt das Statusline-JSON auf stdin und
+# druckt ein fertiges Segment (eine Zeile, Farben selbst, NO_COLOR beachten). Es hängt
+# hinten an Zeile 2. Leer oder Fehler = kein Segment.
+extra_str=""
+if [ -n "${STATUSLINE_EXTRA:-}" ]; then
+  extra_str=$(printf '%s' "$input" | sh -c "$STATUSLINE_EXTRA" 2>/dev/null | head -n 1)
+  [ -n "$extra_str" ] && extra_str="${sep}${extra_str}"
+fi
+
 # --- render ------------------------------------------------------------------
 # Jedes Segment trägt seinen Trenner vorn; am Zeilenanfang wird er abgeschnitten.
 # Zeile 1: Verzeichnis / Git / Modell (+ Effort) / Session-Timer
-# Zeile 2: Kontext / Limits / Kosten — oder alles in einer Zeile (lines=1).
+# Zeile 2: Kontext / Limits / Kosten / Zusatz — oder alles in einer Zeile (lines=1).
 dir_str=""; [ "$O_DIR" = 1 ] && dir_str="${sep}${DIM}${dir}${RST}"
 model_str=""
 if [ "$O_MODEL" = 1 ]; then
@@ -406,7 +427,7 @@ if [ "$O_MODEL" = 1 ]; then
 fi
 [ -n "$ctx_str" ] && ctx_str="${sep}${ctx_str}"
 line1="${dir_str}${git_str}${model_str}${time_str}"
-line2="${ctx_str}${lokal_str}${limits_str}${cost_str}"
+line2="${ctx_str}${lokal_str}${limits_str}${cost_str}${extra_str}"
 if [ "$O_LINES" = 1 ]; then
   all="${line1}${line2}"
   printf '%b\n' "${all#"$sep"}"
