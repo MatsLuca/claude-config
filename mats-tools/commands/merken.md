@@ -1,7 +1,7 @@
 ---
 description: Hält den aktuellen Stand dieser Session in CLAUDE.md / projektrelevanten Kontextdateien fest — und erntet dabei Zweck & gewachsene Konventionen des Systems.
-argument-hint: <optional: „und pushen" = Zustimmung zu Commit + Push vorab>
-allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git status:*), Bash(git add:*), Bash(git commit:*), Bash(git pull:*), Bash(git rebase:*), Bash(git push:*), Bash(git branch:*), Bash(sh:*), Read, Edit, Write, AskUserQuestion
+argument-hint: <optional: „ohne push" = nur committen>
+allowed-tools: Bash(echo:*), Bash(pwd:*), Bash(ls:*), Bash(git rev-parse:*), Bash(git status:*), Bash(git diff:*), Bash(git remote -v), Bash(git add:*), Bash(git commit:*), Bash(git pull:*), Bash(git rebase:*), Bash(git push:*), Bash(git branch:*), Bash(sh:*), Read, Edit, Write, AskUserQuestion
 ---
 
 Du hältst den Arbeitsstand dieser Session in den Kontextdateien des Projekts fest, damit der Chat verlassen werden kann, ohne dass Kontext verloren geht — in jeder Umgebung (Studium, Notizen, Recherche, Schreibprojekte, Code). Kein Programmier-/Git-Abschluss, dafür gibt es `/finish`. Erst billige Übersicht (Ordner, Markdown-Dateien, Repo ja/nein), dann gezielt schreiben.
@@ -24,8 +24,8 @@ Aus dem Verlauf nur, was für ein Weitermachen morgen zählt — der Future-Du s
 - `Edit` für Bestehendes, `Write` nur für Neues. Stil, Überschriftenebenen, Sprache und Ton der Datei wahren; Gültiges nicht überschreiben, Veraltetes aktualisieren statt duplizieren.
 - **Genau ein datierter Stand-Block.** Was du dabei ersetzt, wandert 1:1 nach `HISTORIE.md` im selben Ordner (neueste zuerst; anlegen, falls sie fehlt) — nie als „Vorheriger Stand" in der CLAUDE.md stehen lassen.
 - Offenes als Checkliste (`- [ ]`), damit der nächste Einstieg sofort sichtbar ist.
-- **Git nur mit Zustimmung.** Im Repo nicht ungefragt committen: am Ende kurz anbieten („Soll ich committen und pushen?") — hat die Session auch in anderen Repos Änderungen hinterlassen, diese im selben Satz nennen. Steht die Zustimmung schon im Aufruf (`/merken und pushen`), ohne Rückfrage weiter. Kein Repo → kein Angebot.
-- **Auf Zustimmung** nur die Dateien committen, die du geändert hast (bzw. die genannten) — Message `docs: Stand festgehalten (/merken)` mit dem Trailer `Co-Authored-By: Claude <noreply@anthropic.com>`. Pushen heißt: erst `git pull --rebase --autostash` (fremde, nicht committete Änderungen bleiben so liegen), dann `git push`; bei Konflikt `git rebase --abort`, Ursache in einer Zeile, stoppen — Konflikte in Wissensdateien entscheidet Mats; nie `--force`. Danach `sh "${CLAUDE_PLUGIN_ROOT}/shell/sync.sh" --after-push` (zieht nur im Marketplace-Repo von `mats-tools` den Plugin-Cache nach, sonst still).
+- **Git im eigenen Repo ohne Rückfrage.** Der Aufruf von `/merken` ist die Zustimmung zu Commit und Push, auch für Änderungen dieser Session in anderen eigenen Repos. Öffentliches Repo → vorher den Diff auf Privates prüfen. Fragen nur, wenn das Repo nicht dem Nutzer gehört, die Privacy-Prüfung einen Grenzfall findet oder eine Datei fremde Hunks enthält. `/merken ohne push` → nur committen. Kein Repo → nichts davon.
+- **Committen und pushen:** nur die Dateien committen, die du geändert hast (`git commit -- <pfade>`) — Message `docs: Stand festgehalten (/merken)` mit dem Trailer `Co-Authored-By: Claude <noreply@anthropic.com>`. Pushen heißt: erst `git pull --rebase --autostash` (fremde, nicht committete Änderungen bleiben so liegen), dann `git push`; bei Konflikt `git rebase --abort`, Ursache in einer Zeile, stoppen — Konflikte in Wissensdateien entscheidet Mats; nie `--force`. Danach `sh "${CLAUDE_PLUGIN_ROOT}/shell/sync.sh" --after-push` (zieht nur im Marketplace-Repo von `mats-tools` den Plugin-Cache nach, sonst still).
 
 ## Meldung
 

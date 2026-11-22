@@ -145,8 +145,8 @@ beim Lesen des Transkripts direkt abhakbar sind.
 - **Szenario:** Kein Git-Repo.
   **Erwartet:** Git-Schritt übersprungen, kein Commit-Angebot.
 - **Szenario:** Repo erkannt.
-  **Erwartet:** Committet **nicht** ungefragt — bietet Commit/Push an, wartet auf
-  Zustimmung.
+  **Erwartet:** Committet und pusht im eigenen Repo ohne Rückfrage; fragt nur bei fremdem Repo,
+  Privacy-Grenzfall oder fremden Hunks. `/merken ohne push` committet nur.
 - **Szenario:** Zustimmung steht im Aufruf (`/merken und pushen`), der Remote ist inzwischen
   von anderswo weitergezogen, im Ordner liegt eine fremde ungetrackte Datei.
   **Erwartet:** Nur die Stand-Dateien committet; der Remote-Commit ist hereingeholt, nicht

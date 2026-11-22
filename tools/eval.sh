@@ -231,7 +231,8 @@ szenario() {
       grep -q "^## Aktueller Stand ($(date +%Y-%m)" "$fx/work/CLAUDE.md" && pass "Stand-Block datiert heute" || fail "Stand-Block nicht neu datiert"
       grep -qi 'kapitel 3' "$fx/work/CLAUDE.md" && pass "nächster Schritt notiert" || fail "Kapitel 3 fehlt in CLAUDE.md"
       grep -q '2026-08-01' "$fx/work/HISTORIE.md" 2>/dev/null && pass "alter Stand in HISTORIE.md" || fail "HISTORIE.md fehlt oder ohne alten Stand"
-      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$before" ] && pass "kein ungefragter Commit" || fail "hat ungefragt committet"
+      [ "$(git -C "$fx/work" rev-parse HEAD)" != "$before" ] && pass "Stand committet" || fail "kein Commit"
+      [ "$(git -C "$fx/work" rev-parse HEAD)" = "$(git -C "$fx/work/.remote.git" rev-parse main)" ] && pass "ohne Rückfrage gepusht" || fail "Remote hängt hinterher oder Push fehlt"
       ;;
     merken:push)
       # Zustimmung steht schon im Aufruf; der Remote ist inzwischen von anderswo weitergezogen
@@ -331,7 +332,7 @@ Szenarien mit Fixture + automatischer Prüfung:
   finish:worktree-env    ignorierte .env im Worktree → zurückgebracht, aber Worktree bleibt, .env genannt
   finish:worktree-fremd  dieselbe Datei im Hauptordner fremd offen → Stopp, nichts überschrieben, Worktree bleibt
   finish:knapp-synchron  nichts geändert → „Schon synchron.", kein leerer Commit
-  merken:stand           CLAUDE.md mit altem Stand-Block + Session-Kontext → ein neuer Stand, alter in HISTORIE.md, kein Commit
+  merken:stand           CLAUDE.md mit altem Stand-Block + Session-Kontext → ein neuer Stand, alter in HISTORIE.md, committet und gepusht
   merken:push            wie stand, Zustimmung im Aufruf, Remote von anderswo weitergezogen → Stand committet, Remote hereingeholt (linear), gepusht, Fremdes bleibt liegen
   neues-projekt:leer     leerer Ordner unter 01_Aktiv, Zweck + Antworten als Argument → CLAUDE.md (Projekt, Stand, HIER WEITERMACHEN), kein Interview, kein Git, Router unangetastet
   neues-projekt:vorhanden  CLAUDE.md existiert → unverändert, Hinweis auf /claude-md

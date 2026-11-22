@@ -11,6 +11,12 @@ Direkt unter der Überschrift darf ein Block stehen (unsichtbar im Terminal):
   Auftrag: Claude baut nichts am Setup des Nutzers um. Der Hook selbst weiß nichts über
   einzelne Nachrichten.
 
+## 2026-11-22 · /merken committet und pusht jetzt ohne Rückfrage
+
+In deinen eigenen Repos sichert /merken den Stand gleich mit Commit und Push, auch wenn Claude es
+selbst startet. Gefragt wird nur noch im Zweifel: fremdes Repo, möglicherweise Privates in einem
+öffentlichen Repo oder fremde Änderungen in derselben Datei. Nur committen: `/merken ohne push`.
+
 ## 2026-11-19 · 42 erörtert jetzt kleine Ideen kürzer und große gründlicher
 
 Wer eine Idee erst durchdenken will („lass uns das erörtern“), bekommt weiter zuerst einen Befund: was
