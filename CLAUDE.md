@@ -204,13 +204,14 @@ Abonnenten-Features, ihr Setup nur nicht brechen.
       leeren Maschine sehen. Live gelaufen ist er bisher nur als Re-Run auf Mats' Mac (02.09., headless:
       Konflikt-Marker korrekt gedeutet, nichts überschrieben). Sandbox-HOME headless geht auf macOS nicht
       (Keychain-Login hängt am Config-Pfad) — deshalb kein Runner-Szenario für Agents.
-- [ ] Befunde aus `/optimieren claude-md` (02.09., Inventar über `~/Documents`): `~/.claude/CLAUDE.md` liegt mit
-      4,5 KB über dem 4-KB-Budget; 30 von 46 CLAUDE.md haben keine Höhen-Kopfzeile; drei Projekt-Dateien
-      über 280 Zeilen (LatexTerm, RT-B, japan-crew) und Projektarbeit mit 101 KB. Wartungsgänge per
+- [ ] Befunde aus dem Inventar (24.11., Verfassung → Meta-Pflege): Router `3_Studium` 3,0 KB (Budget 2),
+      Bereich `2026_27_WiSe` 4,5 KB (Budget 4), Bereich `Hetzner_Server` trägt wieder Status in der Kinderliste;
+      mehrere datierte Stand-Blöcke in vier Projekten (Liste per `inventar.sh` + Grep auf `## .*Stand`);
+      über 200 Zeilen: M-S_Labor, RT-B, LatexTerm, claude-config. Maschine 3,2 KB — erledigt. Wartungsgänge per
       `/claude-md <pfad>`, eine Datei je Session.
+
 - [x] Erfolgsfall von sync.sh Schritt 0: `cc NEU 2.1.274` (17.09.) bis 2.1.278 im Log, 2.1.280 installiert;
       die 0-Byte-Leiche 2.1.273 ist weg (geprüft 22.09.).
 - [ ] Nur falls sync.sh ohnehin angefasst wird: den Plugin-Teil durch natives Marketplace-`autoUpdate`
       (settings.json, via setup.sh) ersetzen — vorher prüfen, dass es den Start in schlechtem WLAN nicht bremst.
-- [ ] Wiedervorlage 2026-11-22: `inventar.sh ~/Documents` → `/optimieren claude-md`; `inventar.sh`
-      GNU-Zweig einmal im Container laufen lassen.
+- [ ] Wiedervorlage 2027-02-24: Inventar erneut (`inventar.sh ~/Documents`, Abgleich mit Meta-Pflege).

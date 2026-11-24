@@ -172,7 +172,12 @@ wandert Status nicht wieder nach oben, stimmt die Lademechanik noch mit Claude C
 Befund für den Prinzip-Abschnitt, nicht stillschweigend wegzuadaptieren. Abgleich mit der
 [Memory-Doku](https://code.claude.com/docs/en/memory.md) (Lademechanik, Imports, `rules/`,
 Größen-Richtwert) und mit `inventar.sh ~/Documents`: bleiben Router/Bereiche unter Budget,
-wächst die Maschinen-Datei über ihr Budget, sind Kopfzeilen verbreitet? Zuletzt 2026-09-02.
+wächst die Maschinen-Datei über ihr Budget, sind Kopfzeilen verbreitet? Zuletzt 2026-11-24:
+82 Dateien (Aug. 41), 53 mit Kopfzeile (Aug. 13); Maschine 3,2 KB, wieder im Budget. Gerissen haben
+ein Router (3 KB, Regeln mit Herkunftsdatum wachsen an) und ein Bereich (4,5 KB); ein anderer Bereich
+trägt wieder Status („gestoppt", „entfernt am …") in der Kinderliste. Sechs Projekte mit mehr als
+einem datierten Stand-Block, fünf über 200 Zeilen. Die Kopfzeile setzt sich durch; Drift entsteht beim Nachtragen, nicht beim Anlegen. `inventar.sh` zählt
+Worktree- und Build-Kopien (`*_wt/`, `out/`) mit; GNU-Zweig auf Linux geprüft (gleiche 82 Zeilen).
 
 ## Prüf-Checkliste
 
